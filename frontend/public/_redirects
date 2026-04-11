@@ -1,0 +1,7 @@
+# Cloudflare Pages Redirects
+
+# SPA fallback
+/* /index.html 200
+
+# API proxy to Worker
+/api/* https://dealak-backend.workers.dev/:splat 200

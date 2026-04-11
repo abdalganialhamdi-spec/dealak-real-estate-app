@@ -1,0 +1,30 @@
+name = "dealak-backend"
+main = "backend/worker.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+API_VERSION = "v1"
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "dealak-db"
+database_id = "your-database-id"
+
+# KV Storage
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-kv-id"
+
+# R2 Storage
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "dealak-storage"
+
+# Environment variables
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
