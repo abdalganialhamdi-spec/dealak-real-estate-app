@@ -1,219 +1,186 @@
-# 🚀 خطة تنفيذ مشروع DEALAK
+# 🚀 خطة تنفيذ مشروع DEALAK — منصة عقارية متكاملة
 
-## 📋 نظرة عامة
-
-هذه خطة تنفيذ شاملة لمشروع تطبيق عقاري متكامل (DEALAK) - منصة لبيع وإيجار العقارات في سوريا.
-
-## 🎯 الأهداف الرئيسية
-
-1. ✅ بناء منصة عقارية متكاملة (Web + Mobile)
-2. ✅ تطوير Backend قوي مع API RESTful
-3. ✅ تصميم قاعدة بيانات علائقية منظمة
-4. ✅ تطبيق نظام أمان وحماية للبيانات
-5. ✅ نشر المشروع على السحابة
-6. ✅ اختبار شامل وضمان الجودة
+> **الإصدار:** 2.0.0  
+> **التاريخ:** 11 أبريل 2026  
+> **الحالة:** قيد التطوير 🚧  
+> **المستودع:** [github.com/abdalganialhamdi-spec/dealak-real-estate-app](https://github.com/abdalganialhamdi-spec/dealak-real-estate-app)
 
 ---
 
-## 📅 المراحل الزمنية
+## 📋 الفهرس
 
-### المرحلة 1: التحضير والتخطيط (أسبوع 1)
-**التاريخ:** 11-18 أبريل 2026
-
-**المهام:**
-- [x] تحليل المتطلبات
-- [x] إنشاء مستودع GitHub
-- [x] كتابة الوثائق الأولية
-- [ ] اختيار التقنيات النهائية
-- [ ] تصميم البنية المعمارية
-- [ ] إعداد بيئة التطوير
-
-**المخرجات:**
-- وثائق المتطلبات
-- مخطط البنية المعمارية
-- بيئة التطوير جاهزة
+1. [نظرة عامة](#-نظرة-عامة)
+2. [البنية المعمارية](#-البنية-المعمارية-architecture)
+3. [التقنيات المختارة](#-التقنيات-المختارة-tech-stack)
+4. [هيكل المشروع](#-هيكل-المشروع)
+5. [قاعدة البيانات](#-قاعدة-البيانات)
+6. [تصميم الـ API](#-تصميم-الـ-api)
+7. [نظام الأمان](#-نظام-الأمان)
+8. [المراحل الزمنية](#-المراحل-الزمنية)
+9. [خطة الاختبار](#-خطة-الاختبار)
+10. [خطة النشر](#-خطة-النشر-deployment)
+11. [المراقبة والصيانة](#-المراقبة-والصيانة)
+12. [خطة التوسع المستقبلية](#-خطة-التوسع-المستقبلية)
 
 ---
 
-### المرحلة 2: تصميم قاعدة البيانات (أسبوع 2)
-**التاريخ:** 18-25 أبريل 2026
+## 📝 نظرة عامة
 
-**المهام:**
-- [ ] تصميم ERD النهائي
-- [ ] إنشاء قاعدة البيانات (PostgreSQL)
-- [ ] كتابة SQL Scripts
-- [ ] إنشاء Migration Files
-- [ ] تصميم Relationships
-- [ ] إضافة Indexes للتحسين
+### ما هو DEALAK؟
 
-**المخرجات:**
-- قاعدة بيانات جاهزة
-- Migration Files
-- وثائق قاعدة البيانات
+DEALAK هي **منصة عقارية رقمية متكاملة** تهدف إلى تسهيل عملية بيع وإيجار العقارات في **سوريا**. تجمع المنصة بين:
 
----
+- **تطبيق هاتف ذكي** (iOS + Android) للوصول السريع
+- **موقع إلكتروني متجاوب** لتجربة شاملة على الحاسوب
+- **لوحة تحكم إدارية** لإدارة النظام والمحتوى
 
-### المرحلة 3: تطوير Backend API (أسبوع 3-4)
-**التاريخ:** 25 أبريل - 9 مايو 2026
+### الأهداف الاستراتيجية
 
-**المهام:**
+| الهدف | الوصف | مؤشر النجاح |
+|-------|-------|-------------|
+| 🏠 **تسهيل البحث** | تمكين المستخدمين من إيجاد العقارات بسرعة ودقة | وقت البحث < 5 ثوانٍ |
+| 🤝 **ربط الأطراف** | ربط البائعين والمشترين والوسطاء في منصة واحدة | 1000 مستخدم في 3 أشهر |
+| 💰 **إتمام الصفقات** | تسهيل وتوثيق الصفقات العقارية | 50 صفقة مكتملة في 3 أشهر |
+| 🔒 **الأمان** | حماية بيانات المستخدمين والمعاملات المالية | 0 حوادث أمنية |
+| 📈 **التوسع** | بنية قابلة للتوسع لملايين المستخدمين | 99.5% uptime |
 
-#### الأسبوع 3: الأساسيات
-- [ ] إعداد مشروع Node.js/Express
-- [ ] إعداد PostgreSQL Connection
-- [ ] إنشاء Models (ORM)
-- [ ] تطوير Authentication System (JWT)
-- [ ] تطوير User Management APIs
-- [ ] إعداد Middleware
+### المستخدمون (Actors)
 
-#### الأسبوع 4: APIs الرئيسية
-- [ ] Property APIs (CRUD)
-- [ ] Search & Filter APIs
-- [ ] Request APIs
-- [ ] Deal APIs
-- [ ] Payment APIs
-- [ ] Notification APIs
-- [ ] Chat APIs
+```mermaid
+graph TD
+    A[👤 المشتري/المستأجر] --> |يبحث ويطلب| P[🏠 المنصة]
+    B[🏢 البائع/المالك] --> |ينشر ويدير| P
+    C[👔 الوسيط العقاري] --> |يدير ويتوسط| P
+    D[⚙️ مدير النظام] --> |يراقب ويدير| P
+    P --> |إشعارات وتقارير| A
+    P --> |تحليلات وإحصائيات| D
+```
 
-**المخرجات:**
-- Backend API جاهز
-- وثائق API (Swagger/OpenAPI)
-- اختبارات Unit Tests
+| الدور | المهام الرئيسية |
+|-------|----------------|
+| **المشتري / المستأجر** | البحث عن العقارات، إرسال طلبات، المفاوضة، الدفع، التقييم |
+| **البائع / المالك** | نشر العقارات، إدارة الصور، استلام الطلبات، قبول/رفض، إتمام الصفقات |
+| **الوسيط العقاري (Agent)** | إدارة عقارات متعددة، التوسط بين الأطراف، كسب العمولة |
+| **مدير النظام (Admin)** | إدارة المستخدمين، مراجعة العقارات، إدارة الخصومات، تتبع الصفقات، التقارير |
 
 ---
 
-### المرحلة 4: تطوير Frontend Web (أسبوع 5-6)
-**التاريخ:** 9-23 مايو 2026
+## 🏗️ البنية المعمارية (Architecture)
 
-**المهام:**
+### النمط المعماري: Modular Monolith → Microservices-Ready
 
-#### الأسبوع 5: الأساسيات
-- [ ] إعداد مشروع Next.js
-- [ ] إعداد Tailwind CSS
-- [ ] تصميم Layouts
-- [ ] تطوير Authentication Pages
-- [ ] تطوير Dashboard
-- [ ] إعداد State Management
+اخترنا **Modular Monolith** كبنية أولية لأنها توفر:
+- سرعة التطوير مع بنية نظيفة
+- إمكانية التحويل لـ Microservices عند الحاجة
+- أداء عالي بدون overhead الشبكة بين الخدمات
 
-#### الأسبوع 6: الصفحات الرئيسية
-- [ ] صفحة البحث عن العقارات
-- [ ] صفحة تفاصيل العقار
-- [ ] صفحة إضافة عقار
-- [ ] صفحة الطلبات
-- [ ] صفحة المحادثات
-- [ ] صفحة الإعدادات
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      CLIENTS                                 │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────────────────┐   │
+│  │ Mobile   │  │ Web (Next.js)│  │ Admin Dashboard      │   │
+│  │ (React   │  │ (SSR + CSR)  │  │ (Next.js)            │   │
+│  │  Native) │  └──────┬───────┘  └──────────┬───────────┘   │
+│  └────┬─────┘         │                     │               │
+│       │               │                     │               │
+├───────┴───────────────┴─────────────────────┴───────────────┤
+│                     API GATEWAY                              │
+│              (Rate Limiting, Auth, CORS)                     │
+├──────────────────────────────────────────────────────────────┤
+│                   BACKEND (Node.js + Express)                │
+│  ┌───────────┐ ┌───────────┐ ┌──────────┐ ┌─────────────┐  │
+│  │ Auth      │ │ Property  │ │ Deal     │ │ Notification│  │
+│  │ Module    │ │ Module    │ │ Module   │ │ Module      │  │
+│  ├───────────┤ ├───────────┤ ├──────────┤ ├─────────────┤  │
+│  │ Payment   │ │ Message   │ │ Review   │ │ Analytics   │  │
+│  │ Module    │ │ Module    │ │ Module   │ │ Module      │  │
+│  └─────┬─────┘ └─────┬─────┘ └────┬─────┘ └──────┬──────┘  │
+│        │              │            │               │         │
+├────────┴──────────────┴────────────┴───────────────┴─────────┤
+│                    DATA LAYER                                 │
+│  ┌──────────────┐  ┌─────────┐  ┌──────────┐  ┌──────────┐ │
+│  │ PostgreSQL   │  │ Redis   │  │  S3/R2   │  │ Firebase │ │
+│  │ + PostGIS    │  │ (Cache) │  │ (Files)  │  │ (Push)   │ │
+│  └──────────────┘  └─────────┘  └──────────┘  └──────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
 
-**المخرجات:**
-- Frontend Web جاهز
-- تصميم متجاوب
-- واجهات سهلة الاستخدام
+### مبادئ التصميم (Design Principles)
 
----
-
-### المرحلة 5: تطوير Mobile App (أسبوع 7-8)
-**التاريخ:** 23 مايو - 6 يونيو 2026
-
-**المهام:**
-
-#### الأسبوع 7: الأساسيات
-- [ ] إعداد مشروع React Native
-- [ ] إعداد Navigation
-- [ ] تطوير Authentication Screens
-- [ ] إعداد State Management
-- [ ] إعداد API Client
-
-#### الأسبوع 8: الشاشات الرئيسية
-- [ ] شاشة البحث
-- [ ] شاشة تفاصيل العقار
-- [ ] شاشة إضافة عقار
-- [ ] شاشة الطلبات
-- [ ] شاشة المحادثات
-- [ ] شاشة الإعدادات
-- [ ] دعم GPS
-
-**المخرجات:**
-- Mobile App جاهز
-- دعم iOS و Android
-- تجربة مستخدم سلسة
+| المبدأ | التطبيق |
+|--------|---------|
+| **Separation of Concerns** | كل Module مستقل بـ Controller + Service + Repository |
+| **Repository Pattern** | فصل منطق قاعدة البيانات عن منطق الأعمال |
+| **DTO Pattern** | Data Transfer Objects لفصل الـ API عن الـ DB Models |
+| **Error Handling** | Custom Error Classes مع HTTP Status Codes محددة |
+| **Input Validation** | Zod Schemas في كل Endpoint |
+| **Logging** | Structured Logging بـ Winston/Pino |
 
 ---
 
-### المرحلة 6: التكامل والاختبار (أسبوع 9)
-**التاريخ:** 6-13 يونيو 2026
-
-**المهام:**
-- [ ] تكامل Frontend + Backend
-- [ ] تكامل Mobile + Backend
-- [ ] اختبار Integration Tests
-- [ ] اختبار E2E Tests
-- [ ] اختبار الأمان
-- [ ] اختبار الأداء
-- [ ] إصلاح الأخطاء
-
-**المخرجات:**
-- نظام متكامل
-- تقارير الاختبار
-- قائمة الأخطاء المصلحة
-
----
-
-### المرحلة 7: النشر والإطلاق (أسبوع 10)
-**التاريخ:** 13-20 يونيو 2026
-
-**المهام:**
-- [ ] إعداد CI/CD Pipeline
-- [ ] نشر Backend على Cloud
-- [ ] نشر Frontend على Cloud
-- [ ] نشر Mobile App على Stores
-- [ ] إعداد Monitoring
-- [ ] إعداد Logging
-- [ ] إعداد Backup
-
-**المخرجات:**
-- مشروع منشور على السحابة
-- Mobile App على App Store و Google Play
-- نظام Monitoring جاهز
-
----
-
-## 🛠️ التقنيات المختارة
+## 🛠️ التقنيات المختارة (Tech Stack)
 
 ### Backend
-- **Runtime:** Node.js 20 LTS
-- **Framework:** Express.js
-- **Database:** PostgreSQL 16
-- **ORM:** Prisma
-- **Authentication:** JWT + OAuth 2.0
-- **API Documentation:** Swagger/OpenAPI
-- **Testing:** Jest + Supertest
+
+| التقنية | الإصدار | الاستخدام | السبب |
+|---------|---------|-----------|-------|
+| **Node.js** | 20 LTS | Runtime | أداء عالي، npm ecosystem ضخم |
+| **Express.js** | 4.x | HTTP Framework | الأكثر نضجاً واستقراراً |
+| **TypeScript** | 5.x | Type Safety | اكتشاف الأخطاء وقت البناء |
+| **PostgreSQL** | 16+ | Database | أقوى RDBMS مفتوح المصدر |
+| **PostGIS** | 3.x | Spatial Queries | بحث جغرافي متقدم (nearby, radius) |
+| **Prisma** | 5.x | ORM | Type-safe queries، migrations تلقائية |
+| **Redis** | 7.x | Cache + Pub/Sub | تخزين مؤقت، sessions، real-time |
+| **Socket.io** | 4.x | WebSocket | محادثات فورية، إشعارات حية |
+| **JWT** | - | Authentication | Stateless، قابل للتوسع |
+| **Zod** | 3.x | Validation | Schema validation مع TypeScript |
+| **Winston / Pino** | - | Logging | سجلات منظمة JSON |
+| **Swagger** | OpenAPI 3.1 | API Docs | توثيق تلقائي للـ API |
+| **Jest + Supertest** | - | Testing | Unit + Integration tests |
 
 ### Frontend Web
-- **Framework:** Next.js 14 (App Router)
-- **Styling:** Tailwind CSS 3.4
-- **State Management:** Zustand
-- **Forms:** React Hook Form
-- **Validation:** Zod
-- **HTTP Client:** Axios
-- **Testing:** Jest + React Testing Library + Playwright
+
+| التقنية | الإصدار | الاستخدام | السبب |
+|---------|---------|-----------|-------|
+| **Next.js** | 14+ | Framework | SSR + SSG، App Router، SEO ممتاز |
+| **React** | 18+ | UI Library | الأكثر شيوعاً، ecosystem ضخم |
+| **TypeScript** | 5.x | Type Safety | اتساق مع Backend |
+| **Tailwind CSS** | 3.4 | Styling | Utility-first، سريع التطوير |
+| **Zustand** | 4.x | State Management | خفيف وبسيط مقارنة بـ Redux |
+| **React Query** | 5.x | Server State | تخزين مؤقت ذكي، refetch تلقائي |
+| **React Hook Form** | 7.x | Forms | أداء عالي، validation مع Zod |
+| **Axios** | 1.x | HTTP Client | Interceptors، retry logic |
+| **Leaflet / Mapbox** | - | Maps | خرائط تفاعلية مجانية |
+| **Framer Motion** | 11.x | Animations | حركات سلسة |
+| **Playwright** | - | E2E Testing | أسرع وأدق من Cypress |
 
 ### Mobile App
-- **Framework:** React Native 0.73
-- **Navigation:** React Navigation 6
-- **State Management:** Redux Toolkit
-- **Forms:** React Hook Form
-- **HTTP Client:** Axios
-- **Maps:** React Native Maps
-- **GPS:** @react-native-community/geolocation
-- **Push Notifications:** @react-native-firebase/messaging
 
-### DevOps
-- **Version Control:** Git + GitHub
-- **CI/CD:** GitHub Actions
-- **Containerization:** Docker
-- **Cloud Provider:** AWS / Railway / Render
-- **Database Cloud:** Supabase / Neon
-- **Monitoring:** Sentry + New Relic
-- **Logging:** LogRocket
+| التقنية | الإصدار | الاستخدام | السبب |
+|---------|---------|-----------|-------|
+| **React Native** | 0.74+ | Framework | مشاركة الكود مع الويب |
+| **Expo** | 51+ | Build & Dev | تسهيل التطوير والنشر |
+| **React Navigation** | 6.x | Navigation | المعيار في React Native |
+| **React Query** | 5.x | Server State | نفس المكتبة مع الويب |
+| **AsyncStorage** | - | Local Storage | تخزين محلي |
+| **react-native-maps** | - | Maps | Google Maps / Apple Maps |
+| **Firebase Cloud Messaging** | - | Push Notifications | إشعارات موثوقة |
+| **React Native Reanimated** | 3.x | Animations | حركات 60fps |
+
+### DevOps & Infrastructure
+
+| التقنية | الاستخدام | التوصية |
+|---------|-----------|---------|
+| **Git + GitHub** | Version Control | Trunk-based development |
+| **GitHub Actions** | CI/CD | Build → Test → Deploy تلقائي |
+| **Docker** | Containerization | بيئات متسقة |
+| **Docker Compose** | Local Development | كل الخدمات محلياً |
+| **Supabase** | Database (MVP) | PostgreSQL مُدار + Auth جاهز |
+| **Vercel** | Frontend Hosting | مثالي لـ Next.js |
+| **Railway / Render** | Backend Hosting | سهل ورخيص |
+| **Cloudflare R2** | File Storage | صور العقارات، بدون رسوم خروج |
+| **Sentry** | Error Tracking | مراقبة الأخطاء |
+| **Uptime Robot** | Monitoring | مراقبة التوفر |
 
 ---
 
@@ -221,325 +188,807 @@
 
 ```
 dealak-real-estate-app/
-├── backend/                 # Backend API
+│
+├── backend/                          # 🖥️ Backend API (Node.js + Express + TypeScript)
 │   ├── src/
-│   │   ├── config/         # Configuration
-│   │   ├── controllers/    # Controllers
-│   │   ├── models/         # Database Models
-│   │   ├── routes/         # API Routes
-│   │   ├── middleware/     # Custom Middleware
-│   │   ├── services/       # Business Logic
-│   │   ├── utils/          # Utilities
-│   │   └── tests/          # Tests
-│   ├── prisma/             # Prisma Schema
+│   │   ├── config/                   # ⚙️ إعدادات التطبيق
+│   │   │   ├── database.ts           #   اتصال PostgreSQL + Prisma
+│   │   │   ├── redis.ts              #   اتصال Redis
+│   │   │   ├── env.ts                #   متغيرات البيئة (Zod validated)
+│   │   │   ├── cors.ts               #   إعدادات CORS
+│   │   │   └── swagger.ts            #   إعدادات Swagger/OpenAPI
+│   │   │
+│   │   ├── modules/                  # 📦 الوحدات (Modular Architecture)
+│   │   │   ├── auth/                 #   🔐 المصادقة
+│   │   │   │   ├── auth.controller.ts
+│   │   │   │   ├── auth.service.ts
+│   │   │   │   ├── auth.routes.ts
+│   │   │   │   ├── auth.schema.ts    #     Zod validation schemas
+│   │   │   │   ├── auth.middleware.ts
+│   │   │   │   └── auth.test.ts
+│   │   │   │
+│   │   │   ├── users/                #   👤 المستخدمون
+│   │   │   │   ├── users.controller.ts
+│   │   │   │   ├── users.service.ts
+│   │   │   │   ├── users.repository.ts
+│   │   │   │   ├── users.routes.ts
+│   │   │   │   ├── users.schema.ts
+│   │   │   │   ├── users.dto.ts      #     Data Transfer Objects
+│   │   │   │   └── users.test.ts
+│   │   │   │
+│   │   │   ├── properties/           #   🏘️ العقارات
+│   │   │   │   ├── properties.controller.ts
+│   │   │   │   ├── properties.service.ts
+│   │   │   │   ├── properties.repository.ts
+│   │   │   │   ├── properties.routes.ts
+│   │   │   │   ├── properties.schema.ts
+│   │   │   │   ├── properties.dto.ts
+│   │   │   │   └── properties.test.ts
+│   │   │   │
+│   │   │   ├── deals/                #   🤝 الصفقات
+│   │   │   ├── payments/             #   💳 المدفوعات
+│   │   │   ├── requests/             #   📋 الطلبات
+│   │   │   ├── messages/             #   💬 الرسائل والمحادثات
+│   │   │   ├── notifications/        #   🔔 الإشعارات
+│   │   │   ├── reviews/              #   ⭐ التقييمات
+│   │   │   ├── favorites/            #   ❤️ المفضلة
+│   │   │   ├── discounts/            #   🏷️ الخصومات
+│   │   │   ├── upload/               #   📁 رفع الملفات
+│   │   │   └── analytics/            #   📊 التحليلات
+│   │   │
+│   │   ├── middleware/               # 🛡️ Middleware عام
+│   │   │   ├── auth.middleware.ts    #   التحقق من JWT
+│   │   │   ├── rbac.middleware.ts    #   التحقق من الأدوار
+│   │   │   ├── rateLimiter.ts        #   تحديد معدل الطلبات
+│   │   │   ├── validator.ts          #   Zod validation wrapper
+│   │   │   ├── errorHandler.ts       #   معالج الأخطاء المركزي
+│   │   │   ├── logger.ts             #   Request logging
+│   │   │   └── upload.ts             #   Multer/Busboy config
+│   │   │
+│   │   ├── shared/                   # 🔧 مكونات مشتركة
+│   │   │   ├── errors/               #   Custom Error Classes
+│   │   │   │   ├── AppError.ts
+│   │   │   │   ├── NotFoundError.ts
+│   │   │   │   ├── UnauthorizedError.ts
+│   │   │   │   └── ValidationError.ts
+│   │   │   ├── utils/                #   أدوات مساعدة
+│   │   │   │   ├── slug.ts           #     توليد slug
+│   │   │   │   ├── pagination.ts     #     Cursor/Offset pagination
+│   │   │   │   ├── hash.ts           #     bcrypt wrapper
+│   │   │   │   └── token.ts          #     JWT helpers
+│   │   │   └── types/                #   TypeScript types
+│   │   │       ├── express.d.ts
+│   │   │       └── common.ts
+│   │   │
+│   │   ├── jobs/                     # ⏰ Background Jobs
+│   │   │   ├── emailNotifier.ts      #   إرسال بريد إلكتروني
+│   │   │   ├── savedSearchMatcher.ts #   مطابقة البحوث المحفوظة
+│   │   │   └── cleanupExpired.ts     #   تنظيف البيانات المنتهية
+│   │   │
+│   │   ├── websocket/                # 🔌 WebSocket (Socket.io)
+│   │   │   ├── socket.ts            #   إعداد Socket.io
+│   │   │   ├── chatHandler.ts       #   معالج المحادثات
+│   │   │   └── notificationHandler.ts # معالج الإشعارات الحية
+│   │   │
+│   │   └── app.ts                    # 🚀 نقطة الدخول الرئيسية
+│   │
+│   ├── prisma/                       # 🗄️ Prisma ORM
+│   │   ├── schema.prisma             #   مخطط قاعدة البيانات
+│   │   ├── migrations/               #   ملفات الترحيل
+│   │   └── seed.ts                   #   بيانات أولية
+│   │
 │   ├── Dockerfile
+│   ├── .env.example
+│   ├── tsconfig.json
+│   ├── jest.config.ts
 │   └── package.json
 │
-├── frontend/               # Frontend Web
+├── frontend/                         # 🌐 Frontend Web (Next.js)
 │   ├── src/
-│   │   ├── app/            # Next.js App Router
-│   │   ├── components/     # Reusable Components
-│   │   ├── lib/            # Utilities
-│   │   ├── hooks/          # Custom Hooks
-│   │   ├── services/       # API Services
-│   │   ├── store/          # State Management
-│   │   └── __tests__/      # Tests
-│   ├── public/
+│   │   ├── app/                      # 📄 App Router Pages
+│   │   │   ├── (auth)/               #   صفحات المصادقة
+│   │   │   │   ├── login/page.tsx
+│   │   │   │   ├── register/page.tsx
+│   │   │   │   └── forgot-password/page.tsx
+│   │   │   ├── (main)/               #   الصفحات الرئيسية
+│   │   │   │   ├── page.tsx           #     الصفحة الرئيسية
+│   │   │   │   ├── properties/        #     العقارات
+│   │   │   │   │   ├── page.tsx       #       قائمة العقارات
+│   │   │   │   │   ├── [slug]/page.tsx #      تفاصيل العقار
+│   │   │   │   │   └── new/page.tsx   #       إضافة عقار
+│   │   │   │   ├── search/page.tsx    #     البحث المتقدم
+│   │   │   │   ├── map/page.tsx       #     خريطة العقارات
+│   │   │   │   ├── messages/page.tsx  #     المحادثات
+│   │   │   │   └── profile/page.tsx   #     الملف الشخصي
+│   │   │   ├── dashboard/             #   لوحة التحكم
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── properties/page.tsx
+│   │   │   │   ├── deals/page.tsx
+│   │   │   │   ├── requests/page.tsx
+│   │   │   │   └── settings/page.tsx
+│   │   │   ├── admin/                 #   لوحة الإدارة
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── users/page.tsx
+│   │   │   │   ├── properties/page.tsx
+│   │   │   │   ├── deals/page.tsx
+│   │   │   │   ├── analytics/page.tsx
+│   │   │   │   └── settings/page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── loading.tsx
+│   │   │   ├── error.tsx
+│   │   │   └── not-found.tsx
+│   │   │
+│   │   ├── components/               # 🧩 مكونات قابلة لإعادة الاستخدام
+│   │   │   ├── ui/                    #   مكونات UI أساسية (Button, Input, Modal)
+│   │   │   ├── layout/                #   Header, Footer, Sidebar, Navbar
+│   │   │   ├── property/              #   PropertyCard, PropertyGrid, PropertyMap
+│   │   │   ├── forms/                 #   PropertyForm, SearchForm, LoginForm
+│   │   │   ├── chat/                  #   ChatWindow, MessageBubble
+│   │   │   └── shared/                #   LoadingSpinner, EmptyState, ErrorBoundary
+│   │   │
+│   │   ├── hooks/                     # 🪝 Custom Hooks
+│   │   │   ├── useAuth.ts
+│   │   │   ├── useProperties.ts
+│   │   │   ├── useDebounce.ts
+│   │   │   ├── useInfiniteScroll.ts
+│   │   │   └── useGeolocation.ts
+│   │   │
+│   │   ├── lib/                       # 📚 مكتبات ومساعدات
+│   │   │   ├── api.ts                 #   Axios instance
+│   │   │   ├── auth.ts                #   JWT helpers
+│   │   │   ├── utils.ts               #   Utility functions
+│   │   │   └── constants.ts           #   ثوابت
+│   │   │
+│   │   ├── store/                     # 🏪 State Management (Zustand)
+│   │   │   ├── authStore.ts
+│   │   │   ├── propertyStore.ts
+│   │   │   └── uiStore.ts
+│   │   │
+│   │   └── types/                     # 📝 TypeScript Types
+│   │       ├── property.ts
+│   │       ├── user.ts
+│   │       └── api.ts
+│   │
+│   ├── public/                        # 📁 ملفات عامة
 │   ├── Dockerfile
+│   ├── next.config.js
+│   ├── tailwind.config.ts
+│   ├── tsconfig.json
 │   └── package.json
 │
-├── mobile/                # Mobile App
+├── mobile/                            # 📱 Mobile App (React Native + Expo)
 │   ├── src/
-│   │   ├── screens/        # Screens
-│   │   ├── components/     # Components
-│   │   ├── navigation/     # Navigation
-│   │   ├── services/       # API Services
-│   │   ├── store/          # Redux Store
-│   │   └── __tests__/      # Tests
-│   ├── android/
-│   ├── ios/
+│   │   ├── screens/                   #   الشاشات
+│   │   │   ├── auth/                  #     Login, Register, ForgotPassword
+│   │   │   ├── home/                  #     HomeScreen, FeaturedProperties
+│   │   │   ├── search/                #     SearchScreen, FilterScreen
+│   │   │   ├── property/              #     PropertyDetail, PropertyForm
+│   │   │   ├── messages/              #     ConversationList, ChatScreen
+│   │   │   ├── deals/                 #     DealList, DealDetail
+│   │   │   ├── profile/               #     ProfileScreen, EditProfile
+│   │   │   └── settings/              #     SettingsScreen
+│   │   ├── components/                #   مكونات مشتركة
+│   │   ├── navigation/                #   Stack + Tab Navigation
+│   │   ├── services/                  #   API Services
+│   │   ├── store/                     #   Zustand Stores
+│   │   ├── hooks/                     #   Custom Hooks
+│   │   ├── utils/                     #   أدوات مساعدة
+│   │   └── types/                     #   TypeScript Types
+│   ├── app.json                       #   Expo config
 │   └── package.json
 │
-├── docs/                   # Documentation
-│   ├── analysis.md         # Project Analysis
-│   ├── api.md              # API Documentation
-│   ├── database.md         # Database Schema
-│   └── deployment.md       # Deployment Guide
+├── database/                          # 🗄️ Database Schemas & Docs
+│   ├── schema_final.dbml              #   مخطط DBML (المصدر الأساسي)
+│   ├── schema_kroki.svg               #   مخطط بصري
+│   ├── AUDIT_REPORT.md                #   تقرير مراجعة
+│   └── AUDIT_REPORT_KIMI.md           #   تقرير مراجعة Kimi
 │
-├── scripts/                # Utility Scripts
-│   ├── setup.sh            # Setup Script
-│   ├── deploy.sh           # Deployment Script
-│   └── test.sh             # Test Script
+├── docs/                              # 📚 التوثيق
+│   ├── analysis.md                    #   تحليل المشروع الشامل
+│   ├── api.md                         #   توثيق API
+│   ├── database.md                    #   توثيق قاعدة البيانات
+│   └── deployment.md                  #   دليل النشر
 │
-├── .github/                # GitHub Configuration
-│   └── workflows/          # CI/CD Workflows
+├── scripts/                           # 🔧 سكريبتات مساعدة
+│   ├── setup.sh                       #   إعداد بيئة التطوير
+│   ├── deploy.sh                      #   سكريبت النشر
+│   ├── seed.sh                        #   إدخال بيانات تجريبية
+│   └── backup.sh                      #   نسخ احتياطي
 │
-├── docker-compose.yml      # Docker Compose
-├── README.md               # Main README
-└── IMPLEMENTATION_PLAN.md  # This File
+├── .github/                           # 🐙 GitHub
+│   └── workflows/
+│       ├── ci.yml                     #   اختبار تلقائي
+│       ├── deploy-backend.yml         #   نشر Backend
+│       └── deploy-frontend.yml        #   نشر Frontend
+│
+├── docker-compose.yml                 # 🐳 Docker Compose
+├── docker-compose.dev.yml             # 🐳 Docker Compose (Development)
+├── .gitignore
+├── LICENSE
+├── README.md
+└── IMPLEMENTATION_PLAN.md             # 📋 هذا الملف
 ```
 
 ---
 
-## 🗄️ تصميم قاعدة البيانات
+## 🗄️ قاعدة البيانات
 
-### الجداول الرئيسية
+### الملف المرجعي: [`database/schema_final.dbml`](database/schema_final.dbml)
 
-#### 1. users
-```sql
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    role ENUM('customer', 'seller', 'admin') NOT NULL,
-    avatar_url VARCHAR(500),
-    is_verified BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### نظرة عامة
 
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_phone ON users(phone);
-CREATE INDEX idx_users_role ON users(role);
+| المقياس | القيمة |
+|---------|--------|
+| **المحرك** | PostgreSQL 16+ مع PostGIS |
+| **عدد الجداول** | 19 جدول |
+| **العملة الافتراضية** | SYP (الليرة السورية) |
+| **المعرفات** | `bigint` مع `auto_increment` |
+| **Soft Delete** | ✅ `deleted_at` على الجداول الرئيسية |
+| **Audit Trail** | ✅ جدول `audit_logs` |
+| **Full-Text Search** | ✅ GIN Index باللغة العربية |
+| **Spatial Queries** | ✅ PostGIS GiST Index |
+
+### الجداول
+
+```mermaid
+erDiagram
+    USERS ||--o{ PROPERTIES : "owns"
+    USERS ||--o{ REQUESTS : "creates"
+    USERS ||--o{ DEALS : "buys/sells"
+    USERS ||--o{ PAYMENTS : "pays/receives"
+    USERS ||--o{ FAVORITES : "saves"
+    USERS ||--o{ REVIEWS : "writes"
+    USERS ||--o{ CONVERSATIONS : "participates"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    
+    PROPERTIES ||--o{ PROPERTY_IMAGES : "has"
+    PROPERTIES ||--o{ PROPERTY_FEATURES : "has"
+    PROPERTIES ||--o{ FAVORITES : "saved_by"
+    PROPERTIES ||--o{ PROPERTY_VIEWS : "viewed"
+    PROPERTIES ||--o{ REVIEWS : "reviewed"
+    
+    DEALS ||--o{ PAYMENTS : "has"
+    REQUESTS ||--o{ DEALS : "leads_to"
+    CONVERSATIONS ||--o{ MESSAGES : "contains"
 ```
 
-#### 2. properties
-```sql
-CREATE TABLE properties (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    seller_id UUID NOT NULL REFERENCES users(id),
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    type ENUM('apartment', 'house', 'land', 'commercial') NOT NULL,
-    status ENUM('available', 'rented', 'sold') DEFAULT 'available',
-    price DECIMAL(12, 2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'SYP',
-    area DECIMAL(10, 2) NOT NULL,
-    address TEXT NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    latitude DECIMAL(10, 8),
-    longitude DECIMAL(11, 8),
-    bedrooms INTEGER,
-    bathrooms INTEGER,
-    floors INTEGER,
-    year_built INTEGER,
-    features JSONB,
-    tax DECIMAL(10, 2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### الجداول التفصيلية
 
-CREATE INDEX idx_properties_seller ON properties(seller_id);
-CREATE INDEX idx_properties_type ON properties(type);
-CREATE INDEX idx_properties_status ON properties(status);
-CREATE INDEX idx_properties_price ON properties(price);
-CREATE INDEX idx_properties_location ON properties(latitude, longitude);
+| # | الجدول | الوصف | الحقول الرئيسية |
+|---|--------|-------|----------------|
+| 1 | `users` | المستخدمون | email, phone, role, is_verified, is_active |
+| 2 | `user_devices` | أجهزة المستخدمين | device_token, platform, is_active |
+| 3 | `refresh_tokens` | رموز JWT للتحديث | token_hash, expires_at, revoked_at |
+| 4 | `properties` | العقارات | title, slug, property_type, listing_type, price, location |
+| 5 | `property_features` | ميزات العقار | feature_key, feature_value (Many-to-Many) |
+| 6 | `property_images` | صور العقار | image_url, thumbnail_url, is_primary, sort_order |
+| 7 | `favorites` | المفضلة | user_id, property_id (Unique constraint) |
+| 8 | `saved_searches` | البحوث المحفوظة | filters (JSON), notify_on_match |
+| 9 | `requests` | الطلبات العقارية | request_type, price_range, urgency, status |
+| 10 | `deals` | الصفقات | agreed_price, commission, deposit, rent_period |
+| 11 | `payments` | الدفعات | amount, method, installment tracking |
+| 12 | `discounts` | الخصومات | code, discount_type, validity period |
+| 13 | `conversations` | المحادثات | participant_1, participant_2, property_id |
+| 14 | `messages` | الرسائل | content, message_type, attachments |
+| 15 | `notifications` | الإشعارات | notification_type, related_entity, is_push_sent |
+| 16 | `reviews` | التقييمات | rating (1-5), comment, response |
+| 17 | `property_views` | تتبع المشاهدات | ip_address, user_agent, referrer |
+| 18 | `audit_logs` | سجل التدقيق | table_name, action, old_data, new_data |
+| 19 | `system_settings` | إعدادات النظام | key-value pairs |
+
+### استراتيجية الفهرسة (Indexing Strategy)
+
+| نوع الفهرس | الاستخدام | مثال |
+|------------|-----------|------|
+| **B-Tree** | الاستعلامات العادية | `price`, `created_at`, `status` |
+| **GiST** | البحث الجغرافي (PostGIS) | `GEOMETRY(Point, 4326)` |
+| **GIN** | البحث النصي الكامل | `tsvector(title + description)` |
+| **Composite** | استعلامات متعددة الأعمدة | `(city, property_type, status)` |
+| **Partial** | تصفية مسبقة | `WHERE status = 'available' AND deleted_at IS NULL` |
+| **Unique** | منع التكرار | `(user_id, property_id)` في favorites |
+
+### أفضل الممارسات المُطبّقة
+
+- ✅ **Foreign Key Constraints** مع `ON DELETE CASCADE/SET NULL`
+- ✅ **Check Constraints** لصحة البيانات (`price > 0`, `rating 1-5`)
+- ✅ **Soft Delete** بـ `deleted_at` بدل الحذف الفعلي
+- ✅ **Audit Trail** لتتبع كل التغييرات
+- ✅ **Slugs** لروابط SEO-friendly
+- ✅ **PostGIS** للبحث بالموقع الجغرافي
+- ✅ **Full-Text Search** بدعم اللغة العربية
+- ✅ **Trigger** لتحديث `updated_at` تلقائياً
+- ✅ **Materialized Views** للإحصائيات المحسوبة
+
+---
+
+## 🔌 تصميم الـ API
+
+### المبادئ
+
+- **RESTful** مع تسمية موارد واضحة
+- **Versioning:** `/api/v1/...`
+- **Pagination:** Cursor-based للأداء + Offset للبساطة
+- **Response Format:** JSON موحد
+
+### صيغة الاستجابة الموحدة
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "hasMore": true
+  },
+  "message": "تم جلب العقارات بنجاح"
+}
 ```
 
-#### 3. property_images
-```sql
-CREATE TABLE property_images (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
-    image_url VARCHAR(500) NOT NULL,
-    description VARCHAR(255),
-    is_primary BOOLEAN DEFAULT false,
-    order_index INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_images_property ON property_images(property_id);
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "بيانات غير صالحة",
+    "details": [
+      { "field": "price", "message": "يجب أن يكون السعر أكبر من صفر" }
+    ]
+  }
+}
 ```
 
-#### 4. requests
-```sql
-CREATE TABLE requests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    customer_id UUID NOT NULL REFERENCES users(id),
-    property_id UUID NOT NULL REFERENCES properties(id),
-    type ENUM('rent', 'buy') NOT NULL,
-    message TEXT,
-    status ENUM('pending', 'accepted', 'rejected', 'completed') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### نقاط النهاية (Endpoints)
 
-CREATE INDEX idx_requests_customer ON requests(customer_id);
-CREATE INDEX idx_requests_property ON requests(property_id);
-CREATE INDEX idx_requests_status ON requests(status);
-```
+#### 🔐 المصادقة (Auth)
 
-#### 5. deals
-```sql
-CREATE TABLE deals (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    request_id UUID NOT NULL REFERENCES requests(id),
-    seller_id UUID NOT NULL REFERENCES users(id),
-    customer_id UUID NOT NULL REFERENCES users(id),
-    property_id UUID NOT NULL REFERENCES properties(id),
-    type ENUM('rent', 'buy') NOT NULL,
-    price DECIMAL(12, 2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'SYP',
-    status ENUM('pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending',
-    start_date DATE,
-    end_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `POST` | `/api/v1/auth/register` | تسجيل مستخدم جديد | ❌ |
+| `POST` | `/api/v1/auth/login` | تسجيل الدخول | ❌ |
+| `POST` | `/api/v1/auth/refresh` | تحديث Access Token | ❌ |
+| `POST` | `/api/v1/auth/logout` | تسجيل الخروج | ✅ |
+| `POST` | `/api/v1/auth/forgot-password` | طلب إعادة كلمة المرور | ❌ |
+| `POST` | `/api/v1/auth/reset-password` | إعادة تعيين كلمة المرور | ❌ |
+| `POST` | `/api/v1/auth/verify-email` | تأكيد البريد الإلكتروني | ❌ |
+| `POST` | `/api/v1/auth/google` | تسجيل بـ Google OAuth | ❌ |
 
-CREATE INDEX idx_deals_seller ON deals(seller_id);
-CREATE INDEX idx_deals_customer ON deals(customer_id);
-CREATE INDEX idx_deals_property ON deals(property_id);
-CREATE INDEX idx_deals_status ON deals(status);
-```
+#### 👤 المستخدمون (Users)
 
-#### 6. payments
-```sql
-CREATE TABLE payments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deal_id UUID NOT NULL REFERENCES deals(id),
-    amount DECIMAL(12, 2) NOT NULL,
-    currency VARCHAR(3) DEFAULT 'SYP',
-    status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'pending',
-    payment_method VARCHAR(50),
-    transaction_id VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Method | Endpoint | الوصف | Auth | الدور |
+|--------|----------|-------|------|-------|
+| `GET` | `/api/v1/users/me` | الملف الشخصي | ✅ | All |
+| `PUT` | `/api/v1/users/me` | تحديث الملف الشخصي | ✅ | All |
+| `PUT` | `/api/v1/users/me/avatar` | تحديث صورة الملف | ✅ | All |
+| `GET` | `/api/v1/users/:id` | ملف مستخدم عام | ✅ | All |
+| `GET` | `/api/v1/users` | قائمة المستخدمين | ✅ | Admin |
+| `PUT` | `/api/v1/users/:id/status` | تفعيل/تعطيل مستخدم | ✅ | Admin |
+| `DELETE` | `/api/v1/users/:id` | حذف مستخدم | ✅ | Admin |
 
-CREATE INDEX idx_payments_deal ON payments(deal_id);
-CREATE INDEX idx_payments_status ON payments(status);
-```
+#### 🏘️ العقارات (Properties)
 
-#### 7. discounts
-```sql
-CREATE TABLE discounts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deal_id UUID NOT NULL REFERENCES deals(id),
-    value DECIMAL(5, 2) NOT NULL,
-    type ENUM('percentage', 'fixed') NOT NULL,
-    amount_before_discount DECIMAL(12, 2) NOT NULL,
-    amount_after_discount DECIMAL(12, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Method | Endpoint | الوصف | Auth | الدور |
+|--------|----------|-------|------|-------|
+| `GET` | `/api/v1/properties` | قائمة العقارات + Search + Filter | ❌ | All |
+| `GET` | `/api/v1/properties/featured` | العقارات المميزة | ❌ | All |
+| `GET` | `/api/v1/properties/nearby` | عقارات قريبة (PostGIS) | ❌ | All |
+| `GET` | `/api/v1/properties/:slug` | تفاصيل العقار | ❌ | All |
+| `POST` | `/api/v1/properties` | إضافة عقار | ✅ | Seller/Agent |
+| `PUT` | `/api/v1/properties/:id` | تعديل العقار | ✅ | Owner/Agent |
+| `DELETE` | `/api/v1/properties/:id` | حذف العقار (Soft) | ✅ | Owner/Admin |
+| `POST` | `/api/v1/properties/:id/images` | رفع صور | ✅ | Owner/Agent |
+| `DELETE` | `/api/v1/properties/:id/images/:imageId` | حذف صورة | ✅ | Owner/Agent |
+| `POST` | `/api/v1/properties/:id/features` | إضافة ميزات | ✅ | Owner/Agent |
+| `PUT` | `/api/v1/properties/:id/status` | تغيير حالة العقار | ✅ | Admin |
 
-CREATE INDEX idx_discounts_deal ON discounts(deal_id);
-```
+#### 📋 الطلبات (Requests)
 
-#### 8. notifications
-```sql
-CREATE TABLE notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id),
-    type VARCHAR(50) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    data JSONB,
-    is_read BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `POST` | `/api/v1/requests` | إنشاء طلب جديد | ✅ |
+| `GET` | `/api/v1/requests` | طلباتي | ✅ |
+| `GET` | `/api/v1/requests/:id` | تفاصيل الطلب | ✅ |
+| `PUT` | `/api/v1/requests/:id` | تحديث الطلب | ✅ |
+| `PUT` | `/api/v1/requests/:id/status` | تغيير حالة الطلب | ✅ |
 
-CREATE INDEX idx_notifications_user ON notifications(user_id);
-CREATE INDEX idx_notifications_read ON notifications(is_read);
-```
+#### 🤝 الصفقات (Deals)
 
-#### 9. messages
-```sql
-CREATE TABLE messages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    deal_id UUID REFERENCES deals(id),
-    sender_id UUID NOT NULL REFERENCES users(id),
-    receiver_id UUID NOT NULL REFERENCES users(id),
-    content TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `POST` | `/api/v1/deals` | إنشاء صفقة | ✅ |
+| `GET` | `/api/v1/deals` | صفقاتي | ✅ |
+| `GET` | `/api/v1/deals/:id` | تفاصيل الصفقة | ✅ |
+| `PUT` | `/api/v1/deals/:id/status` | تحديث حالة الصفقة | ✅ |
+| `POST` | `/api/v1/deals/:id/contract` | رفع العقد | ✅ |
 
-CREATE INDEX idx_messages_deal ON messages(deal_id);
-CREATE INDEX idx_messages_sender ON messages(sender_id);
-CREATE INDEX idx_messages_receiver ON messages(receiver_id);
-```
+#### 💳 المدفوعات (Payments)
+
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `POST` | `/api/v1/payments` | تسجيل دفعة | ✅ |
+| `GET` | `/api/v1/payments` | دفعاتي | ✅ |
+| `GET` | `/api/v1/payments/:id` | تفاصيل الدفعة | ✅ |
+| `PUT` | `/api/v1/payments/:id/confirm` | تأكيد الدفعة | ✅ |
+
+#### 💬 المحادثات (Messages)
+
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `GET` | `/api/v1/conversations` | محادثاتي | ✅ |
+| `POST` | `/api/v1/conversations` | بدء محادثة جديدة | ✅ |
+| `GET` | `/api/v1/conversations/:id/messages` | رسائل المحادثة | ✅ |
+| `POST` | `/api/v1/conversations/:id/messages` | إرسال رسالة | ✅ |
+| `PUT` | `/api/v1/conversations/:id/read` | تعليم كمقروء | ✅ |
+
+#### ❤️ المفضلة والتقييمات
+
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `POST` | `/api/v1/favorites/:propertyId` | إضافة للمفضلة | ✅ |
+| `DELETE` | `/api/v1/favorites/:propertyId` | إزالة من المفضلة | ✅ |
+| `GET` | `/api/v1/favorites` | قائمة المفضلة | ✅ |
+| `POST` | `/api/v1/reviews` | إضافة تقييم | ✅ |
+| `GET` | `/api/v1/reviews/property/:id` | تقييمات العقار | ❌ |
+
+#### 🔔 الإشعارات
+
+| Method | Endpoint | الوصف | Auth |
+|--------|----------|-------|------|
+| `GET` | `/api/v1/notifications` | إشعاراتي | ✅ |
+| `PUT` | `/api/v1/notifications/:id/read` | تعليم كمقروء | ✅ |
+| `PUT` | `/api/v1/notifications/read-all` | تعليم الكل كمقروء | ✅ |
+| `GET` | `/api/v1/notifications/unread-count` | عدد غير المقروءة | ✅ |
 
 ---
 
 ## 🔐 نظام الأمان
 
 ### 1. المصادقة (Authentication)
-- **JWT Tokens:** Access Token (15 دقيقة) + Refresh Token (7 أيام)
-- **Password Hashing:** bcrypt مع salt rounds = 12
-- **OAuth 2.0:** دعم Google و Facebook Login
-- **2FA:** Two-Factor Authentication اختياري
 
-### 2. التفويض (Authorization)
-- **Role-Based Access Control (RBAC):**
-  - Customer: قراءة العقارات، إرسال طلبات
-  - Seller: إدارة العقارات، قبول/رفض الطلبات
-  - Admin: إدارة كل شيء
+```
+┌──────────┐         ┌──────────┐         ┌──────────┐
+│  Client  │──Login──│  Backend │──Verify──│   DB     │
+│          │◄─JWT────│  (Auth)  │◄─User────│(Postgres)│
+└──────────┘         └──────────┘         └──────────┘
+     │                    │
+     │                    ├─ Access Token  (15 دقيقة)
+     │                    ├─ Refresh Token (30 يوم, HttpOnly Cookie)
+     │                    └─ Token Rotation عند كل refresh
+     │
+     └─ تخزين Access Token في Memory فقط (لا LocalStorage)
+```
+
+| الآلية | التفاصيل |
+|--------|---------|
+| **Password Hashing** | bcrypt مع salt rounds = 12 |
+| **Access Token** | JWT, صلاحية 15 دقيقة |
+| **Refresh Token** | Random string محشيّ، HttpOnly Secure Cookie، 30 يوم |
+| **Token Rotation** | Refresh Token جديد مع كل تحديث |
+| **OAuth 2.0** | Google Login (اختياري) |
+| **Rate Limiting** | 5 محاولات تسجيل دخول / 15 دقيقة |
+
+### 2. التفويض (Authorization) — RBAC
+
+| الدور | الصلاحيات |
+|-------|----------|
+| **buyer** | البحث، المفضلة، إرسال طلبات، المحادثات، التقييم |
+| **seller / landlord** | كل صلاحيات المشتري + نشر العقارات، إدارة الطلبات |
+| **agent** | كل صلاحيات البائع + إدارة عقارات الغير، العمولات |
+| **admin** | كل الصلاحيات + إدارة المستخدمين، مراجعة المحتوى، التقارير |
 
 ### 3. حماية البيانات
-- **HTTPS:**强制 SSL/TLS
-- **Input Validation:** Zod validation
-- **SQL Injection Prevention:** Prisma ORM
-- **XSS Protection:** Content Security Policy
-- **CSRF Protection:** CSRF Tokens
 
-### 4. الخصوصية
-- **Data Encryption:** تشفير البيانات الحساسة
-- **GDPR Compliance:** سياسة الخصوصية
-- **Data Retention:** سياسة الاحتفاظ بالبيانات
+| الطبقة | الأداة |
+|--------|--------|
+| **HTTPS** | SSL/TLS إلزامي |
+| **CORS** | Origins محددة فقط |
+| **Helmet.js** | HTTP Security Headers |
+| **Input Validation** | Zod schemas لكل endpoint |
+| **SQL Injection** | Prisma ORM (Parameterized Queries) |
+| **XSS** | Content Security Policy + HTML Sanitization |
+| **CSRF** | SameSite Cookies + CSRF Token |
+| **File Upload** | فحص MIME Type + حجم محدود (5MB) |
+| **Rate Limiting** | express-rate-limit per IP + per User |
+| **Sensitive Data** | تشفير AES-256 للبيانات الحساسة |
+
+---
+
+## 📅 المراحل الزمنية
+
+### الجدول الزمني الإجمالي: 10 أسابيع
+
+```
+الأسبوع 1-2:  ████░░░░░░ التحضير + قاعدة البيانات
+الأسبوع 3-4:  ░░████░░░░ Backend API (الأساسيات)
+الأسبوع 5-6:  ░░░░████░░ Frontend Web
+الأسبوع 7-8:  ░░░░░░████ Mobile App
+الأسبوع 9:    ░░░░░░░░██ التكامل والاختبار
+الأسبوع 10:   ░░░░░░░░░█ النشر والإطلاق
+```
+
+---
+
+### المرحلة 1: التحضير وقاعدة البيانات (أسبوع 1-2)
+
+**التاريخ:** 11-25 أبريل 2026
+
+#### الأسبوع 1: التحضير والتخطيط
+
+- [x] تحليل المتطلبات الوظيفية وغير الوظيفية
+- [x] إنشاء مستودع GitHub
+- [x] كتابة الوثائق الأولية (README, analysis.md)
+- [x] تصميم مخطط قاعدة البيانات (DBML)
+- [x] مراجعة وتدقيق مخطط قاعدة البيانات
+- [ ] اختيار وتأكيد التقنيات النهائية
+- [ ] تصميم البنية المعمارية النهائية
+- [ ] إعداد بيئة التطوير (Docker Compose)
+
+#### الأسبوع 2: قاعدة البيانات
+
+- [ ] تحويل DBML إلى Prisma Schema
+- [ ] إنشاء قاعدة البيانات PostgreSQL (Docker)
+- [ ] تفعيل PostGIS Extension
+- [ ] إنشاء Migration Files
+- [ ] إضافة Check Constraints
+- [ ] إنشاء Triggers (updated_at)
+- [ ] إعداد Seed Data (بيانات تجريبية)
+- [ ] إنشاء Materialized Views
+- [ ] اختبار الأداء الأولي للاستعلامات
+
+**المخرجات:** قاعدة بيانات جاهزة ومُختبرة، بيئة Docker محلية
+
+---
+
+### المرحلة 2: تطوير Backend API (أسبوع 3-4)
+
+**التاريخ:** 25 أبريل - 9 مايو 2026
+
+#### الأسبوع 3: الأساسيات
+
+- [ ] إعداد مشروع Node.js + TypeScript + Express
+- [ ] إعداد Prisma Client + قاعدة البيانات
+- [ ] إعداد Redis للتخزين المؤقت
+- [ ] تطوير Middleware (auth, rbac, validation, error, logging, rate-limit)
+- [ ] تطوير نظام المصادقة الكامل:
+  - [ ] Register (email/phone) + email verification
+  - [ ] Login + JWT (Access + Refresh tokens)
+  - [ ] Logout + Token revocation
+  - [ ] Forgot/Reset Password
+  - [ ] Google OAuth
+- [ ] تطوير User Module (CRUD + Profile + Avatar)
+- [ ] إعداد File Upload (Cloudflare R2)
+- [ ] إعداد Swagger/OpenAPI Documentation
+
+#### الأسبوع 4: الوحدات الرئيسية
+
+- [ ] Property Module (CRUD + Search + Filter + Nearby)
+- [ ] Property Images Module (Upload + Delete + Reorder)
+- [ ] Property Features Module (CRUD)
+- [ ] Favorites Module (Add/Remove/List)
+- [ ] Saved Searches Module (CRUD + Notifications)
+- [ ] Request Module (CRUD + Status management)
+- [ ] Deal Module (Create + Status workflow + Contract upload)
+- [ ] Payment Module (Record + Confirm + Installments)
+- [ ] Discount Module (CRUD + Validation + Usage tracking)
+- [ ] Notification Module (CRUD + Push via FCM)
+- [ ] Conversation & Message Module (CRUD)
+- [ ] Review Module (Create + List + Response)
+- [ ] WebSocket Setup (Socket.io — Chat + Live Notifications)
+- [ ] Audit Log integration (automatic triggers)
+
+**المخرجات:** Backend API كامل مع Swagger، اختبارات أولية
+
+---
+
+### المرحلة 3: تطوير Frontend Web (أسبوع 5-6)
+
+**التاريخ:** 9-23 مايو 2026
+
+#### الأسبوع 5: الأساسيات والتصميم
+
+- [ ] إعداد مشروع Next.js 14 + TypeScript + Tailwind CSS
+- [ ] إعداد Design System (ألوان، خطوط، مكونات أساسية UI)
+- [ ] إعداد Zustand Stores + React Query
+- [ ] تصميم Layouts (Header, Footer, Sidebar, Mobile Nav)
+- [ ] صفحات المصادقة:
+  - [ ] تسجيل الدخول (Email + Google)
+  - [ ] التسجيل
+  - [ ] نسيت كلمة المرور
+- [ ] الصفحة الرئيسية:
+  - [ ] Hero Section مع بحث سريع
+  - [ ] عقارات مميزة (Featured)
+  - [ ] فئات العقارات
+  - [ ] إحصائيات المنصة
+- [ ] صفحة الملف الشخصي + تحرير
+
+#### الأسبوع 6: الصفحات الرئيسية
+
+- [ ] صفحة البحث المتقدم (فلاتر + خريطة + نتائج)
+- [ ] صفحة تفاصيل العقار (Gallery + Map + Features + Reviews)
+- [ ] صفحة إضافة/تعديل عقار (Multi-step Form)
+- [ ] صفحة خريطة العقارات (Leaflet/Mapbox)
+- [ ] صفحة المفضلة
+- [ ] صفحة المحادثات (Chat UI)
+- [ ] لوحة تحكم المالك/البائع:
+  - [ ] عقاراتي
+  - [ ] طلبات واردة
+  - [ ] صفقاتي
+  - [ ] دفعاتي
+- [ ] لوحة تحكم المدير:
+  - [ ] إدارة المستخدمين
+  - [ ] مراجعة العقارات
+  - [ ] إحصائيات وتقارير
+  - [ ] إدارة الخصومات والإعدادات
+- [ ] دعم RTL للغة العربية
+- [ ] Responsive Design لجميع الأحجام
+
+**المخرجات:** Frontend Web كامل ومتجاوب
+
+---
+
+### المرحلة 4: تطوير Mobile App (أسبوع 7-8)
+
+**التاريخ:** 23 مايو - 6 يونيو 2026
+
+#### الأسبوع 7: الأساسيات
+
+- [ ] إعداد مشروع React Native + Expo
+- [ ] إعداد Navigation (Stack + Tab + Drawer)
+- [ ] إعداد API Client (Axios + React Query)
+- [ ] إعداد Zustand Stores
+- [ ] شاشات المصادقة (Login, Register, Forgot Password)
+- [ ] الشاشة الرئيسية (Featured + Categories + Quick Search)
+- [ ] شاشة الملف الشخصي
+
+#### الأسبوع 8: الشاشات الرئيسية
+
+- [ ] شاشة البحث المتقدم + فلاتر
+- [ ] شاشة تفاصيل العقار (Gallery, Map, Features)
+- [ ] شاشة إضافة عقار (Camera + Gallery + Form)
+- [ ] شاشة الخريطة (react-native-maps)
+- [ ] شاشة المفضلة
+- [ ] شاشة المحادثات (Chat)
+- [ ] شاشة الطلبات والصفقات
+- [ ] Push Notifications (Firebase)
+- [ ] GPS Location Permission
+- [ ] Biometric Auth (Face ID / Fingerprint)
+- [ ] Dark Mode
+
+**المخرجات:** Mobile App كامل لـ iOS و Android
+
+---
+
+### المرحلة 5: التكامل والاختبار (أسبوع 9)
+
+**التاريخ:** 6-13 يونيو 2026
+
+- [ ] تكامل Frontend Web ↔ Backend API
+- [ ] تكامل Mobile App ↔ Backend API
+- [ ] تكامل WebSocket (Chat + Notifications)
+- [ ] اختبارات Integration Tests
+- [ ] اختبارات E2E (Playwright للويب)
+- [ ] اختبارات الأمان (OWASP ZAP)
+- [ ] اختبارات الأداء (k6 / Artillery)
+- [ ] اختبارات التوافق (Cross-browser)
+- [ ] إصلاح الأخطاء المكتشفة
+- [ ] تحسين الأداء (Lighthouse audit)
+- [ ] مراجعة الكود النهائية
+
+**المخرجات:** نظام متكامل ومُختبر
+
+---
+
+### المرحلة 6: النشر والإطلاق (أسبوع 10)
+
+**التاريخ:** 13-20 يونيو 2026
+
+- [ ] إعداد CI/CD Pipeline (GitHub Actions)
+- [ ] نشر PostgreSQL على Supabase
+- [ ] نشر Backend على Railway/Render
+- [ ] نشر Frontend على Vercel
+- [ ] إعداد Custom Domain + SSL
+- [ ] نشر Mobile App على TestFlight (iOS)
+- [ ] نشر Mobile App على Google Play Console (Internal)
+- [ ] إعداد Sentry (Error Tracking)
+- [ ] إعداد Uptime Monitoring
+- [ ] إعداد Backup Strategy
+- [ ] الإطلاق التجريبي (Beta)
+
+**المخرجات:** مشروع منشور ومراقب
 
 ---
 
 ## 🧪 خطة الاختبار
 
 ### 1. Unit Tests
-- **Backend:** Jest + Supertest
-- **Frontend:** Jest + React Testing Library
-- **Mobile:** Jest
 
-**التغطية المستهدفة:** 80%+
+| الهدف | الأداة | التغطية |
+|-------|--------|---------|
+| Backend Services | Jest + Supertest | 80%+ |
+| Frontend Components | Jest + React Testing Library | 70%+ |
+| Utility Functions | Jest | 90%+ |
 
 ### 2. Integration Tests
-- **API Integration:** اختبار جميع Endpoints
-- **Database Integration:** اختبار CRUD Operations
-- **External Services:** اختبار Google Maps، Payment Gateway
 
-### 3. E2E Tests
-- **Web:** Playwright / Cypress
-- **Mobile:** Detox / Appium
+| السيناريو | الوصف |
+|----------|-------|
+| Auth Flow | تسجيل → تأكيد → دخول → تحديث Token → خروج |
+| Property CRUD | إنشاء → تعديل → رفع صور → بحث → حذف |
+| Deal Flow | طلب → صفقة → دفعة → تقييم |
+| Chat | إنشاء محادثة → إرسال رسائل → WebSocket |
 
-**السيناريوهات:**
-- تسجيل الدخول
-- البحث عن عقار
-- إرسال طلب
-- إضافة عقار
-- إتمام صفقة
+### 3. E2E Tests (Playwright)
+
+| السيناريو | الخطوات |
+|----------|---------|
+| بحث عن عقار | الصفحة الرئيسية → بحث → فلاتر → نتائج → تفاصيل |
+| نشر عقار | دخول → إضافة عقار → رفع صور → نشر |
+| إتمام صفقة | طلب → قبول → صفقة → دفع → تقييم |
 
 ### 4. Performance Tests
-- **Load Testing:** k6 / Artillery
-- **Stress Testing:** Apache JMeter
-- **Database Performance:** pgbench
 
-**الأهداف:**
-- استجابة < 2 ثانية
-- 1000 مستخدم متزامن
-- 99.5% uptime
+| المقياس | الهدف |
+|---------|-------|
+| Response Time (P95) | < 500ms |
+| Concurrent Users | 500 متزامن |
+| Database Queries | < 100ms |
+| Image Upload | < 3 ثواني لكل صورة |
+| Search Results | < 200ms |
 
 ### 5. Security Tests
-- **Vulnerability Scanning:** OWASP ZAP
-- **Penetration Testing:** Burp Suite
-- **Dependency Scanning:** Snyk / Dependabot
+
+| الاختبار | الأداة |
+|---------|--------|
+| Vulnerability Scan | OWASP ZAP |
+| Dependency Audit | `npm audit` + Snyk |
+| HTTPS Enforcement | SSL Labs |
+| Auth Testing | Burp Suite (Manual) |
 
 ---
 
-## 🚀 خطة النشر
+## ☁️ خطة النشر (Deployment)
 
-### 1. CI/CD Pipeline
+### بنية الإنتاج
 
-#### GitHub Actions Workflow
+```
+┌─────────────────────────────────────────────────────┐
+│                    Cloudflare CDN                     │
+│              (DNS, SSL, DDoS Protection)              │
+├─────────────────────────────────────────────────────┤
+│                                                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐ │
+│  │   Vercel    │  │  Railway    │  │ App Stores   │ │
+│  │  (Frontend) │  │  (Backend)  │  │ (Mobile)     │ │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬───────┘ │
+│         │                │                │          │
+│  ┌──────┴────────────────┴────────────────┴───────┐ │
+│  │              Supabase (PostgreSQL)               │ │
+│  │              + Redis (Upstash)                   │ │
+│  │              + R2 (File Storage)                 │ │
+│  └─────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+### التكاليف الشهرية (تقديرية)
+
+| الخدمة | Free Tier | Pro Tier |
+|--------|-----------|----------|
+| **Vercel** (Frontend) | $0 | $20/mo |
+| **Railway** (Backend) | $5/mo | $20/mo |
+| **Supabase** (PostgreSQL) | $0 | $25/mo |
+| **Upstash** (Redis) | $0 | $10/mo |
+| **Cloudflare R2** (Storage) | $0 (10GB) | ~$5/mo |
+| **Sentry** (Monitoring) | $0 | $26/mo |
+| **Firebase** (Push) | $0 | $0 |
+| **Domain** | - | $10/year |
+| **Apple Developer** | - | $99/year |
+| **المجموع** | **~$5/mo** | **~$115/mo** |
+
+### CI/CD Pipeline
+
 ```yaml
+# .github/workflows/ci.yml
 name: CI/CD Pipeline
 
 on:
@@ -549,253 +998,125 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  # 1. Lint + Type Check
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run tests
-        run: npm test
-      - name: Build
-        run: npm run build
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
 
-  deploy:
+  # 2. Unit + Integration Tests
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: dealak_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npm test -- --coverage
+      - uses: codecov/codecov-action@v4
+
+  # 3. Build
+  build:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to Production
-        run: ./scripts/deploy.sh
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run build
+
+  # 4. Deploy (Main branch only)
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Backend to Railway
+        run: railway up --service backend
+      - name: Deploy Frontend to Vercel
+        run: vercel deploy --prod
 ```
 
-### 2. Backend Deployment
-
-**الخيارات:**
-- **Railway:** سهل وسريع
-- **Render:** مجاني للمشاريع الصغيرة
-- **AWS:** scalable وموثوق
-- **DigitalOcean:** رخيص وسهل
-
-**التوصية:** Railway (للبداية) → AWS (للتوسع)
-
-### 3. Frontend Deployment
-
-**الخيارات:**
-- **Vercel:** مثالي لـ Next.js
-- **Netlify:** سهل وسريع
-- **Cloudflare Pages:** سريع وعالمي
-- **AWS S3 + CloudFront:** scalable
-
-**التوصية:** Vercel (للبداية) → Cloudflare Pages (للتوسع)
-
-### 4. Mobile App Deployment
-
-**iOS:**
-- TestFlight (Beta Testing)
-- App Store (Production)
-
-**Android:**
-- Google Play Console (Internal Testing)
-- Google Play Store (Production)
-
-### 5. Database Deployment
-
-**الخيارات:**
-- **Supabase:** PostgreSQL managed
-- **Neon:** Serverless PostgreSQL
-- **AWS RDS:** scalable وموثوق
-- **Railway PostgreSQL:** سهل وسريع
-
-**التوصية:** Supabase (للبداية) → AWS RDS (للتوسع)
-
 ---
 
-## 📊 خطة المراقبة (Monitoring)
+## 📊 المراقبة والصيانة
 
-### 1. Application Monitoring
-- **Sentry:** Error Tracking
-- **New Relic:** APM
-- **LogRocket:** Session Replay
+### مراقبة التطبيق
 
-### 2. Infrastructure Monitoring
-- **Uptime Robot:** Uptime Monitoring
-- **Pingdom:** Performance Monitoring
-- **CloudWatch:** AWS Monitoring
+| الأداة | الوظيفة | الطبقة المجانية |
+|--------|---------|----------------|
+| **Sentry** | Error Tracking + Performance | 5k events/mo |
+| **Uptime Robot** | Uptime Monitoring | 50 monitors |
+| **Supabase Dashboard** | Database Metrics | مضمّن |
+| **Vercel Analytics** | Web Vitals | مضمّن |
 
-### 3. Database Monitoring
-- **pgAdmin:** PostgreSQL Monitoring
-- **Supabase Dashboard:** Built-in Monitoring
+### مقاييس الأداء (KPIs)
 
-### 4. Analytics
-- **Google Analytics:** User Analytics
-- **Mixpanel:** Event Tracking
-- **Hotjar:** User Behavior
+| المقياس | الهدف | القياس |
+|---------|-------|--------|
+| **Uptime** | 99.5% | Uptime Robot |
+| **Response Time (P95)** | < 500ms | Sentry APM |
+| **Error Rate** | < 0.1% | Sentry |
+| **Core Web Vitals** | Good | Vercel Analytics |
+| **Database Query Time** | < 100ms | Supabase Logs |
 
----
+### استراتيجية النسخ الاحتياطي
 
-## 💰 خطة الميزانية
-
-### التكاليف الشهرية (تقديرية)
-
-| الخدمة | التكلفة | الملاحظات |
-|--------|---------|-----------|
-| Backend Hosting | $20-50 | Railway / Render |
-| Frontend Hosting | $0-20 | Vercel (Free tier) |
-| Database | $0-25 | Supabase (Free tier) |
-| Mobile App Stores | $25/year | Apple Developer |
-| Domain | $10/year | Custom domain |
-| SSL Certificate | $0 | Let's Encrypt (Free) |
-| Monitoring | $0-30 | Sentry (Free tier) |
-| **المجموع** | **$55-135/month** | |
+| الطبقة | التردد | الاحتفاظ | الأداة |
+|--------|--------|----------|--------|
+| **Database** | يومي | 30 يوم | Supabase Auto-backup |
+| **Files (R2)** | مستمر | - | Cloudflare R2 |
+| **Code** | مستمر | - | GitHub |
 
 ---
 
 ## 📈 خطة التوسع المستقبلية
 
-### المرحلة 2 (بعد 3 أشهر)
-- [ ] إضافة نظام التقييمات (Reviews)
-- [ ] إضافة نظام المفضلة (Favorites)
-- [ ] إضافة نظام المقارنة (Compare)
-- [ ] تحسين البحث المتقدم
-- [ ] إضافة دعم لغات إضافية
+### المرحلة 2: التحسينات (بعد 3 أشهر)
 
-### المرحلة 3 (بعد 6 أشهر)
-- [ ] إضافة نظام AI Recommendations
-- [ ] إضافة Virtual Tours
-- [ ] إضافة Video Calls
-- [ ] إضافة Smart Contracts (Blockchain)
-- [ ] إضافة Crypto Payments
+- [ ] نظام التقييمات والمراجعات المتقدم
+- [ ] نظام مقارنة العقارات (Compare)
+- [ ] تقارير السوق (Market Reports)
+- [ ] نظام إرسال بريد إلكتروني (Transactional Emails)
+- [ ] دعم لغات إضافية (الكردية، التركية)
+- [ ] تطبيق Progressive Web App (PWA)
+- [ ] نظام التحقق المتقدم (KYC — Know Your Customer)
 
-### المرحلة 4 (بعد 12 شهر)
-- [ ] التوسع لمناطق أخرى
-- [ ] إضافة B2B Features
-- [ ] إضافة Marketplace
-- [ ] إضافة Property Management
-- [ ] إضافة Investment Tools
+### المرحلة 3: الميزات المتقدمة (بعد 6 أشهر)
 
----
+- [ ] AI Property Valuation (تقييم ذكي للعقارات)
+- [ ] AI Recommendations (توصيات مخصصة)
+- [ ] Virtual Tours (جولات افتراضية 360°)
+- [ ] Video Calls (مكالمات فيديو داخل التطبيق)
+- [ ] Mortgage Calculator (حاسبة التمويل)
+- [ ] Advanced Analytics Dashboard
 
-## 🎯 معايير النجاح
+### المرحلة 4: التوسع (بعد 12 شهر)
 
-### KPIs (Key Performance Indicators)
-
-1. **المستخدمون:**
-   - 1000 مستخدم مسجل في أول 3 أشهر
-   - 5000 مستخدم مسجل في أول 6 أشهر
-   - 10000 مستخدم مسجل في أول سنة
-
-2. **العقارات:**
-   - 100 عقار منشور في أول شهر
-   - 500 عقار منشور في أول 3 أشهر
-   - 2000 عقار منشور في أول سنة
-
-3. **الصفقات:**
-   - 10 صفقات مكتملة في أول شهر
-   - 50 صفقة مكتملة في أول 3 أشهر
-   - 200 صفقة مكتملة في أول سنة
-
-4. **الأداء:**
-   - استجابة < 2 ثانية
-   - 99.5% uptime
-   - 4.5+ تقييم على App Store
-
----
-
-## 📞 خطة الدعم
-
-### 1. الدعم الفني
-- **Email:** support@dealak.com
-- **Chat:** In-app Chat
-- **Phone:** (اختياري)
-
-### 2. التوثيق
-- **User Guide:** دليل المستخدم
-- **API Documentation:** وثائق API
-- **FAQ:** الأسئلة الشائعة
-- **Video Tutorials:** فيديوهات تعليمية
-
-### 3. المجتمع
-- **Blog:** مدونة المشروع
-- **Social Media:** Facebook, Twitter, Instagram
-- **Forum:** منتدى المجتمع
-
----
-
-## ✅ قائمة التحقق (Checklist)
-
-### قبل البدء
-- [x] تحليل المتطلبات
-- [x] إنشاء مستودع GitHub
-- [x] كتابة الوثائق الأولية
-- [ ] اختيار التقنيات النهائية
-- [ ] تصميم البنية المعمارية
-- [ ] إعداد بيئة التطوير
-
-### أثناء التطوير
-- [ ] كتابة Tests لكل Feature
-- [ ] Code Review لكل Pull Request
-- [ ] Documentation لكل API
-- [ ] Security Audit دوري
-- [ ] Performance Testing دوري
-
-### قبل الإطلاق
-- [ ] اختبار شامل (E2E)
-- [ ] Security Audit
-- [ ] Performance Optimization
-- [ ] Accessibility Testing
-- [ ] Cross-browser Testing
-- [ ] Mobile Testing
-
-### بعد الإطلاق
-- [ ] Monitoring Setup
-- [ ] Error Tracking
-- [ ] Analytics Setup
-- [ ] Backup Strategy
-- [ ] Disaster Recovery Plan
-
----
-
-## 📝 الملاحظات
-
-### المخاطر المحتملة
-1. **تأخير في الجدول الزمني:** إضافة buffer time
-2. **تغيير في المتطلبات:** Agile Development
-3. **مشاكل تقنية:** Team expertise
-4. **مشاكل الأمان:** Security First Approach
-
-### الحلول البديلة
-1. **Backend:** Express → Fastify / NestJS
-2. **Database:** PostgreSQL → MongoDB
-3. **Frontend:** Next.js → Nuxt.js / SvelteKit
-4. **Mobile:** React Native → Flutter
-
----
-
-## 🎓 الموارد التعليمية
-
-### Backend
-- [Express.js Documentation](https://expressjs.com/)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [PostgreSQL Tutorial](https://www.postgresqltutorial.com/)
-
-### Frontend
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [React Documentation](https://react.dev/)
-
-### Mobile
-- [React Native Documentation](https://reactnative.dev/)
-- [React Navigation](https://reactnavigation.org/)
-
-### DevOps
-- [Docker Documentation](https://docs.docker.com/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [ ] التوسع لدول أخرى (لبنان، الأردن)
+- [ ] B2B Features (شركات عقارية)
+- [ ] Property Management (إدارة الممتلكات)
+- [ ] Investment Tools (أدوات الاستثمار)
+- [ ] Smart Contracts (عقود ذكية)
+- [ ] Blockchain-based ownership verification
 
 ---
 
@@ -803,8 +1124,15 @@ jobs:
 
 **للاستفسارات والدعم:**
 - **Email:** support@dealak.com
-- **GitHub:** https://github.com/abdalganialhamdi-spec/dealak-real-estate-app
-- **Discord:** (قريباً)
+- **GitHub:** [github.com/abdalganialhamdi-spec/dealak-real-estate-app](https://github.com/abdalganialhamdi-spec/dealak-real-estate-app)
+
+---
+
+**الجهة:** وزارة التعليم العالي والبحث العلمي — جامعة حماة — المعهد التقاني للحاسوب  
+**القسم:** قسم هندسة البرمجيات  
+**المادة:** تحليل نظم المعلومات  
+**الفصل الدراسي:** الأول لعام 2025/2026 م  
+**المشرف:** المهندسة فاطمة الشيخ صبح
 
 ---
 
@@ -814,4 +1142,4 @@ jobs:
 
 ---
 
-**ملاحظة:** هذه خطة تنفيذ مرنة وقابلة للتعديل حسب احتياجات المشروع والتطورات التقنية.
+> **ملاحظة:** هذه خطة تنفيذ مرنة وقابلة للتعديل حسب احتياجات المشروع والتطورات التقنية. يتم مراجعتها أسبوعياً وتحديثها حسب التقدم الفعلي.
