@@ -1,0 +1,196 @@
+// DEALAK Real Estate Application Database Schema
+
+Table users {
+  id uuid [pk, unique]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  phone varchar(20)
+  password_hash varchar(255) [not null]
+  role enum('customer', 'seller', 'admin') [not null, default: 'customer']
+  avatar_url varchar(500)
+  is_verified boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (email) [unique]
+    (phone)
+    (role)
+  }
+}
+
+Table properties {
+  id uuid [pk, unique]
+  seller_id uuid [not null]
+  title varchar(255) [not null]
+  description text
+  type enum('apartment', 'house', 'land', 'commercial') [not null]
+  status enum('available', 'rented', 'sold') [default: 'available']
+  price decimal(12, 2) [not null]
+  currency varchar(3) [default: 'SYP']
+  area decimal(10, 2)
+  address varchar(500)
+  city varchar(100)
+  latitude decimal(10, 8)
+  longitude decimal(11, 8)
+  bedrooms integer
+  bathrooms integer
+  floors integer
+  year_built integer
+  features jsonb
+  tax decimal(10, 2)
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (seller_id)
+    (type)
+    (status)
+    (city)
+    (price)
+    (latitude, longitude)
+  }
+}
+
+Table property_images {
+  id uuid [pk, unique]
+  property_id uuid [not null]
+  image_url varchar(500) [not null]
+  description varchar(255)
+  is_primary boolean [default: false]
+  order_index integer [default: 0]
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    (property_id)
+    (is_primary)
+  }
+}
+
+Table requests {
+  id uuid [pk, unique]
+  customer_id uuid [not null]
+  property_id uuid [not null]
+  type enum('rent', 'buy') [not null]
+  message text
+  status enum('pending', 'accepted', 'rejected', 'completed') [default: 'pending']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (customer_id)
+    (property_id)
+    (status)
+    (type)
+  }
+}
+
+Table deals {
+  id uuid [pk, unique]
+  request_id uuid [unique, not null]
+  seller_id uuid [not null]
+  customer_id uuid [not null]
+  property_id uuid [not null]
+  type enum('rent', 'buy') [not null]
+  price decimal(12, 2) [not null]
+  currency varchar(3) [default: 'SYP']
+  status enum('pending', 'in_progress', 'completed', 'cancelled') [default: 'pending']
+  start_date date
+  end_date date
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (request_id) [unique]
+    (seller_id)
+    (customer_id)
+    (property_id)
+    (status)
+  }
+}
+
+Table payments {
+  id uuid [pk, unique]
+  deal_id uuid [not null]
+  amount decimal(12, 2) [not null]
+  currency varchar(3) [default: 'SYP']
+  status enum('pending', 'completed', 'failed', 'refunded') [default: 'pending']
+  payment_method varchar(50)
+  transaction_id varchar(255) [unique]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  indexes {
+    (deal_id)
+    (transaction_id) [unique]
+    (status)
+  }
+}
+
+Table discounts {
+  id uuid [pk, unique]
+  deal_id uuid [unique, not null]
+  value decimal(10, 2) [not null]
+  type enum('percentage', 'fixed') [not null]
+  amount_before_discount decimal(12, 2) [not null]
+  amount_after_discount decimal(12, 2) [not null]
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    (deal_id) [unique]
+  }
+}
+
+Table notifications {
+  id uuid [pk, unique]
+  user_id uuid [not null]
+  type varchar(50) [not null]
+  title varchar(255) [not null]
+  message text
+  data jsonb
+  is_read boolean [default: false]
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    (user_id)
+    (is_read)
+    (type)
+  }
+}
+
+Table messages {
+  id uuid [pk, unique]
+  deal_id uuid [not null]
+  sender_id uuid [not null]
+  receiver_id uuid [not null]
+  content text [not null]
+  is_read boolean [default: false]
+  created_at timestamp [default: `now()`]
+
+  indexes {
+    (deal_id)
+    (sender_id)
+    (receiver_id)
+    (is_read)
+  }
+}
+
+// Relationships
+
+Ref: "users.id" < "properties.seller_id"
+Ref: "users.id" < "requests.customer_id"
+Ref: "users.id" < "deals.seller_id"
+Ref: "users.id" < "deals.customer_id"
+Ref: "users.id" < "notifications.user_id"
+Ref: "users.id" < "messages.sender_id"
+Ref: "users.id" < "messages.receiver_id"
+
+Ref: "properties.id" > "property_images.property_id"
+Ref: "properties.id" > "requests.property_id"
+Ref: "properties.id" > "deals.property_id"
+
+Ref: "requests.id" < "deals.request_id"
+
+Ref: "deals.id" > "payments.deal_id"
+Ref: "deals.id" > "discounts.deal_id"
+Ref: "deals.id" > "messages.deal_id"
