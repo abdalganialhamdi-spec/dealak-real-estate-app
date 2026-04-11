@@ -1,0 +1,322 @@
+// DEALAK Real Estate Application - DBML Schema
+// Default Currency: SYP (Syrian Pound)
+
+Table users {
+  id bigint [pk, increment]
+  email varchar(255) [unique, not null]
+  phone varchar(20) [unique]
+  password_hash varchar(255) [not null]
+  first_name varchar(100) [not null]
+  last_name varchar(100) [not null]
+  role enum('admin', 'agent', 'buyer', 'seller', 'tenant', 'landlord') [default: 'buyer', not null]
+  avatar_url varchar(500)
+  is_verified boolean [default: false]
+  is_active boolean [default: true]
+  last_login_at timestamp
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  indexes {
+    email [unique]
+    phone [unique]
+    (first_name, last_name)
+    role
+    is_active
+  }
+}
+
+Table properties {
+  id bigint [pk, increment]
+  owner_id bigint [not null, ref: > users.id]
+  agent_id bigint [ref: > users.id]
+  title varchar(255) [not null]
+  description text
+  property_type enum('apartment', 'house', 'villa', 'land', 'commercial', 'office', 'warehouse') [not null]
+  status enum('available', 'sold', 'rented', 'pending', 'off_market') [default: 'available', not null]
+  listing_type enum('sale', 'rent') [not null]
+  price decimal(15, 2) [not null]
+  currency varchar(3) [default: 'SYP', not null]
+  area_sqm decimal(10, 2)
+  bedrooms int
+  bathrooms int
+  floors int [default: 1]
+  year_built int
+  address varchar(500)
+  city varchar(100) [not null]
+  district varchar(100)
+  latitude decimal(10, 8)
+  longitude decimal(11, 8)
+  is_featured boolean [default: false]
+  is_negotiable boolean [default: true]
+  view_count int [default: 0]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  indexes {
+    owner_id
+    agent_id
+    property_type
+    status
+    listing_type
+    price
+    city
+    district
+    (latitude, longitude)
+    is_featured
+    created_at
+  }
+}
+
+Table property_images {
+  id bigint [pk, increment]
+  property_id bigint [not null, ref: > properties.id]
+  image_url varchar(500) [not null]
+  caption varchar(255)
+  is_primary boolean [default: false]
+  sort_order int [default: 0]
+  created_at timestamp [default: `now()`, not null]
+
+  indexes {
+    property_id
+    is_primary
+    sort_order
+  }
+}
+
+Table requests {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  request_type enum('buy', 'rent', 'sell', 'valuation') [not null]
+  property_type enum('apartment', 'house', 'villa', 'land', 'commercial', 'office', 'warehouse')
+  min_price decimal(15, 2)
+  max_price decimal(15, 2)
+  currency varchar(3) [default: 'SYP']
+  min_area_sqm decimal(10, 2)
+  max_area_sqm decimal(10, 2)
+  bedrooms int
+  bathrooms int
+  preferred_city varchar(100)
+  preferred_district varchar(100)
+  description text
+  urgency enum('low', 'medium', 'high') [default: 'medium']
+  status enum('open', 'in_progress', 'closed', 'cancelled') [default: 'open', not null]
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  indexes {
+    user_id
+    request_type
+    status
+    preferred_city
+    urgency
+    created_at
+    (min_price, max_price)
+  }
+}
+
+Table deals {
+  id bigint [pk, increment]
+  property_id bigint [not null, ref: > properties.id]
+  buyer_id bigint [not null, ref: > users.id]
+  seller_id bigint [not null, ref: > users.id]
+  agent_id bigint [ref: > users.id]
+  request_id bigint [ref: > requests.id]
+  deal_type enum('sale', 'rent') [not null]
+  agreed_price decimal(15, 2) [not null]
+  currency varchar(3) [default: 'SYP', not null]
+  commission_rate decimal(5, 2) [default: 2.50]
+  commission_amount decimal(15, 2)
+  deposit_amount decimal(15, 2)
+  deposit_paid boolean [default: false]
+  signed_at timestamp
+  status enum('negotiating', 'pending_deposit', 'deposit_paid', 'contract_signed', 'completed', 'cancelled') [default: 'negotiating', not null]
+  notes text
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  indexes {
+    property_id
+    buyer_id
+    seller_id
+    agent_id
+    request_id
+    status
+    deal_type
+    created_at
+  }
+}
+
+Table payments {
+  id bigint [pk, increment]
+  deal_id bigint [not null, ref: > deals.id]
+  payer_id bigint [not null, ref: > users.id]
+  payee_id bigint [not null, ref: > users.id]
+  payment_type enum('deposit', 'installment', 'full_payment', 'commission', 'refund') [not null]
+  amount decimal(15, 2) [not null]
+  currency varchar(3) [default: 'SYP', not null]
+  payment_method enum('cash', 'bank_transfer', 'check', 'mobile_money', 'credit_card') [not null]
+  transaction_reference varchar(100)
+  status enum('pending', 'completed', 'failed', 'refunded') [default: 'pending', not null]
+  paid_at timestamp
+  notes text
+  created_at timestamp [default: `now()`, not null]
+  updated_at timestamp [default: `now()`, not null]
+
+  indexes {
+    deal_id
+    payer_id
+    payee_id
+    status
+    payment_type
+    paid_at
+    created_at
+  }
+}
+
+Table discounts {
+  id bigint [pk, increment]
+  property_id bigint [ref: > properties.id]
+  code varchar(50) [unique]
+  discount_type enum('percentage', 'fixed_amount') [not null]
+  discount_value decimal(15, 2) [not null]
+  currency varchar(3) [default: 'SYP']
+  min_property_value decimal(15, 2)
+  max_discount_amount decimal(15, 2)
+  usage_limit int [default: 1]
+  usage_count int [default: 0]
+  valid_from timestamp [not null]
+  valid_until timestamp [not null]
+  is_active boolean [default: true]
+  created_by bigint [not null, ref: > users.id]
+  created_at timestamp [default: `now()`, not null]
+
+  indexes {
+    property_id
+    code [unique]
+    valid_from
+    valid_until
+    is_active
+    created_by
+  }
+}
+
+Table notifications {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  notification_type enum('message', 'deal_update', 'payment_received', 'property_inquiry', 'price_drop', 'system') [not null]
+  title varchar(255) [not null]
+  content text
+  related_entity_type enum('property', 'deal', 'payment', 'request', 'message')
+  related_entity_id bigint
+  is_read boolean [default: false]
+  read_at timestamp
+  created_at timestamp [default: `now()`, not null]
+
+  indexes {
+    user_id
+    notification_type
+    is_read
+    created_at
+    (related_entity_type, related_entity_id)
+  }
+}
+
+Table messages {
+  id bigint [pk, increment]
+  sender_id bigint [not null, ref: > users.id]
+  receiver_id bigint [not null, ref: > users.id]
+  property_id bigint [ref: > properties.id]
+  subject varchar(255)
+  content text [not null]
+  attachments json
+  is_read boolean [default: false]
+  read_at timestamp
+  parent_message_id bigint [ref: > messages.id]
+  created_at timestamp [default: `now()`, not null]
+
+  indexes {
+    sender_id
+    receiver_id
+    property_id
+    is_read
+    created_at
+    parent_message_id
+  }
+}
+
+// Relationships
+define relationship users_properties_owner {
+  users.id < properties.owner_id
+}
+
+define relationship users_properties_agent {
+  users.id < properties.agent_id
+}
+
+define relationship properties_images {
+  properties.id < property_images.property_id
+}
+
+define relationship users_requests {
+  users.id < requests.user_id
+}
+
+define relationship deals_property {
+  properties.id < deals.property_id
+}
+
+define relationship deals_buyer {
+  users.id < deals.buyer_id
+}
+
+define relationship deals_seller {
+  users.id < deals.seller_id
+}
+
+define relationship deals_agent {
+  users.id < deals.agent_id
+}
+
+define relationship deals_request {
+  requests.id < deals.request_id
+}
+
+define relationship deals_payments {
+  deals.id < payments.deal_id
+}
+
+define relationship payments_payer {
+  users.id < payments.payer_id
+}
+
+define relationship payments_payee {
+  users.id < payments.payee_id
+}
+
+define relationship users_discounts {
+  users.id < discounts.created_by
+}
+
+define relationship properties_discounts {
+  properties.id < discounts.property_id
+}
+
+define relationship users_notifications {
+  users.id < notifications.user_id
+}
+
+define relationship users_messages_sent {
+  users.id < messages.sender_id
+}
+
+define relationship users_messages_received {
+  users.id < messages.receiver_id
+}
+
+define relationship properties_messages {
+  properties.id < messages.property_id
+}
+
+define relationship messages_thread {
+  messages.id < messages.parent_message_id
+}
