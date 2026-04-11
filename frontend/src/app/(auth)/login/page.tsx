@@ -3,19 +3,31 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store';
 
 export default function LoginPage() {
   const router = useRouter();
+  const login = useAuthStore((state) => state.login);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login:', formData);
-    router.push('/');
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message || 'فشل تسجيل الدخول');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,6 +38,12 @@ export default function LoginPage() {
           <h2 className="text-2xl font-bold text-gray-900">تسجيل الدخول</h2>
           <p className="text-gray-600 mt-2">أهلاً بك مجدداً</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -39,6 +57,7 @@ export default function LoginPage() {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="example@email.com"
+              disabled={isLoading}
             />
           </div>
 
@@ -53,6 +72,7 @@ export default function LoginPage() {
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
 
@@ -68,9 +88,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-medium"
+            disabled={isLoading}
+            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            تسجيل الدخول
+            {isLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
 
           <div className="relative">

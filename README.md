@@ -15,7 +15,7 @@
 
 **DEALAK** هي منصة رقمية متكاملة تُسهّل عملية بيع وإيجار العقارات في سوريا من خلال تطبيق هاتف ذكي وموقع إلكتروني متصلين بنفس قاعدة البيانات، مع لوحة تحكم إدارية شاملة.
 
-[🚀 الخطة التنفيذية](IMPLEMENTATION_PLAN.md) · [📊 تحليل المشروع](docs/analysis.md) · [🗄️ مخطط قاعدة البيانات](database/schema_final.dbml) · [☁️ Cloudflare Deployment](CLOUDFLARE.md)
+[🚀 الخطة التنفيذية](IMPLEMENTATION_PLAN.md) · [📊 تحليل المشروع](docs/analysis.md) · [🗄️ مخطط قاعدة البيانات](database/schema_final.dbml) · [☁️ Cloudflare Deployment](CLOUDFLARE.md) · [📋 Code Review](docs/FRONTEND-CODE-REVIEW.md) · [🧪 QA Report](docs/FRONTEND-QA-REPORT.md)
 
 </div>
 
@@ -103,6 +103,8 @@
 | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=fff) | Styling |
 | ![Zustand](https://img.shields.io/badge/-Zustand-553C7B) | State Management |
 | ![React Query](https://img.shields.io/badge/-React_Query-FF4154?logo=reactquery&logoColor=fff) | Server State |
+| ![Axios](https://img.shields.io/badge/-Axios-5A29E4?logo=axios&logoColor=fff) | HTTP Client |
+| ![Zod](https://img.shields.io/badge/-Zod-3E82C7?logo=zod&logoColor=fff) | Validation |
 
 ### Mobile
 | التقنية | الاستخدام |
@@ -283,7 +285,9 @@ dealak-real-estate-app/
 │       ├── app/          # 📄 Pages
 │       ├── components/   # 🧩 Components
 │       ├── hooks/        # 🪝 Custom hooks
-│       └── lib/          # 📚 Utilities
+│       ├── lib/          # 📚 Utilities
+│       ├── store/        # 🗄️ State Management
+│       └── middleware.ts # 🛡️ Security Middleware
 │
 ├── mobile/               # 📱 Mobile App (React Native)
 │   └── app/             # 📱 Screens
@@ -296,7 +300,9 @@ dealak-real-estate-app/
 │
 ├── docs/                 # 📚 Documentation
 │   ├── analysis.md       # 📊 Project Analysis
-│   └── CLOUDFLARE.md     # ☁️ Cloudflare Deployment Guide
+│   ├── CLOUDFLARE.md     # ☁️ Cloudflare Deployment Guide
+│   ├── FRONTEND-CODE-REVIEW.md  # 📋 Frontend Code Review
+│   └── FRONTEND-QA-REPORT.md    # 🧪 Frontend QA Report
 │
 ├── wrangler.toml         # ☁️ Cloudflare Configuration
 └── docker-compose.yml    # 🐳 Docker setup

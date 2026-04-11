@@ -1,6 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useProperties } from '@/hooks/useApi';
 
 export default function Home() {
+  const { data: propertiesData, isLoading } = useProperties({ featured: true, limit: 3 });
+  const properties = propertiesData?.data?.properties || [];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/* Header */}
@@ -32,7 +38,7 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8">
             آلاف العقارات المتاحة للبيع والإيجار في جميع المحافظات
           </p>
-          
+
           {/* Search Box */}
           <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -57,9 +63,9 @@ export default function Home() {
                 <option>حماة</option>
               </select>
             </div>
-            <button className="w-full mt-4 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition">
+            <Link href="/search" className="block w-full mt-4 bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition text-center">
               بحث
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -67,21 +73,49 @@ export default function Home() {
       {/* Featured Properties */}
       <section className="container mx-auto px-4 py-16">
         <h3 className="text-3xl font-bold text-gray-900 mb-8">عقارات مميزة</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="h-48 bg-gray-200"></div>
-              <div className="p-4">
-                <h4 className="font-bold text-lg mb-2">شقة فاخرة في دمشق</h4>
-                <p className="text-gray-600 mb-4">3 غرف نوم، 2 حمام، 120 م²</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-primary-600">150,000,000 ل.س</span>
-                  <span className="text-sm text-gray-500">بيع</span>
+
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">جاري تحميل العقارات...</p>
+          </div>
+        ) : properties.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">لا توجد عقارات مميزة حالياً</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {properties.map((property: any) => (
+              <Link key={property.id} href={`/properties/${property.id}`} className="block">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                  <div className="h-48 bg-gray-200">
+                    {property.images && property.images.length > 0 && (
+                      <img
+                        src={property.images[0].imageUrl}
+                        alt={property.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h4 className="font-bold text-lg mb-2">{property.title}</h4>
+                    <p className="text-gray-600 mb-4">
+                      {property.bedrooms} غرف نوم، {property.bathrooms} حمام، {property.area} م²
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-2xl font-bold text-primary-600">
+                        {property.price.toLocaleString()} {property.currency}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {property.listingType === 'sale' ? 'بيع' : 'إيجار'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Stats */}
@@ -119,17 +153,17 @@ export default function Home() {
             <div>
               <h5 className="font-bold text-lg mb-4">روابط سريعة</h5>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/properties">العقارات</Link></li>
-                <li><Link href="/about">من نحن</Link></li>
-                <li><Link href="/contact">اتصل بنا</Link></li>
+                <li><Link href="/properties" className="hover:text-white">العقارات</Link></li>
+                <li><Link href="/about" className="hover:text-white">من نحن</Link></li>
+                <li><Link href="/contact" className="hover:text-white">اتصل بنا</Link></li>
               </ul>
             </div>
             <div>
               <h5 className="font-bold text-lg mb-4">الدعم</h5>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/help">مركز المساعدة</Link></li>
-                <li><Link href="/faq">الأسئلة الشائعة</Link></li>
-                <li><Link href="/privacy">سياسة الخصوصية</Link></li>
+                <li><Link href="/help" className="hover:text-white">مركز المساعدة</Link></li>
+                <li><Link href="/faq" className="hover:text-white">الأسئلة الشائعة</Link></li>
+                <li><Link href="/privacy" className="hover:text-white">سياسة الخصوصية</Link></li>
               </ul>
             </div>
             <div>

@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const register = useAuthStore((state) => state.register);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -13,14 +15,44 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'buyer',
+    role: 'buyer' as 'buyer' | 'seller' | 'agent',
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
-    console.log('Register:', formData);
-    router.push('/login');
+    setError(null);
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('كلمات المرور غير متطابقة');
+      return;
+    }
+
+    // Validate password strength
+    if (formData.password.length < 8) {
+      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role,
+      });
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message || 'فشل إنشاء الحساب');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,6 +63,12 @@ export default function RegisterPage() {
           <h2 className="text-2xl font-bold text-gray-900">إنشاء حساب جديد</h2>
           <p className="text-gray-600 mt-2">انضم إلينا اليوم</p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -45,6 +83,7 @@ export default function RegisterPage() {
                 onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="محمد"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -58,6 +97,7 @@ export default function RegisterPage() {
                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="أحمد"
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -73,6 +113,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="example@email.com"
+              disabled={isLoading}
             />
           </div>
 
@@ -86,6 +127,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="+963 9XX XXX XXX"
+              disabled={isLoading}
             />
           </div>
 
@@ -95,8 +137,9 @@ export default function RegisterPage() {
             </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              disabled={isLoading}
             >
               <option value="buyer">مشتري / مستأجر</option>
               <option value="seller">بائع / مالك</option>
@@ -115,6 +158,7 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
 
@@ -129,14 +173,16 @@ export default function RegisterPage() {
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="••••••••"
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-medium"
+            disabled={isLoading}
+            className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            إنشاء الحساب
+            {isLoading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
           </button>
         </form>
 

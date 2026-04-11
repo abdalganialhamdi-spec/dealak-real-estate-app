@@ -1,6 +1,65 @@
-import Link from 'next/link';
+'use client';
 
-export default function PropertyDetailPage() {
+import { useState } from 'react';
+import Link from 'next/link';
+import { useProperty, useAddFavorite, useRemoveFavorite } from '@/hooks/useApi';
+import { useAuthStore } from '@/store';
+
+export default function PropertyDetailPage({ params }: { params: { id: string } }) {
+  const { user } = useAuthStore();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const { data: propertyData, isLoading, error } = useProperty(parseInt(params.id));
+  const addFavorite = useAddFavorite();
+  const removeFavorite = useRemoveFavorite();
+
+  const property = propertyData?.data?.property;
+
+  const handleFavorite = async () => {
+    if (!user) {
+      alert('يجب تسجيل الدخول لإضافة العقار للمفضلة');
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await removeFavorite.mutateAsync({ userId: user.id, propertyId: property.id });
+        setIsFavorite(false);
+      } else {
+        await addFavorite.mutateAsync({ userId: user.id, propertyId: property.id });
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل تفاصيل العقار...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !property) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">فشل تحميل تفاصيل العقار</p>
+          <Link
+            href="/properties"
+            className="bg-primary-600 text-white px-6 py-2 rounded-lg"
+          >
+            العودة للعقارات
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -32,7 +91,7 @@ export default function PropertyDetailPage() {
           <span className="mx-2">/</span>
           <Link href="/properties" className="hover:text-primary-600">العقارات</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-900">شقة فاخرة في دمشق</span>
+          <span className="text-gray-900">{property.title}</span>
         </nav>
       </div>
 
@@ -43,12 +102,32 @@ export default function PropertyDetailPage() {
           <div className="lg:col-span-2">
             {/* Image Gallery */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-              <div className="h-96 bg-gray-200"></div>
-              <div className="grid grid-cols-4 gap-2 p-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-20 bg-gray-200 rounded cursor-pointer hover:opacity-75"></div>
-                ))}
+              <div className="h-96 bg-gray-200">
+                {property.images && property.images.length > 0 ? (
+                  <img
+                    src={property.images.find((img: any) => img.isPrimary)?.imageUrl || property.images[0].imageUrl}
+                    alt={property.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    لا توجد صور
+                  </div>
+                )}
               </div>
+              {property.images && property.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2 p-2">
+                  {property.images.slice(0, 4).map((image: any) => (
+                    <div key={image.id} className="h-20 bg-gray-200 rounded cursor-pointer hover:opacity-75">
+                      <img
+                        src={image.imageUrl}
+                        alt={property.title}
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Property Info */}
@@ -56,35 +135,39 @@ export default function PropertyDetailPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    شقة فاخرة في دمشق
+                    {property.title}
                   </h1>
-                  <p className="text-gray-600">📍 الملكي، دمشق</p>
+                  <p className="text-gray-600">📍 {property.areaName}, {property.governorate}</p>
                 </div>
                 <div className="text-left">
-                  <div className="text-3xl font-bold text-primary-600">150,000,000 ل.س</div>
-                  <div className="text-sm text-gray-500">بيع</div>
+                  <div className="text-3xl font-bold text-primary-600">
+                    {property.price.toLocaleString()} {property.currency}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {property.listingType === 'sale' ? 'بيع' : 'إيجار'}
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-4 py-6 border-y">
                 <div className="text-center">
                   <div className="text-2xl mb-1">🛏️</div>
-                  <div className="font-bold">3</div>
+                  <div className="font-bold">{property.bedrooms}</div>
                   <div className="text-sm text-gray-500">غرف نوم</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl mb-1">🚿</div>
-                  <div className="font-bold">2</div>
+                  <div className="font-bold">{property.bathrooms}</div>
                   <div className="text-sm text-gray-500">حمام</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl mb-1">📐</div>
-                  <div className="font-bold">120</div>
+                  <div className="font-bold">{property.area}</div>
                   <div className="text-sm text-gray-500">متر مربع</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl mb-1">🏢</div>
-                  <div className="font-bold">5</div>
+                  <div className="font-bold">{property.floor || '-'}</div>
                   <div className="text-sm text-gray-500">طابق</div>
                 </div>
               </div>
@@ -92,29 +175,38 @@ export default function PropertyDetailPage() {
               <div className="py-6">
                 <h2 className="text-xl font-bold mb-4">الوصف</h2>
                 <p className="text-gray-700 leading-relaxed">
-                  شقة فاخرة في حي الملكي بدمشق، تتكون من 3 غرف نوم وصالة واسعة، 
-                  مطبخ مجهز بالكامل، شرفة مطلة على الحديقة، مواقف سيارات، 
-                  أمن 24 ساعة، قرب من جميع الخدمات والمرافق العامة.
+                  {property.description}
                 </p>
               </div>
 
-              <div className="py-6 border-t">
-                <h2 className="text-xl font-bold mb-4">المميزات</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {['موقف سيارات', 'أمن 24 ساعة', 'شرفة', 'مطبخ مجهز', 'تكييف مركزي', 'إنترنت عالي السرعة'].map((feature) => (
-                    <div key={feature} className="flex items-center gap-2">
-                      <span className="text-green-500">✓</span>
-                      <span>{feature}</span>
-                    </div>
-                  ))}
+              {property.features && property.features.length > 0 && (
+                <div className="py-6 border-t">
+                  <h2 className="text-xl font-bold mb-4">المميزات</h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {property.features.map((feature: any) => (
+                      <div key={feature.id} className="flex items-center gap-2">
+                        <span className="text-green-500">✓</span>
+                        <span>{feature.feature}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Location */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold mb-4">الموقع</h2>
-              <div className="h-64 bg-gray-200 rounded-lg"></div>
+              <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                {property.latitude && property.longitude ? (
+                  <div className="text-center">
+                    <p>📍 {property.latitude}, {property.longitude}</p>
+                    <p className="text-sm mt-2">خريطة الموقع</p>
+                  </div>
+                ) : (
+                  <p>لا توجد إحداثيات</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -126,12 +218,19 @@ export default function PropertyDetailPage() {
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
                 <div>
-                  <div className="font-bold">أحمد محمد</div>
-                  <div className="text-sm text-gray-500">وسيط عقاري</div>
+                  <div className="font-bold">المالك</div>
+                  <div className="text-sm text-gray-500">بائع</div>
                 </div>
               </div>
-              <button className="w-full bg-primary-600 text-white py-3 rounded-lg hover:bg-primary-700 transition mb-3">
-                إرسال رسالة
+              <button
+                onClick={handleFavorite}
+                className={`w-full py-3 rounded-lg transition mb-3 ${
+                  isFavorite
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-primary-600 text-white hover:bg-primary-700'
+                }`}
+              >
+                {isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
               </button>
               <button className="w-full border border-primary-600 text-primary-600 py-3 rounded-lg hover:bg-primary-50 transition mb-3">
                 📞 +963 9XX XXX XXX
@@ -145,18 +244,7 @@ export default function PropertyDetailPage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-bold mb-4">عقارات مشابهة</h3>
               <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <Link key={i} href={`/properties/${i}`} className="block">
-                    <div className="flex gap-4">
-                      <div className="w-24 h-24 bg-gray-200 rounded"></div>
-                      <div className="flex-1">
-                        <h4 className="font-bold mb-1">شقة في حلب</h4>
-                        <p className="text-sm text-gray-500 mb-2">2 غرف، 90 م²</p>
-                        <div className="font-bold text-primary-600">100,000,000 ل.س</div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                <p className="text-gray-500 text-sm">قريباً...</p>
               </div>
             </div>
           </div>
