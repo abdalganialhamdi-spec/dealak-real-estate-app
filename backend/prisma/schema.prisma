@@ -1,0 +1,650 @@
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  DEALAK Real Estate Application — Prisma Schema                        ║
+// ║  Engine:   PostgreSQL 16+ with PostGIS Extension                       ║
+// ║  Currency: SYP (Syrian Pound) — Default                                ║
+// ║  Version:  2.0.0                                                       ║
+// ║  Date:     11 April 2026                                               ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 1. USERS — المستخدمون
+// ──────────────────────────────────────────────────────────────────────────
+model Users {
+  id            BigInt    @id @default(autoincrement())
+  email         String    @unique @db.VarChar(255)
+  phone         String?   @unique @db.VarChar(20)
+  passwordHash  String    @db.VarChar(255)
+  firstName     String    @db.VarChar(100)
+  lastName      String    @db.VarChar(100)
+  role          UserRole  @default(BUYER)
+  avatarUrl     String?   @db.VarChar(500)
+  bio           String?
+  nationalId    String?   @unique @db.VarChar(30)
+  isVerified    Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  ownedProperties      Property[]      @relation("OwnerProperties")
+  managedProperties    Property[]      @relation("AgentProperties")
+  requests             Request[]
+  buyerDeals           Deal[]          @relation("BuyerDeals")
+  sellerDeals          Deal[]          @relation("SellerDeals")
+  agentDeals           Deal[]          @relation("AgentDeals")
+  payerPayments        Payment[]       @relation("PayerPayments")
+  payeePayments        Payment[]       @relation("PayeePayments")
+  createdDiscounts     Discount[]
+  receivedNotifications Notification[]
+  sentMessages         Message[]       @relation("SenderMessages")
+  receivedMessages     Message[]       @relation("ReceiverMessages")
+  userDevices          UserDevice[]
+  refreshTokens        RefreshToken[]
+  favorites            Favorite[]
+  reviews              Review[]
+  conversations        Conversation[]  @relation("UserConversations")
+
+  @@index([email])
+  @@index([phone])
+  @@index([firstName, lastName], name: "idx_users_full_name")
+  @@index([role])
+  @@index([isActive])
+  @@index([lastLoginAt])
+  @@index([createdAt])
+  @@index([role, isActive], name: "idx_users_role_active")
+  @@index([deletedAt], name: "idx_users_soft_delete")
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  AGENT
+  BUYER
+  SELLER
+  TENANT
+  LANDLORD
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 2. USER_DEVICES — أجهزة المستخدمين (Push Notifications)
+// ──────────────────────────────────────────────────────────────────────────
+model UserDevice {
+  id           BigInt   @id @default(autoincrement())
+  userId       BigInt
+  deviceToken  String   @db.VarChar(500)
+  platform     String   @db.VarChar(50)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([deviceToken])
+  @@map("user_devices")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 3. REFRESH_TOKENS — رموز JWT للتحديث
+// ──────────────────────────────────────────────────────────────────────────
+model RefreshToken {
+  id         BigInt    @id @default(autoincrement())
+  tokenHash  String    @unique @db.VarChar(500)
+  userId     BigInt
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 4. PROPERTIES — العقارات
+// ──────────────────────────────────────────────────────────────────────────
+model Property {
+  id              BigInt         @id @default(autoincrement())
+  ownerId         BigInt
+  agentId         BigInt?
+  title           String         @db.VarChar(255)
+  slug            String         @unique @db.VarChar(255)
+  description     String?        @db.Text
+  propertyType    PropertyType
+  status          PropertyStatus @default(AVAILABLE)
+  listingType     ListingType
+  price           Decimal        @db.Decimal(15, 2)
+  currency        String         @default("SYP") @db.VarChar(3)
+  areaSqm         Decimal?       @db.Decimal(10, 2)
+  bedrooms        Int?
+  bathrooms       Int?
+  floors          Int?
+  yearBuilt       Int?
+  address         String?        @db.VarChar(500)
+  city            String         @db.VarChar(100)
+  district        String?        @db.VarChar(100)
+  latitude        Decimal?       @db.Decimal(10, 8)
+  longitude       Decimal?       @db.Decimal(11, 8)
+  isFeatured      Boolean        @default(false)
+  isNegotiable    Boolean        @default(true)
+  viewCount       Int            @default(0)
+  deletedAt       DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  owner           Users           @relation("OwnerProperties", fields: [ownerId], references: [id])
+  agent           Users?          @relation("AgentProperties", fields: [agentId], references: [id])
+  images          PropertyImage[]
+  features        PropertyFeature[]
+  favorites       Favorite[]
+  views           PropertyView[]
+  reviews         Review[]
+  deals           Deal[]
+  requests        Request[]
+  conversations   Conversation[]
+  messages        Message[]
+
+  @@index([ownerId])
+  @@index([agentId])
+  @@index([propertyType])
+  @@index([status])
+  @@index([listingType])
+  @@index([price])
+  @@index([city])
+  @@index([slug])
+  @@index([isFeatured])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("properties")
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+  LAND
+  COMMERCIAL
+  OFFICE
+  WAREHOUSE
+  CHALET
+  FARM
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  RENTED
+  PENDING
+  WITHDRAWN
+}
+
+enum ListingType {
+  SALE
+  RENT_MONTHLY
+  RENT_YEARLY
+  RENT_DAILY
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 5. PROPERTY_FEATURES — ميزات العقار
+// ──────────────────────────────────────────────────────────────────────────
+model PropertyFeature {
+  id           BigInt   @id @default(autoincrement())
+  propertyId   BigInt
+  featureKey   String   @db.VarChar(100)
+  featureValue String   @db.VarChar(255)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, featureKey])
+  @@index([propertyId])
+  @@index([featureKey])
+  @@map("property_features")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 6. PROPERTY_IMAGES — صور العقار
+// ──────────────────────────────────────────────────────────────────────────
+model PropertyImage {
+  id            BigInt   @id @default(autoincrement())
+  propertyId    BigInt
+  imageUrl      String   @db.VarChar(500)
+  thumbnailUrl  String?  @db.VarChar(500)
+  caption       String?  @db.VarChar(255)
+  isPrimary     Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([isPrimary])
+  @@map("property_images")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 7. FAVORITES — المفضلة
+// ──────────────────────────────────────────────────────────────────────────
+model Favorite {
+  id         BigInt    @id @default(autoincrement())
+  userId     BigInt
+  propertyId BigInt
+  createdAt  DateTime  @default(now())
+
+  user     Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("favorites")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 8. SAVED_SEARCHES — البحوث المحفوظة
+// ──────────────────────────────────────────────────────────────────────────
+model SavedSearch {
+  id              BigInt    @id @default(autoincrement())
+  userId          BigInt
+  name            String    @db.VarChar(255)
+  filters         Json      // Store search filters as JSON
+  notifyOnMatch   Boolean   @default(true)
+  lastNotifiedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([notifyOnMatch])
+  @@map("saved_searches")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 9. REQUESTS — الطلبات العقارية
+// ──────────────────────────────────────────────────────────────────────────
+model Request {
+  id              BigInt        @id @default(autoincrement())
+  userId          BigInt
+  requestType     RequestType
+  propertyType    PropertyType?
+  minPrice        Decimal?      @db.Decimal(15, 2)
+  maxPrice        Decimal?      @db.Decimal(15, 2)
+  currency        String        @default("SYP") @db.VarChar(3)
+  minAreaSqm      Decimal?      @db.Decimal(10, 2)
+  maxAreaSqm      Decimal?      @db.Decimal(10, 2)
+  bedrooms        Int?
+  bathrooms       Int?
+  preferredCity   String?       @db.VarChar(100)
+  preferredDistrict String?     @db.VarChar(100)
+  description     String?       @db.Text
+  urgency         Urgency       @default(NORMAL)
+  status          RequestStatus @default(OPEN)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user      Users      @relation(fields: [userId], references: [id])
+  deals     Deal[]
+  property  Property?  @relation(fields: [propertyId], references: [id])
+
+  @@index([userId])
+  @@index([requestType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("requests")
+}
+
+enum RequestType {
+  BUY
+  RENT
+  SELL
+}
+
+enum Urgency {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 10. DEALS — الصفقات
+// ──────────────────────────────────────────────────────────────────────────
+model Deal {
+  id               BigInt      @id @default(autoincrement())
+  propertyId       BigInt
+  buyerId          BigInt
+  sellerId         BigInt
+  agentId          BigInt?
+  requestId        BigInt?
+  dealType         DealType
+  agreedPrice      Decimal     @db.Decimal(15, 2)
+  currency         String      @default("SYP") @db.VarChar(3)
+  commissionRate   Decimal?    @db.Decimal(5, 2)
+  commissionAmount Decimal?    @db.Decimal(15, 2)
+  depositAmount    Decimal?    @db.Decimal(15, 2)
+  depositPaid      Boolean     @default(false)
+  rentPeriod       String?     @db.VarChar(50)
+  signedAt         DateTime?
+  status           DealStatus  @default(PENDING)
+  notes            String?     @db.Text
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id])
+  buyer    Users    @relation("BuyerDeals", fields: [buyerId], references: [id])
+  seller   Users    @relation("SellerDeals", fields: [sellerId], references: [id])
+  agent    Users?   @relation("AgentDeals", fields: [agentId], references: [id])
+  request  Request? @relation(fields: [requestId], references: [id])
+  payments Payment[]
+  messages Message[]
+
+  @@index([propertyId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([agentId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("deals")
+}
+
+enum DealType {
+  SALE
+  RENT
+}
+
+enum DealStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 11. PAYMENTS — المدفوعات
+// ──────────────────────────────────────────────────────────────────────────
+model Payment {
+  id                    BigInt        @id @default(autoincrement())
+  dealId                BigInt
+  payerId               BigInt
+  payeeId               BigInt
+  paymentType           PaymentType
+  amount                Decimal       @db.Decimal(15, 2)
+  currency              String        @default("SYP") @db.VarChar(3)
+  paymentMethod         PaymentMethod
+  transactionReference  String?       @db.VarChar(100)
+  installmentNumber     Int?
+  totalInstallments     Int?
+  status                PaymentStatus @default(PENDING)
+  paidAt                DateTime?
+  notes                 String?       @db.Text
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  deal  Deal   @relation(fields: [dealId], references: [id])
+  payer Users  @relation("PayerPayments", fields: [payerId], references: [id])
+  payee Users  @relation("PayeePayments", fields: [payeeId], references: [id])
+
+  @@index([dealId])
+  @@index([payerId])
+  @@index([payeeId])
+  @@index([status])
+  @@index([paidAt])
+  @@map("payments")
+}
+
+enum PaymentType {
+  DEPOSIT
+  INSTALLMENT
+  FINAL_PAYMENT
+  COMMISSION
+  REFUND
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CHECK
+  ELECTRONIC_WALLET
+  CREDIT_CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 12. DISCOUNTS — الخصومات
+// ──────────────────────────────────────────────────────────────────────────
+model Discount {
+  id                  BigInt   @id @default(autoincrement())
+  propertyId          BigInt?
+  code                String   @unique @db.VarChar(50)
+  discountType        DiscountType
+  discountValue       Decimal  @db.Decimal(15, 2)
+  currency            String   @default("SYP") @db.VarChar(3)
+  minPropertyValue    Decimal? @db.Decimal(15, 2)
+  maxDiscountAmount   Decimal? @db.Decimal(15, 2)
+  usageLimit          Int?
+  usageCount          Int      @default(0)
+  validFrom           DateTime
+  validUntil          DateTime
+  isActive            Boolean  @default(true)
+  createdBy           BigInt
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  creator Users @relation(fields: [createdBy], references: [id])
+
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom, validUntil])
+  @@map("discounts")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 13. CONVERSATIONS — المحادثات
+// ──────────────────────────────────────────────────────────────────────────
+model Conversation {
+  id             BigInt   @id @default(autoincrement())
+  participant1   BigInt
+  participant2   BigInt
+  propertyId     BigInt?
+  lastMessageAt  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user1   Users      @relation("UserConversations", fields: [participant1], references: [id])
+  user2   Users      @relation("User2Conversations", fields: [participant2], references: [id])
+  property Property? @relation(fields: [propertyId], references: [id])
+  messages Message[]
+
+  @@unique([participant1, participant2, propertyId])
+  @@index([participant1])
+  @@index([participant2])
+  @@index([propertyId])
+  @@index([lastMessageAt])
+  @@map("conversations")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 14. MESSAGES — الرسائل
+// ──────────────────────────────────────────────────────────────────────────
+model Message {
+  id               BigInt      @id @default(autoincrement())
+  conversationId   BigInt
+  senderId         BigInt
+  receiverId       BigInt
+  propertyId       BigInt?
+  subject          String?     @db.VarChar(255)
+  content          String      @db.Text
+  messageType      MessageType @default(TEXT)
+  attachments      Json?
+  isRead           Boolean     @default(false)
+  readAt           DateTime?
+  parentMessageId  BigInt?
+  createdAt        DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       Users        @relation("SenderMessages", fields: [senderId], references: [id])
+  receiver     Users        @relation("ReceiverMessages", fields: [receiverId], references: [id])
+  property     Property?    @relation(fields: [propertyId], references: [id])
+  deal         Deal?        @relation(fields: [dealId], references: [id])
+  parent       Message?     @relation("MessageReplies", fields: [parentMessageId], references: [id])
+  replies      Message[]    @relation("MessageReplies")
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([propertyId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  LOCATION
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 15. NOTIFICATIONS — الإشعارات
+// ──────────────────────────────────────────────────────────────────────────
+model Notification {
+  id                  BigInt           @id @default(autoincrement())
+  userId              BigInt
+  notificationType    NotificationType
+  title               String           @db.VarChar(255)
+  content             String?          @db.Text
+  relatedEntityType   String?          @db.VarChar(50)
+  relatedEntityId     BigInt?
+  isRead              Boolean          @default(false)
+  readAt              DateTime?
+  isPushSent          Boolean          @default(false)
+  createdAt           DateTime         @default(now())
+
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([notificationType])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  MESSAGE
+  DEAL_UPDATE
+  PAYMENT
+  PROPERTY_NEW
+  PRICE_DROP
+  SYSTEM
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 16. REVIEWS — التقييمات
+// ──────────────────────────────────────────────────────────────────────────
+model Review {
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt
+  propertyId BigInt
+  rating     Int      // 1-5 stars
+  comment    String?  @db.Text
+  response   String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     Users    @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([userId, propertyId])
+  @@index([propertyId])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 17. PROPERTY_VIEWS — تتبع المشاهدات
+// ──────────────────────────────────────────────────────────────────────────
+model PropertyView {
+  id          BigInt    @id @default(autoincrement())
+  propertyId  BigInt
+  userId      BigInt?
+  ipAddress   String?   @db.VarChar(45)
+  userAgent   String?   @db.VarChar(500)
+  referrer    String?   @db.VarChar(500)
+  viewedAt    DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([viewedAt])
+  @@map("property_views")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 18. AUDIT_LOGS — سجل التدقيق
+// ──────────────────────────────────────────────────────────────────────────
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  tableName  String   @db.VarChar(100)
+  action     String   @db.VarChar(50)
+  recordId   BigInt?
+  oldData    Json?
+  newData    Json?
+  userId     BigInt?
+  ipAddress  String?  @db.VarChar(45)
+  createdAt  DateTime @default(now())
+
+  @@index([tableName])
+  @@index([action])
+  @@index([recordId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 19. SYSTEM_SETTINGS — إعدادات النظام
+// ──────────────────────────────────────────────────────────────────────────
+model SystemSetting {
+  id        BigInt   @id @default(autoincrement())
+  key       String   @unique @db.VarChar(100)
+  value     String   @db.Text
+  valueType String   @default("STRING") @db.VarChar(50)
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@map("system_settings")
+}
