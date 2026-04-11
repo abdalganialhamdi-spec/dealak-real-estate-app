@@ -1,272 +1,290 @@
-# 🚀 DEALAK - Cloudflare Deployment Guide
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║  DEALAK Real Estate Platform — Cloudflare Deployment Guide              ║
+# ║  Version:  1.0.0                                                       ║
+# ║  Date:     11 April 2026                                               ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
 
-Complete guide for deploying DEALAK Real Estate Platform on Cloudflare.
+## 📋 Overview
 
-## 📋 Architecture
+This guide explains how to deploy the DEALAK real estate platform to Cloudflare Workers and Pages.
+
+## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                  Cloudflare Pages                     │
-│              Frontend Web (Next.js)                   │
-│         Global CDN + Edge Caching                    │
-├─────────────────────────────────────────────────────┤
-│                 Cloudflare Workers                   │
-│              Backend API (Hono)                       │
-│         D1 Database + KV Storage + R2               │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     Cloudflare Workers                           │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Hono Framework (API)                                      │  │
+│  │  - Auth Routes                                             │  │
+│  │  - Property Routes                                         │  │
+│  │  - User Routes                                             │  │
+│  │  - Favorite Routes                                         │  │
+│  │  - Message Routes                                          │  │
+│  │  - Deal Routes                                             │  │
+│  │  - Review Routes                                           │  │
+│  │  - Notification Routes                                     │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Cloudflare Services                                      │  │
+│  │  - D1 Database (SQLite)                                   │  │
+│  │  - KV Storage (Caching)                                   │  │
+│  │  - R2 Storage (Images)                                    │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Cloudflare Pages                            │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Next.js 14 Frontend                                      │  │
+│  │  - Home Page                                               │  │
+│  │  - Property Listing                                        │  │
+│  │  - Property Details                                        │  │
+│  │  - User Profile                                           │  │
+│  │  - Favorites                                               │  │
+│  │  - Messages                                                │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## 🛠️ Components
+## 🚀 Quick Start
 
-### 1. Cloudflare Workers (Backend)
-- **Runtime:** Cloudflare Workers
-- **Framework:** Hono
-- **Database:** D1 (SQLite)
-- **Cache:** KV Storage
-- **Files:** R2 Storage
+### Prerequisites
 
-### 2. Cloudflare Pages (Frontend)
-- **Framework:** Next.js 14
-- **Deployment:** Git integration
-- **Features:** Global CDN, Edge caching
+- Node.js 18+
+- Wrangler CLI
+- Cloudflare account
 
-## 📦 Prerequisites
+### Installation
 
-1. **Cloudflare Account**
-   - Sign up at https://dash.cloudflare.com/sign-up
-
-2. **Wrangler CLI**
-   ```bash
-   npm install -g wrangler
-   ```
-
-3. **GitHub Repository**
-   - Push code to GitHub
-
-## 🚀 Deployment Steps
-
-### Step 1: Setup Cloudflare Workers
-
-#### 1.1 Login to Cloudflare
 ```bash
+# Install Wrangler
+npm install -g wrangler
+
+# Login to Cloudflare
 wrangler login
+
+# Install dependencies
+cd backend
+npm install
 ```
 
-#### 1.2 Create D1 Database
-```bash
-wrangler d1 create dealak-db
-```
+### Configuration
 
-Copy the `database_id` and update `wrangler.toml`:
+Update `wrangler.toml` with your Cloudflare IDs:
+
 ```toml
 [[d1_databases]]
 binding = "DB"
 database_name = "dealak-db"
-database_id = "YOUR_DATABASE_ID"
-```
+database_id = "YOUR_D1_DATABASE_ID"
 
-#### 1.3 Create KV Namespace
-```bash
-wrangler kv:namespace create "CACHE"
-```
-
-Copy the `id` and update `wrangler.toml`:
-```toml
 [[kv_namespaces]]
 binding = "CACHE"
-id = "YOUR_KV_ID"
+id = "YOUR_KV_NAMESPACE_ID"
+
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "dealak-storage"
 ```
 
-#### 1.4 Create R2 Bucket
+### Create Cloudflare Resources
+
 ```bash
+# Create D1 Database
+wrangler d1 create dealak-db
+
+# Create KV Namespace
+wrangler kv:namespace create "CACHE"
+
+# Create R2 Bucket
 wrangler r2 bucket create dealak-storage
 ```
 
-#### 1.5 Run Migrations
+### Database Migration
+
 ```bash
-wrangler d1 execute dealak-db --file=database/schema.sql
+# Run schema migration
+npm run db:migrate
+
+# Seed database
+npm run db:seed
 ```
 
-#### 1.6 Seed Database
+### Local Development
+
 ```bash
-wrangler d1 execute dealak-db --file=database/seed.sql
-```
-
-#### 1.7 Deploy Worker
-```bash
-cd backend
-npm install
-wrangler deploy
-```
-
-### Step 2: Setup Cloudflare Pages
-
-#### 2.1 Connect GitHub Repository
-
-1. Go to Cloudflare Dashboard → Pages
-2. Click "Create a project"
-3. Click "Connect to Git"
-4. Select your repository
-5. Configure build settings:
-   - **Framework preset:** Next.js
-   - **Build command:** `npm run build`
-   - **Build output directory:** `.next`
-   - **Node.js version:** `20`
-
-6. Click "Save and Deploy"
-
-#### 2.2 Configure Environment Variables
-
-In Cloudflare Pages dashboard, add:
-
-- `NEXT_PUBLIC_API_URL` - Your Worker URL (e.g., `https://dealak-backend.workers.dev`)
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
-- `NEXT_PUBLIC_FIREBASE_API_KEY` - Firebase API key
-
-#### 2.3 Configure Custom Domain (Optional)
-
-1. Go to Pages → Custom domains
-2. Add your domain (e.g., `dealak.com`)
-3. Update DNS records
-
-### Step 3: Setup GitHub Actions (Optional)
-
-#### 3.1 Add Secrets
-
-In GitHub repository settings, add:
-
-- `CLOUDFLARE_API_TOKEN` - Cloudflare API token
-- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare Account ID
-
-#### 3.2 Enable Workflow
-
-The workflow `.github/workflows/deploy-cloudflare.yml` will automatically deploy on push to `main`.
-
-## 🔧 Configuration Files
-
-### Backend (Worker)
-- `wrangler.toml` - Worker configuration
-- `backend/worker.ts` - Worker entry point
-- `backend/package-worker.json` - Dependencies
-- `backend/tsconfig.worker.json` - TypeScript config
-
-### Frontend (Pages)
-- `frontend/wrangler.toml` - Pages configuration
-- `frontend/public/_headers` - Security headers
-- `frontend/public/_redirects` - API redirects
-- `frontend/public/_routes.json` - Route config
-- `frontend/functions/_middleware.ts` - Middleware
-
-## 📊 Monitoring
-
-### Worker Logs
-```bash
-wrangler tail
-```
-
-### Pages Analytics
-Go to Cloudflare Dashboard → Pages → Analytics
-
-## 🔄 Updates
-
-### Update Worker
-```bash
-cd backend
-wrangler deploy
-```
-
-### Update Pages
-Push to GitHub, automatic deployment triggers.
-
-## 🧪 Testing
-
-### Local Worker Development
-```bash
-cd backend
-wrangler dev
-```
-
-### Local Pages Development
-```bash
-cd frontend
+# Start local development server
 npm run dev
 ```
 
-## 📝 Notes
+The API will be available at `http://localhost:8787`
 
-### Limitations
+### Deployment
 
-Cloudflare Workers has some limitations:
-
-- **No WebSocket support** - Use Server-Sent Events instead
-- **CPU time limits** - 10ms (free) / 50ms (paid)
-- **No PostgreSQL** - Use D1 (SQLite) instead
-- **No Redis** - Use KV Storage instead
-- **Limited file system** - Use R2 for file storage
-
-### Migration from Express
-
-The Worker version is a simplified version of the Express backend:
-
-- ✅ REST API endpoints
-- ✅ D1 database queries
-- ✅ KV caching
-- ✅ R2 file storage
-- ❌ WebSocket (Socket.io not supported)
-- ❌ Redis (use KV instead)
-- ❌ PostgreSQL (use D1 instead)
-
-### Performance
-
-- **Workers:** 200+ edge locations
-- **Pages:** Global CDN
-- **D1:** Edge database
-- **KV:** Edge key-value store
-- **R2:** Object storage
-
-## 🆘 Troubleshooting
-
-### Worker Deployment Fails
 ```bash
-# Check logs
-wrangler tail
-
-# Check configuration
-wrangler whoami
+# Deploy to Cloudflare Workers
+npm run deploy
 ```
 
-### Pages Build Fails
-- Check Node.js version (must be 20)
-- Check build command
-- Check environment variables
+## 📁 Project Structure
 
-### Database Issues
-```bash
-# Check D1 database
-wrangler d1 execute dealak-db --command="SELECT * FROM users LIMIT 5"
+```
+dealak-real-estate-app/
+├── backend/
+│   ├── worker.ts              # Main Cloudflare Worker
+│   ├── routes/                # API Routes
+│   │   ├── auth.routes.ts
+│   │   ├── property.routes.ts
+│   │   ├── user.routes.ts
+│   │   ├── favorite.routes.ts
+│   │   ├── message.routes.ts
+│   │   ├── deal.routes.ts
+│   │   ├── review.routes.ts
+│   │   └── notification.routes.ts
+│   ├── package-worker.json   # Worker dependencies
+│   └── tsconfig-worker.json   # Worker TypeScript config
+├── database/
+│   ├── schema.sql             # D1 Database Schema
+│   └── seed.sql               # Seed Data
+├── frontend/                  # Next.js Frontend
+├── mobile/                    # React Native Mobile App
+└── wrangler.toml              # Cloudflare Configuration
 ```
 
-## 📚 Resources
+## 🔌 API Endpoints
 
-- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
-- [Cloudflare Pages Docs](https://developers.cloudflare.com/pages/)
-- [Wrangler CLI Docs](https://developers.cloudflare.com/workers/wrangler/)
-- [Hono Framework](https://hono.dev/)
-- [D1 Database](https://developers.cloudflare.com/d1/)
+### Authentication
 
-## 🎯 Next Steps
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user
 
-1. ✅ Deploy Worker to Cloudflare
-2. ✅ Deploy Frontend to Cloudflare Pages
-3. ✅ Configure custom domain
-4. ✅ Set up monitoring
-5. ✅ Implement proper authentication
-6. ✅ Add more API endpoints
-7. ✅ Implement file upload to R2
-8. ✅ Add rate limiting
-9. ✅ Implement caching with KV
-10. ✅ Add comprehensive error handling
+### Properties
 
----
+- `GET /api/properties` - Get all properties
+- `GET /api/properties/:id` - Get property by ID
+- `POST /api/properties` - Create property
+- `PUT /api/properties/:id` - Update property
+- `DELETE /api/properties/:id` - Delete property
 
-**Status:** Ready for deployment 🚀
+### Users
+
+- `GET /api/users/:id` - Get user by ID
+
+### Favorites
+
+- `GET /api/favorites/:userId` - Get user favorites
+- `POST /api/favorites` - Add favorite
+- `DELETE /api/favorites/:id` - Remove favorite
+
+### Messages
+
+- `GET /api/messages/conversations/:userId` - Get user conversations
+- `GET /api/messages/:conversationId` - Get conversation messages
+- `POST /api/messages` - Send message
+
+### Deals
+
+- `GET /api/deals` - Get all deals
+- `GET /api/deals/:id` - Get deal by ID
+- `POST /api/deals` - Create deal
+
+### Reviews
+
+- `GET /api/reviews/property/:propertyId` - Get property reviews
+- `POST /api/reviews` - Create review
+
+### Notifications
+
+- `GET /api/notifications/:userId` - Get user notifications
+- `PUT /api/notifications/:id/read` - Mark notification as read
+
+## 🗄️ Database Schema
+
+The D1 database contains 19 tables:
+
+1. **users** - User accounts
+2. **user_devices** - User devices for push notifications
+3. **refresh_tokens** - JWT refresh tokens
+4. **properties** - Real estate properties
+5. **property_features** - Property features
+6. **property_images** - Property images
+7. **favorites** - User favorites
+8. **saved_searches** - Saved search queries
+9. **requests** - Property requests
+10. **deals** - Property deals
+11. **payments** - Deal payments
+12. **discounts** - Property discounts
+13. **conversations** - User conversations
+14. **messages** - Conversation messages
+15. **notifications** - User notifications
+16. **reviews** - Property reviews
+17. **property_views** - Property view tracking
+18. **audit_logs** - Audit logs
+19. **system_settings** - System settings
+
+## 🔒 Security
+
+- JWT authentication
+- Password hashing with bcrypt
+- CORS enabled for specific domains
+- Rate limiting (to be implemented)
+- Input validation with Zod
+
+## 📊 Monitoring
+
+Cloudflare provides built-in monitoring:
+
+- **Analytics** - Request metrics, error rates
+- **Logs** - Worker logs
+- **Real-time** - Real-time request monitoring
+
+## 🌐 Custom Domain
+
+To use a custom domain:
+
+```bash
+# Add custom domain to Worker
+wrangler domains add api.dealak.com
+
+# Add custom domain to Pages
+wrangler pages domain create dealak.com
+```
+
+## 📝 Environment Variables
+
+Set these in `wrangler.toml`:
+
+```toml
+[vars]
+ENVIRONMENT = "production"
+APP_NAME = "DEALAK"
+APP_VERSION = "1.0.0"
+CURRENCY = "SYP"
+JWT_SECRET = "your-jwt-secret-key-change-in-production"
+```
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+## 📚 Additional Resources
+
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
+- [Hono Documentation](https://hono.dev/)
+- [D1 Documentation](https://developers.cloudflare.com/d1/)
+- [Pages Documentation](https://developers.cloudflare.com/pages/)
+
+## 🤝 Support
+
+For issues or questions, contact:
+- Email: support@dealak.com
+- GitHub: https://github.com/abdalganialhamdi-spec/dealak-real-estate-app

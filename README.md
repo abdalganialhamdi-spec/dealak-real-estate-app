@@ -15,7 +15,7 @@
 
 **DEALAK** هي منصة رقمية متكاملة تُسهّل عملية بيع وإيجار العقارات في سوريا من خلال تطبيق هاتف ذكي وموقع إلكتروني متصلين بنفس قاعدة البيانات، مع لوحة تحكم إدارية شاملة.
 
-[🚀 الخطة التنفيذية](IMPLEMENTATION_PLAN.md) · [📊 تحليل المشروع](docs/analysis.md) · [🗄️ مخطط قاعدة البيانات](database/schema_final.dbml)
+[🚀 الخطة التنفيذية](IMPLEMENTATION_PLAN.md) · [📊 تحليل المشروع](docs/analysis.md) · [🗄️ مخطط قاعدة البيانات](database/schema_final.dbml) · [☁️ Cloudflare Deployment](CLOUDFLARE.md)
 
 </div>
 
@@ -88,8 +88,10 @@
 |---------|-----------|
 | ![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=nodedotjs&logoColor=fff) | Runtime Environment |
 | ![Express](https://img.shields.io/badge/-Express.js-000?logo=express&logoColor=fff) | HTTP Framework |
+| ![Hono](https://img.shields.io/badge/-Hono-FF4154?logo=hono&logoColor=fff) | Cloudflare Workers Framework |
 | ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=fff) | Type Safety |
-| ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=fff) | Database |
+| ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=fff) | Database (Self-hosted) |
+| ![D1](https://img.shields.io/badge/-D1-FF4154?logo=cloudflare&logoColor=fff) | Database (Cloudflare) |
 | ![Prisma](https://img.shields.io/badge/-Prisma-2D3748?logo=prisma&logoColor=fff) | ORM |
 | ![Socket.io](https://img.shields.io/badge/-Socket.io-010101?logo=socketdotio&logoColor=fff) | Real-time |
 
@@ -97,6 +99,7 @@
 | التقنية | الاستخدام |
 |---------|-----------|
 | ![Next.js](https://img.shields.io/badge/-Next.js-000?logo=nextdotjs&logoColor=fff) | React Framework |
+| ![Cloudflare Pages](https://img.shields.io/badge/-Cloudflare_Pages-FF4154?logo=cloudflare&logoColor=fff) | Deployment |
 | ![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=fff) | Styling |
 | ![Zustand](https://img.shields.io/badge/-Zustand-553C7B) | State Management |
 | ![React Query](https://img.shields.io/badge/-React_Query-FF4154?logo=reactquery&logoColor=fff) | Server State |
@@ -107,11 +110,13 @@
 | ![React Native](https://img.shields.io/badge/-React_Native-61DAFB?logo=react&logoColor=000) | Cross-platform |
 | ![Expo](https://img.shields.io/badge/-Expo-000020?logo=expo&logoColor=fff) | Build & Dev |
 | ![Expo Router](https://img.shields.io/badge/-Expo_Router-000?logo=expo&logoColor=fff) | Navigation |
+| ![Cloudflare](https://img.shields.io/badge/-Cloudflare-FF4154?logo=cloudflare&logoColor=fff) | Backend API |
 
 ---
 
 ## 🏗️ البنية المعمارية
 
+### Self-Hosted (Express + PostgreSQL)
 ```
 ┌─────────────────────────────────────────────────────┐
 │                      CLIENTS                         │
@@ -126,6 +131,24 @@
 ├─────────────────────────────────────────────────────┤
 │                    DATA LAYER                        │
 │  🐘 PostgreSQL+PostGIS  🔴 Redis  ☁️ R2  🔥 FCM    │
+└─────────────────────────────────────────────────────┘
+```
+
+### Cloudflare (Workers + Pages)
+```
+┌─────────────────────────────────────────────────────┐
+│                      CLIENTS                         │
+│  📱 Mobile App    🌐 Web App    📊 Admin Dashboard   │
+├─────────────────────────────────────────────────────┤
+│              Cloudflare Workers (Hono)               │
+│        Rate Limiting · Auth · CORS · Logging         │
+├─────────────────────────────────────────────────────┤
+│                 MODULAR BACKEND                      │
+│  🔐 Auth    🏘️ Properties   🤝 Deals   💬 Messages  │
+│  💳 Payments  📋 Requests   ⭐ Reviews  🔔 Notifs   │
+├─────────────────────────────────────────────────────┤
+│              Cloudflare Services                      │
+│  🗄️ D1 Database  🔴 KV Cache  ☁️ R2 Storage        │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -175,6 +198,8 @@ docker-compose up -d
 ```
 
 ### 3. إعداد Backend
+
+#### Self-Hosted (Express + PostgreSQL)
 ```bash
 cd backend
 cp .env.example .env
@@ -185,12 +210,34 @@ npm run prisma:seed
 npm run dev
 ```
 
+#### Cloudflare Workers (Hono + D1)
+```bash
+cd backend
+npm install --package-lock-only
+wrangler login
+wrangler d1 create dealak-db
+wrangler kv:namespace create "CACHE"
+wrangler r2 bucket create dealak-storage
+npm run db:migrate
+npm run db:seed
+npm run dev
+```
+
 ### 4. إعداد Frontend Web
+
+#### Local Development
 ```bash
 cd frontend
 cp .env.example .env
 npm install
 npm run dev
+```
+
+#### Cloudflare Pages
+```bash
+cd frontend
+npm run build
+npx wrangler pages deploy .next --project-name=dealak-frontend
 ```
 
 ### 5. إعداد Mobile App
@@ -216,7 +263,20 @@ dealak-real-estate-app/
 │   │   ├── jobs/         # ⏰ Background jobs
 │   │   ├── websocket/    # 🔌 Socket.io
 │   │   └── app.ts        # 🚀 Entry point
-│   └── prisma/           # 🗄️ Database schema
+│   ├── routes/           # 🛣️ Cloudflare Workers Routes
+│   │   ├── auth.routes.ts
+│   │   ├── property.routes.ts
+│   │   ├── user.routes.ts
+│   │   ├── favorite.routes.ts
+│   │   ├── message.routes.ts
+│   │   ├── deal.routes.ts
+│   │   ├── review.routes.ts
+│   │   └── notification.routes.ts
+│   ├── worker.ts         # ☁️ Cloudflare Worker Entry
+│   ├── prisma/           # 🗄️ Database schema (PostgreSQL)
+│   ├── package.json      # 📦 Dependencies (Express)
+│   ├── package-worker.json # 📦 Dependencies (Workers)
+│   └── tsconfig.json     # ⚙️ TypeScript config
 │
 ├── frontend/             # 🌐 Frontend Web (Next.js)
 │   └── src/
@@ -229,7 +289,16 @@ dealak-real-estate-app/
 │   └── app/             # 📱 Screens
 │
 ├── database/             # 🗄️ Database schemas
+│   ├── schema.sql        # 🗄️ D1 Database Schema
+│   ├── seed.sql          # 🌱 Seed Data
+│   ├── schema_final.dbml # 📊 DBML Schema
+│   └── schema_kroki.svg # 📈 Visual Diagram
+│
 ├── docs/                 # 📚 Documentation
+│   ├── analysis.md       # 📊 Project Analysis
+│   └── CLOUDFLARE.md     # ☁️ Cloudflare Deployment Guide
+│
+├── wrangler.toml         # ☁️ Cloudflare Configuration
 └── docker-compose.yml    # 🐳 Docker setup
 ```
 

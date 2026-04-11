@@ -1,23 +1,42 @@
 {
-  "name": "dealak-backend-worker",
+  "name": "dealak-worker",
   "version": "1.0.0",
-  "description": "DEALAK Backend API for Cloudflare Workers",
+  "description": "DEALAK Real Estate Platform - Cloudflare Worker",
   "main": "worker.ts",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "tail": "wrangler tail",
-    "d1:create": "wrangler d1 create dealak-db",
-    "d1:migrate": "wrangler d1 execute dealak-db --file=./database/schema.sql",
-    "d1:seed": "wrangler d1 execute dealak-db --file=./database/seed.sql"
+    "build": "tsc",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "db:migrate": "wrangler d1 execute dealak-db --file=./database/schema.sql",
+    "db:seed": "wrangler d1 execute dealak-db --file=./database/seed.sql"
   },
   "dependencies": {
     "hono": "^4.0.0",
-    "hono": "^4.0.0"
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.4",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240512.0",
-    "wrangler": "^3.50.0",
-    "typescript": "^5.4.0"
+    "@cloudflare/workers-types": "^4.20240208.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/uuid": "^9.0.8",
+    "typescript": "^5.3.3",
+    "wrangler": "^3.22.0",
+    "vitest": "^1.2.0",
+    "@vitest/coverage-v8": "^1.2.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "prettier": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
