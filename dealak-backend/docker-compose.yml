@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: dealak
+      DB_USERNAME: dealak
+      DB_PASSWORD: secret
+      REDIS_HOST: redis
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: dealak
+      POSTGRES_USER: dealak
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+
+volumes:
+  postgres_data:
