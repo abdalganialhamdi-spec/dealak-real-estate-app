@@ -8,6 +8,20 @@ class AuthGuard {
   AuthGuard(this._storage);
 
   Future<String?> redirect(GoRouterState state) async {
+    final hasToken = await _storage.hasToken();
+    final isAuthRoute = [
+      RouteNames.login,
+      RouteNames.register,
+      RouteNames.forgotPassword,
+      RouteNames.onboarding,
+    ].contains(state.matchedLocation);
+
+    if (!hasToken && !isAuthRoute && state.matchedLocation != '/') {
+      return RouteNames.login;
+    }
+    if (hasToken && isAuthRoute) {
+      return RouteNames.home;
+    }
     return null;
   }
 }

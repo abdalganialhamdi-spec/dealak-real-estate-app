@@ -15,6 +15,7 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   bool _sent = false;
+  bool _isLoading = false;
 
   @override
   void dispose() { _emailController.dispose(); super.dispose(); }
@@ -33,7 +34,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             const SizedBox(height: 24),
             CustomTextField(label: 'البريد الإلكتروني', controller: _emailController, keyboardType: TextInputType.emailAddress, validator: Validators.email),
             const SizedBox(height: 24),
-            CustomButton(label: _sent ? 'تم الإرسال' : 'إرسال رابط إعادة التعيين', onPressed: _sent ? null : _sendResetLink),
+            CustomButton(
+              label: _sent ? 'تم الإرسال' : 'إرسال رابط إعادة التعيين',
+              isLoading: _isLoading,
+              onPressed: _sent ? () {} : () => _sendResetLink(),
+            ),
           ],
         ),
       ),
@@ -41,12 +46,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   }
 
   Future<void> _sendResetLink() async {
+    setState(() => _isLoading = true);
     try {
       await ref.read(authRepositoryProvider).forgotPassword(_emailController.text);
       setState(() => _sent = true);
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إرسال رابط إعادة التعيين')));
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 }

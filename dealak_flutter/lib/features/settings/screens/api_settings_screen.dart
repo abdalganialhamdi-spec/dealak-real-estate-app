@@ -69,14 +69,24 @@ class _ApiSettingsScreenState extends State<ApiSettingsScreen> {
   Future<bool> _testConnection(String host, String port) async {
     try {
       final testDio = Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 5),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
       ));
-      final url = 'http://$host:$port/api/v1/properties?limit=1';
+      final url = 'http://$host:$port/api/v1/health';
       final response = await testDio.get(url);
       return response.statusCode == 200;
     } catch (_) {
-      return false;
+      try {
+        final testDio = Dio(BaseOptions(
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ));
+        final url = 'http://$host:$port/api/v1/properties?limit=1';
+        final response = await testDio.get(url);
+        return response.statusCode == 200;
+      } catch (_) {
+        return false;
+      }
     }
   }
 

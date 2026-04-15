@@ -33,7 +33,7 @@ GoRouter createRouter(AuthGuard authGuard) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RouteNames.home,
-    redirect: (context, state) => null,
+    redirect: (context, state) => authGuard.redirect(state),
     routes: [
       GoRoute(
         path: RouteNames.onboarding,

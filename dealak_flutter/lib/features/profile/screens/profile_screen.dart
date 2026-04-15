@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
+import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -30,16 +32,19 @@ class ProfileScreen extends ConsumerWidget {
               Text(user?.fullName ?? 'مستخدم', style: Theme.of(context).textTheme.headlineMedium),
               Text(user?.email ?? '', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
               const SizedBox(height: 24),
-              ListTile(leading: const Icon(Icons.edit), title: const Text('تعديل الملف الشخصي'), trailing: const Icon(Icons.chevron_left), onTap: () {}),
-              ListTile(leading: const Icon(Icons.home_work_outlined), title: const Text('عقاراتي'), trailing: const Icon(Icons.chevron_left), onTap: () {}),
-              ListTile(leading: const Icon(Icons.handshake_outlined), title: const Text('صفقاتي'), trailing: const Icon(Icons.chevron_left), onTap: () {}),
-              ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('الإشعارات'), trailing: const Icon(Icons.chevron_left), onTap: () {}),
-              ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('الإعدادات'), trailing: const Icon(Icons.chevron_left), onTap: () {}),
+              ListTile(leading: const Icon(Icons.edit), title: const Text('تعديل الملف الشخصي'), trailing: const Icon(Icons.chevron_left), onTap: () => context.push(RouteNames.editProfile)),
+              ListTile(leading: const Icon(Icons.home_work_outlined), title: const Text('عقاراتي'), trailing: const Icon(Icons.chevron_left), onTap: () => context.push(RouteNames.myProperties)),
+              ListTile(leading: const Icon(Icons.handshake_outlined), title: const Text('صفقاتي'), trailing: const Icon(Icons.chevron_left), onTap: () => context.push(RouteNames.deals)),
+              ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('الإشعارات'), trailing: const Icon(Icons.chevron_left), onTap: () => context.push(RouteNames.notifications)),
+              ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('الإعدادات'), trailing: const Icon(Icons.chevron_left), onTap: () => context.push(RouteNames.settings)),
               ListTile(
                 leading: const Icon(Icons.logout, color: AppColors.error),
                 title: const Text('تسجيل الخروج', style: TextStyle(color: AppColors.error)),
                 trailing: const Icon(Icons.chevron_left),
-                onTap: () => ref.read(authProvider.notifier).logout(),
+                onTap: () async {
+                  await ref.read(authProvider.notifier).logout();
+                  if (context.mounted) context.go(RouteNames.login);
+                },
               ),
             ],
           ),
