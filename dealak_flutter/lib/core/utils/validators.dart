@@ -10,6 +10,9 @@ class Validators {
   static String? password(String? value) {
     if (value == null || value.isEmpty) return 'كلمة المرور مطلوبة';
     if (value.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل';
+    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'يجب أن تحتوي على حرف كبير (A-Z)';
+    if (!RegExp(r'[a-z]').hasMatch(value)) return 'يجب أن تحتوي على حرف صغير (a-z)';
+    if (!RegExp(r'[0-9]').hasMatch(value)) return 'يجب أن تحتوي على رقم (0-9)';
     return null;
   }
 

@@ -19,8 +19,9 @@ class AuthRepository {
       });
       final data = response.data;
       await _storage.saveToken(data['token']);
+      final userJson = _unwrapUser(data['user']);
       return {
-        'user': UserModel.fromJson(data['user']),
+        'user': UserModel.fromJson(userJson),
         'token': data['token'],
       };
     } on DioException catch (e) {
@@ -33,8 +34,9 @@ class AuthRepository {
       final response = await _dioClient.post(ApiEndpoints.register, data: userData);
       final data = response.data;
       await _storage.saveToken(data['token']);
+      final userJson = _unwrapUser(data['user']);
       return {
-        'user': UserModel.fromJson(data['user']),
+        'user': UserModel.fromJson(userJson),
         'token': data['token'],
       };
     } on DioException catch (e) {
@@ -53,7 +55,8 @@ class AuthRepository {
   Future<UserModel> getMe() async {
     try {
       final response = await _dioClient.get(ApiEndpoints.me);
-      return UserModel.fromJson(response.data);
+      final userJson = _unwrapUser(response.data);
+      return UserModel.fromJson(userJson);
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -73,6 +76,14 @@ class AuthRepository {
     } on DioException catch (e) {
       throw _handleError(e);
     }
+  }
+
+  /// Unwrap {"data": {...}} wrapper from JsonResource responses
+  Map<String, dynamic> _unwrapUser(dynamic raw) {
+    if (raw is Map && raw.containsKey('data') && raw['data'] is Map) {
+      return Map<String, dynamic>.from(raw['data']);
+    }
+    return Map<String, dynamic>.from(raw);
   }
 
   ApiException _handleError(DioException e) {

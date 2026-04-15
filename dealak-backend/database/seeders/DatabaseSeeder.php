@@ -25,5 +25,11 @@ class DatabaseSeeder extends Seeder
             ['key' => 'site_name', 'value' => 'DEALAK', 'value_type' => 'STRING'],
             ['key' => 'currency', 'value' => 'SYP', 'value_type' => 'STRING'],
         ]);
+
+        $this->call([
+            GovernorateSeeder::class,
+            UserSeeder::class,
+            PropertySeeder::class,
+        ]);
     }
 }
