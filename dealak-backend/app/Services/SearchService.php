@@ -13,7 +13,13 @@ class SearchService
             ->where('status', '!=', 'DRAFT');
 
         if (!empty($filters['q'])) {
-            $query->whereFullText(['title', 'description'], $filters['q']);
+            $searchTerm = $filters['q'];
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('city', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('district', 'LIKE', "%{$searchTerm}%");
+            });
         }
 
         if (!empty($filters['property_type'])) {

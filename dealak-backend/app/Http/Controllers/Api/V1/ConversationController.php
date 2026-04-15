@@ -17,9 +17,12 @@ class ConversationController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $userId = $request->user()->id;
         $conversations = Conversation::with(['participantOne', 'participantTwo', 'property', 'lastMessage'])
-            ->where('participant_one_id', $request->user()->id)
-            ->orWhere('participant_two_id', $request->user()->id)
+            ->where(function ($q) use ($userId) {
+                $q->where('participant_one_id', $userId)
+                    ->orWhere('participant_two_id', $userId);
+            })
             ->latest('last_message_at')
             ->paginate($request->per_page ?? 20);
 
@@ -69,7 +72,15 @@ class ConversationController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 50);
 
-        return response()->json(MessageResource::collection($messages));
+        return response()->json([
+            'data' => MessageResource::collection($messages->items()),
+            'meta' => [
+                'current_page' => $messages->currentPage(),
+                'last_page' => $messages->lastPage(),
+                'per_page' => $messages->perPage(),
+                'total' => $messages->total(),
+            ],
+        ]);
     }
 
     public function markAsRead(Request $request, int $id): JsonResponse

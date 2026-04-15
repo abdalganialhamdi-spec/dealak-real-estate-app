@@ -16,7 +16,7 @@ class AuthGuard {
       RouteNames.onboarding,
     ].contains(state.matchedLocation);
 
-    if (!hasToken && !isAuthRoute && state.matchedLocation != '/') {
+    if (!hasToken && !isAuthRoute) {
       return RouteNames.login;
     }
     if (hasToken && isAuthRoute) {

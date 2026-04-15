@@ -81,7 +81,7 @@ class SearchController extends Controller
 
     public function deleteSavedSearch(int $id): JsonResponse
     {
-        SavedSearch::findOrFail($id)->delete();
+        $request->user()->savedSearches()->findOrFail($id)->delete();
 
         return response()->json(['message' => 'تم حذف البحث المحفوظ']);
     }

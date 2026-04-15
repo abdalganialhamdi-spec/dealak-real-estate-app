@@ -18,10 +18,13 @@ class DealController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $userId = $request->user()->id;
         $deals = Deal::with(['property', 'buyer', 'seller', 'agent', 'payments'])
-            ->where('buyer_id', $request->user()->id)
-            ->orWhere('seller_id', $request->user()->id)
-            ->orWhere('agent_id', $request->user()->id)
+            ->where(function ($q) use ($userId) {
+                $q->where('buyer_id', $userId)
+                    ->orWhere('seller_id', $userId)
+                    ->orWhere('agent_id', $userId);
+            })
             ->latest()
             ->paginate($request->per_page ?? 20);
 

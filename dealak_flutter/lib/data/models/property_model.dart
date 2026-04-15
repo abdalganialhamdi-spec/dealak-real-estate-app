@@ -67,7 +67,7 @@ class PropertyModel {
 
   factory PropertyModel.fromJson(Map<String, dynamic> json) {
     return PropertyModel(
-      id: json['id'],
+      id: json['id'] as int? ?? 0,
       title: json['title'] ?? '',
       slug: json['slug'] ?? '',
       description: json['description'],

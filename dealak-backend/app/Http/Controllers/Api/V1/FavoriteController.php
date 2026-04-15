@@ -18,7 +18,15 @@ class FavoriteController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 20);
 
-        return response()->json(FavoriteResource::collection($favorites));
+        return response()->json([
+            'data' => FavoriteResource::collection($favorites->items()),
+            'meta' => [
+                'current_page' => $favorites->currentPage(),
+                'last_page' => $favorites->lastPage(),
+                'per_page' => $favorites->perPage(),
+                'total' => $favorites->total(),
+            ],
+        ]);
     }
 
     public function store(Request $request): JsonResponse

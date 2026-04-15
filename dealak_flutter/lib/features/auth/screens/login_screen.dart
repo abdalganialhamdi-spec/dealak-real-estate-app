@@ -47,7 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 48),
                 CustomTextField(label: 'البريد الإلكتروني', controller: _emailController, keyboardType: TextInputType.emailAddress, validator: Validators.email, prefixIcon: const Icon(Icons.email_outlined)),
                 const SizedBox(height: 16),
-                CustomTextField(label: 'كلمة المرور', controller: _passwordController, obscureText: true, validator: Validators.password, prefixIcon: const Icon(Icons.lock_outlined)),
+                CustomTextField(label: 'كلمة المرور', controller: _passwordController, obscureText: true, validator: (v) => Validators.required(v, 'كلمة المرور'), prefixIcon: const Icon(Icons.lock_outlined)),
                 const SizedBox(height: 8),
                 Align(alignment: Alignment.centerLeft, child: TextButton(onPressed: () => context.push(RouteNames.forgotPassword), child: const Text('نسيت كلمة المرور؟'))),
                 const SizedBox(height: 24),

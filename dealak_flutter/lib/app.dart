@@ -6,6 +6,11 @@ import 'package:dealak_flutter/core/router/auth_guard.dart';
 import 'package:dealak_flutter/core/storage/secure_storage.dart';
 import 'package:dealak_flutter/providers/theme_provider.dart';
 import 'package:dealak_flutter/providers/locale_provider.dart';
+import 'package:go_router/go_router.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  return createRouter(AuthGuard(SecureStorage()));
+});
 
 class DealakApp extends ConsumerWidget {
   const DealakApp({super.key});
@@ -14,8 +19,7 @@ class DealakApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
-    final authGuard = AuthGuard(SecureStorage());
-    final router = createRouter(authGuard);
+    final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'DEALAK',
