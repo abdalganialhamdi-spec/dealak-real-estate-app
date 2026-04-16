@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/data/models/user_model.dart';
 import 'package:dealak_flutter/data/repositories/auth_repository.dart';
 import 'package:dealak_flutter/core/network/dio_client.dart';
+import 'package:dealak_flutter/core/network/api_exceptions.dart';
 import 'package:dealak_flutter/core/storage/secure_storage.dart';
 
 class AuthState {
@@ -44,13 +45,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  String _extractError(dynamic e) {
+    if (e is ValidationException && e.errors != null) {
+      final allErrors = e.errors!.values.expand((list) => list).toList();
+      return allErrors.join('\n');
+    }
+    return e.toString();
+  }
+
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final result = await _authRepository.login(email, password);
       state = AuthState(user: result['user'], isAuthenticated: true);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractError(e));
     }
   }
 
@@ -60,7 +69,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final result = await _authRepository.register(data);
       state = AuthState(user: result['user'], isAuthenticated: true);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(isLoading: false, error: _extractError(e));
     }
   }
 

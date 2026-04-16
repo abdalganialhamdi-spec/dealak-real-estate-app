@@ -18,8 +18,33 @@ class ApiInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      await _storage.clearAll();
+      final token = await _storage.getToken();
+      if (token != null && !_isRefreshRequest(err.requestOptions)) {
+        try {
+          final dio = Dio(BaseOptions(
+            baseUrl: err.requestOptions.baseUrl,
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            },
+          ));
+          final response = await dio.post('/auth/refresh');
+          final newToken = response.data['token'];
+          await _storage.saveToken(newToken);
+          err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+          final retryResponse = await Dio().fetch(err.requestOptions);
+          return handler.resolve(retryResponse);
+        } catch (_) {
+          await _storage.clearAll();
+        }
+      } else {
+        await _storage.clearAll();
+      }
     }
     handler.next(err);
+  }
+
+  bool _isRefreshRequest(RequestOptions options) {
+    return options.path.contains('/auth/refresh');
   }
 }

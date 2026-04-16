@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
             [
                 'first_name' => 'Admin',
                 'last_name' => 'Dealak',
-                'password' => Hash::make('password123'),
+                'password' => 'Password123',
                 'role' => 'ADMIN',
                 'is_verified' => true,
                 'is_active' => true,
