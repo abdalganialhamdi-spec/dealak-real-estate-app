@@ -48,6 +48,7 @@ class SearchController extends Controller
         $suggestions = Property::where('status', 'AVAILABLE')
             ->where(function ($q) use ($query) {
                 $q->where('title', 'LIKE', "%{$query}%")
+                    ->orWhere('description', 'LIKE', "%{$query}%")
                     ->orWhere('city', 'LIKE', "%{$query}%")
                     ->orWhere('district', 'LIKE', "%{$query}%")
                     ->orWhere('address', 'LIKE', "%{$query}%");

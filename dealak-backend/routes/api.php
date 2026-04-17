@@ -73,6 +73,7 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/conversations', [ConversationController::class, 'index']);
         Route::post('/conversations', [ConversationController::class, 'store']);
+        Route::post('/conversations/by-property', [ConversationController::class, 'findOrCreateByProperty']);
         Route::get('/conversations/{id}/messages', [ConversationController::class, 'messages']);
         Route::post('/conversations/{id}/messages', [MessageController::class, 'store']);
         Route::put('/conversations/{id}/read', [ConversationController::class, 'markAsRead']);
@@ -108,6 +109,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::put('/users/{id}/status', [AdminController::class, 'updateUserStatus']);
+        Route::get('/properties', [AdminController::class, 'allProperties']);
+        Route::post('/properties', [AdminController::class, 'storeProperty']);
+        Route::put('/properties/{id}', [AdminController::class, 'updateProperty']);
+        Route::delete('/properties/{id}', [AdminController::class, 'destroyProperty']);
+        Route::post('/properties/{id}/images', [AdminController::class, 'uploadPropertyImages']);
+        Route::delete('/properties/{id}/images/{imageId}', [AdminController::class, 'deletePropertyImage']);
+        Route::put('/properties/{id}/toggle-featured', [AdminController::class, 'toggleFeatured']);
         Route::get('/properties/pending', [AdminController::class, 'pendingProperties']);
         Route::put('/properties/{id}/approve', [AdminController::class, 'approveProperty']);
         Route::get('/reports', [AdminController::class, 'reports']);

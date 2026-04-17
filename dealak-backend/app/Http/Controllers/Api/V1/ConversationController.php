@@ -7,6 +7,7 @@ use App\Http\Resources\ConversationCollection;
 use App\Http\Resources\ConversationResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
+use App\Models\Property;
 use App\Services\MessageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -93,5 +94,39 @@ class ConversationController extends Controller
             ->update(['is_read' => true, 'read_at' => now()]);
 
         return response()->json(['message' => 'تم تعليم الرسائل كمقروءة']);
+    }
+
+    public function findOrCreateByProperty(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'property_id' => 'required|exists:properties,id',
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $property = Property::findOrFail($validated['property_id']);
+        $recipientId = $property->owner_id;
+
+        if ($recipientId === $request->user()->id) {
+            return response()->json(['message' => 'لا يمكنك مراسلة نفسك'], 422);
+        }
+
+        $conversation = Conversation::firstOrCreate(
+            [
+                'participant_one_id' => min($request->user()->id, $recipientId),
+                'participant_two_id' => max($request->user()->id, $recipientId),
+            ],
+            ['property_id' => $validated['property_id']]
+        );
+
+        $message = $this->messageService->sendMessage(
+            $conversation,
+            $request->user(),
+            $validated['message']
+        );
+
+        return response()->json([
+            'conversation' => new ConversationResource($conversation->fresh()),
+            'message' => new MessageResource($message),
+        ], 201);
     }
 }

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/utils/validators.dart';
 import 'package:dealak_flutter/shared/widgets/custom_button.dart';
@@ -12,7 +14,8 @@ class PropertyCreateScreen extends ConsumerStatefulWidget {
   const PropertyCreateScreen({super.key});
 
   @override
-  ConsumerState<PropertyCreateScreen> createState() => _PropertyCreateScreenState();
+  ConsumerState<PropertyCreateScreen> createState() =>
+      _PropertyCreateScreenState();
 }
 
 class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
@@ -68,9 +71,11 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
     setState(() => _isLoading = true);
     try {
       final repo = ref.read(propertyRepositoryProvider);
-      await repo.createProperty({
+      final newProperty = await repo.createProperty({
         'title': _titleController.text,
-        'description': _descriptionController.text.isEmpty ? null : _descriptionController.text,
+        'description': _descriptionController.text.isEmpty
+            ? null
+            : _descriptionController.text,
         'property_type': _propertyType,
         'listing_type': _listingType,
         'price': double.tryParse(_priceController.text) ?? 0,
@@ -79,18 +84,34 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
         'bedrooms': int.tryParse(_bedroomsController.text),
         'bathrooms': int.tryParse(_bathroomsController.text),
         'year_built': int.tryParse(_yearBuiltController.text),
-        'address': _addressController.text.isEmpty ? null : _addressController.text,
+        'address': _addressController.text.isEmpty
+            ? null
+            : _addressController.text,
         'city': _cityController.text,
-        'district': _districtController.text.isEmpty ? null : _districtController.text,
+        'district': _districtController.text.isEmpty
+            ? null
+            : _districtController.text,
         'is_negotiable': _isNegotiable,
       });
+      if (_selectedImages.isNotEmpty) {
+        final files = await Future.wait(
+          _selectedImages.map(
+            (xfile) => MultipartFile.fromFile(xfile.path, filename: xfile.name),
+          ),
+        );
+        await repo.uploadImages(newProperty.id, files);
+      }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إضافة العقار بنجاح')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('تم إضافة العقار بنجاح')));
         context.pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -108,13 +129,24 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CustomTextField(label: 'عنوان العقار', controller: _titleController, validator: (v) => Validators.required(v, 'عنوان العقار')),
+              CustomTextField(
+                label: 'عنوان العقار',
+                controller: _titleController,
+                validator: (v) => Validators.required(v, 'عنوان العقار'),
+              ),
               const SizedBox(height: 16),
-              CustomTextField(label: 'الوصف', controller: _descriptionController, maxLines: 4),
+              CustomTextField(
+                label: 'الوصف',
+                controller: _descriptionController,
+                maxLines: 4,
+              ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _propertyType,
-                decoration: const InputDecoration(labelText: 'نوع العقار', prefixIcon: Icon(Icons.home_work_outlined)),
+                decoration: const InputDecoration(
+                  labelText: 'نوع العقار',
+                  prefixIcon: Icon(Icons.home_work_outlined),
+                ),
                 items: const [
                   DropdownMenuItem(value: 'APARTMENT', child: Text('شقة')),
                   DropdownMenuItem(value: 'HOUSE', child: Text('منزل')),
@@ -130,12 +162,24 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _listingType,
-                decoration: const InputDecoration(labelText: 'نوع الإدراج', prefixIcon: Icon(Icons.list)),
+                decoration: const InputDecoration(
+                  labelText: 'نوع الإدراج',
+                  prefixIcon: Icon(Icons.list),
+                ),
                 items: const [
                   DropdownMenuItem(value: 'SALE', child: Text('بيع')),
-                  DropdownMenuItem(value: 'RENT_MONTHLY', child: Text('إيجار شهري')),
-                  DropdownMenuItem(value: 'RENT_YEARLY', child: Text('إيجار سنوي')),
-                  DropdownMenuItem(value: 'RENT_DAILY', child: Text('إيجار يومي')),
+                  DropdownMenuItem(
+                    value: 'RENT_MONTHLY',
+                    child: Text('إيجار شهري'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'RENT_YEARLY',
+                    child: Text('إيجار سنوي'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'RENT_DAILY',
+                    child: Text('إيجار يومي'),
+                  ),
                 ],
                 onChanged: (v) => setState(() => _listingType = v!),
               ),
@@ -175,15 +219,37 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: CustomTextField(label: 'المساحة (م²)', controller: _areaController, keyboardType: TextInputType.number)),
+                  Expanded(
+                    child: CustomTextField(
+                      label: 'المساحة (م²)',
+                      controller: _areaController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: CustomTextField(label: 'غرف النوم', controller: _bedroomsController, keyboardType: TextInputType.number)),
+                  Expanded(
+                    child: CustomTextField(
+                      label: 'غرف النوم',
+                      controller: _bedroomsController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: CustomTextField(label: 'الحمامات', controller: _bathroomsController, keyboardType: TextInputType.number)),
+                  Expanded(
+                    child: CustomTextField(
+                      label: 'الحمامات',
+                      controller: _bathroomsController,
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              CustomTextField(label: 'سنة البناء', controller: _yearBuiltController, keyboardType: TextInputType.number),
+              CustomTextField(
+                label: 'سنة البناء',
+                controller: _yearBuiltController,
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 16),
               CustomTextField(
                 label: 'المدينة',
@@ -192,9 +258,15 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                 prefixIcon: const Icon(Icons.location_city),
               ),
               const SizedBox(height: 16),
-              CustomTextField(label: 'الحي/المنطقة', controller: _districtController),
+              CustomTextField(
+                label: 'الحي/المنطقة',
+                controller: _districtController,
+              ),
               const SizedBox(height: 16),
-              CustomTextField(label: 'العنوان التفصيلي', controller: _addressController),
+              CustomTextField(
+                label: 'العنوان التفصيلي',
+                controller: _addressController,
+              ),
               const SizedBox(height: 24),
               Text('صور العقار', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
@@ -224,8 +296,8 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  image.path,
+                child: Image.file(
+                  File(image.path),
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
@@ -247,8 +319,15 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                   onTap: () => _removeImage(index),
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                    child: const Icon(Icons.close, size: 16, color: Colors.white),
+                    decoration: const BoxDecoration(
+                      color: Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -261,7 +340,10 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.divider, style: BorderStyle.solid),
+              border: Border.all(
+                color: AppColors.divider,
+                style: BorderStyle.solid,
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Column(
@@ -269,7 +351,13 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               children: [
                 Icon(Icons.add_a_photo, color: AppColors.textSecondary),
                 SizedBox(height: 4),
-                Text('إضافة صورة', style: TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                Text(
+                  'إضافة صورة',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),

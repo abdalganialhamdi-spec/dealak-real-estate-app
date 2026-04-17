@@ -7,6 +7,7 @@ import 'package:dealak_flutter/core/utils/formatters.dart';
 import 'package:dealak_flutter/data/models/property_model.dart';
 import 'package:dealak_flutter/providers/property_provider.dart';
 import 'package:dealak_flutter/providers/favorite_provider.dart';
+import 'package:dealak_flutter/providers/message_provider.dart';
 import 'package:dealak_flutter/shared/widgets/loading_widget.dart';
 import 'package:dealak_flutter/shared/widgets/error_widget.dart';
 import 'package:dealak_flutter/shared/widgets/cached_image.dart';
@@ -43,11 +44,36 @@ class _PropertyDetailView extends ConsumerStatefulWidget {
   const _PropertyDetailView({required this.property});
 
   @override
-  ConsumerState<_PropertyDetailView> createState() => _PropertyDetailViewState();
+  ConsumerState<_PropertyDetailView> createState() =>
+      _PropertyDetailViewState();
 }
 
 class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
   int _currentImageIndex = 0;
+
+  Future<void> _contactOwner(
+    BuildContext context,
+    PropertyModel property,
+  ) async {
+    try {
+      final repo = ref.read(messageRepositoryProvider);
+      final result = await repo.createConversation(
+        property.owner!.id,
+        'مرحباً، أنا مهتم بعقارك: ${property.title}',
+        propertyId: property.id,
+      );
+      final conversation = result['conversation'];
+      if (mounted) {
+        context.push('${RouteNames.chat}/${conversation.id}');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +87,13 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
             expandedHeight: 300,
             pinned: true,
             actions: [
-              IconButton(
-                icon: Icon(Icons.share),
-                onPressed: () {},
-              ),
+              IconButton(icon: Icon(Icons.share), onPressed: () {}),
               isFavAsync.when(
                 data: (isFav) => IconButton(
-                  icon: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : null),
+                  icon: Icon(
+                    isFav ? Icons.favorite : Icons.favorite_border,
+                    color: isFav ? Colors.red : null,
+                  ),
                   onPressed: () async {
                     final repo = ref.read(favoriteRepositoryProvider);
                     try {
@@ -79,13 +105,21 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                       ref.invalidate(isFavoriteProvider(property.id));
                     } catch (e) {
                       if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.toString())));
                       }
                     }
                   },
                 ),
-                loading: () => const IconButton(icon: Icon(Icons.favorite_border), onPressed: null),
-                error: (_, __) => const IconButton(icon: Icon(Icons.favorite_border), onPressed: null),
+                loading: () => const IconButton(
+                  icon: Icon(Icons.favorite_border),
+                  onPressed: null,
+                ),
+                error: (_, __) => const IconButton(
+                  icon: Icon(Icons.favorite_border),
+                  onPressed: null,
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -97,18 +131,26 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                           options: CarouselOptions(
                             height: 300,
                             viewportFraction: 1.0,
-                            onPageChanged: (index, _) => setState(() => _currentImageIndex = index),
+                            onPageChanged: (index, _) =>
+                                setState(() => _currentImageIndex = index),
                           ),
-                          items: property.images.map((img) => CachedImage(
-                            imageUrl: img.imageUrl,
-                            width: double.infinity,
-                            height: 300,
-                            fit: BoxFit.cover,
-                          )).toList(),
+                          items: property.images
+                              .map(
+                                (img) => CachedImage(
+                                  imageUrl: img.imageUrl,
+                                  width: double.infinity,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                              .toList(),
                         ),
                         if (property.images.length > 1)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
                               color: Colors.black54,
@@ -116,14 +158,19 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                             ),
                             child: Text(
                               '${_currentImageIndex + 1} / ${property.images.length}',
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                       ],
                     )
                   : Container(
                       color: Colors.grey[200],
-                      child: const Center(child: Icon(Icons.image, size: 80, color: Colors.grey)),
+                      child: const Center(
+                        child: Icon(Icons.image, size: 80, color: Colors.grey),
+                      ),
                     ),
             ),
           ),
@@ -153,12 +200,22 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 18, color: AppColors.textSecondary),
+                      const Icon(
+                        Icons.location_on,
+                        size: 18,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          [property.address, property.district, property.city].whereType<String>().where((s) => s.isNotEmpty).join('، '),
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                          [property.address, property.district, property.city]
+                              .whereType<String>()
+                              .where((s) => s.isNotEmpty)
+                              .join('، '),
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ],
@@ -166,33 +223,58 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                   const SizedBox(height: 4),
                   Text(
                     '${Formatters.propertyType(property.propertyType)} • ${Formatters.listingType(property.listingType)}',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                    ),
                   ),
                   const Divider(height: 32),
                   _InfoRow(property: property),
                   const SizedBox(height: 16),
-                  if (property.description != null && property.description!.isNotEmpty) ...[
-                    Text('الوصف', style: Theme.of(context).textTheme.titleLarge),
+                  if (property.description != null &&
+                      property.description!.isNotEmpty) ...[
+                    Text(
+                      'الوصف',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 8),
-                    Text(property.description!, style: Theme.of(context).textTheme.bodyMedium),
+                    Text(
+                      property.description!,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     const SizedBox(height: 16),
                   ],
                   if (property.features.isNotEmpty) ...[
-                    Text('المميزات', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'المميزات',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: property.features.map((f) => Chip(
-                        label: Text(f.name + (f.value != null ? ': ${f.value}' : '')),
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                      )).toList(),
+                      children: property.features
+                          .map(
+                            (f) => Chip(
+                              label: Text(
+                                f.name +
+                                    (f.value != null ? ': ${f.value}' : ''),
+                              ),
+                              backgroundColor: AppColors.primary.withValues(
+                                alpha: 0.1,
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                     const SizedBox(height: 16),
                   ],
                   if (property.owner != null) ...[
                     const Divider(height: 32),
-                    Text('المالك', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'المالك',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 12),
                     _OwnerCard(owner: property.owner!),
                   ],
@@ -210,7 +292,9 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: property.owner != null ? () => context.push('${RouteNames.chat}/0') : null,
+                  onPressed: property.owner != null
+                      ? () => _contactOwner(context, property)
+                      : null,
                   icon: const Icon(Icons.chat),
                   label: const Text('تواصل مع المالك'),
                   style: ElevatedButton.styleFrom(
@@ -220,7 +304,8 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
               ),
               const SizedBox(width: 12),
               OutlinedButton.icon(
-                onPressed: () => context.push('${RouteNames.propertyDetail}/${property.id}'),
+                onPressed: () =>
+                    context.push('${RouteNames.propertyDetail}/${property.id}'),
                 icon: const Icon(Icons.phone),
                 label: const Text('اتصال'),
                 style: OutlinedButton.styleFrom(
@@ -244,18 +329,33 @@ class _StatusChip extends StatelessWidget {
     final color = _getColor();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
-      child: Text(Formatters.status(status), style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        Formatters.status(status),
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 
   Color _getColor() {
     switch (status) {
-      case 'AVAILABLE': return AppColors.available;
-      case 'SOLD': return AppColors.sold;
-      case 'PENDING': return AppColors.pending;
-      case 'RESERVED': return AppColors.reserved;
-      default: return AppColors.textSecondary;
+      case 'AVAILABLE':
+        return AppColors.available;
+      case 'SOLD':
+        return AppColors.sold;
+      case 'PENDING':
+        return AppColors.pending;
+      case 'RESERVED':
+        return AppColors.reserved;
+      default:
+        return AppColors.textSecondary;
     }
   }
 }
@@ -269,14 +369,20 @@ class _InfoRow extends StatelessWidget {
     return Row(
       children: [
         if (property.areaSqm != null)
-          _InfoItem(icon: Icons.square_foot, label: Formatters.area(property.areaSqm!)),
+          _InfoItem(
+            icon: Icons.square_foot,
+            label: Formatters.area(property.areaSqm!),
+          ),
         if (property.bedrooms != null)
           _InfoItem(icon: Icons.bed, label: '${property.bedrooms} غرف'),
         if (property.bathrooms != null)
           _InfoItem(icon: Icons.bathtub, label: '${property.bathrooms} حمام'),
         if (property.floors != null)
           _InfoItem(icon: Icons.layers, label: '${property.floors} طوابق'),
-        _InfoItem(icon: Icons.visibility, label: '${property.viewCount} مشاهدة'),
+        _InfoItem(
+          icon: Icons.visibility,
+          label: '${property.viewCount} مشاهدة',
+        ),
       ],
     );
   }
@@ -294,7 +400,11 @@ class _InfoItem extends StatelessWidget {
         children: [
           Icon(icon, color: AppColors.primary, size: 24),
           const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12),
+          ),
         ],
       ),
     );
@@ -328,9 +438,18 @@ class _OwnerCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(owner.fullName ?? 'مالك', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  owner.fullName ?? 'مالك',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 if (owner.propertiesCount != null)
-                  Text('${owner.propertiesCount} عقار', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                  Text(
+                    '${owner.propertiesCount} عقار',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
               ],
             ),
           ),

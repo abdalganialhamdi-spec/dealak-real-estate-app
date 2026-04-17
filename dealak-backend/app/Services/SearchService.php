@@ -18,7 +18,8 @@ class SearchService
                 $q->where('title', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('description', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('city', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('district', 'LIKE', "%{$searchTerm}%");
+                    ->orWhere('district', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('address', 'LIKE', "%{$searchTerm}%");
             });
         }
 

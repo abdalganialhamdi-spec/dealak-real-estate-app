@@ -26,8 +26,8 @@ class ImageService
         Storage::disk('public')->put($thumbPath, $thumbnail->toString());
 
         return $property->images()->create([
-            'image_url' => Storage::disk('public')->url($path),
-            'thumbnail_url' => Storage::disk('public')->url($thumbPath),
+            'image_url' => url(Storage::disk('public')->url($path)),
+            'thumbnail_url' => url(Storage::disk('public')->url($thumbPath)),
             'is_primary' => $property->images()->count() === 0,
             'sort_order' => $property->images()->count(),
         ]);
@@ -41,6 +41,6 @@ class ImageService
     public function uploadAvatar(UploadedFile $file, User $user): string
     {
         $path = $file->store("avatars/{$user->id}", 'public');
-        return Storage::disk('public')->url($path);
+        return url(Storage::disk('public')->url($path));
     }
 }
