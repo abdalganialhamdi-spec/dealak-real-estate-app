@@ -24,6 +24,8 @@ import 'package:dealak_flutter/features/notifications/screens/notifications_scre
 import 'package:dealak_flutter/features/requests/screens/requests_list_screen.dart';
 import 'package:dealak_flutter/features/requests/screens/create_request_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_dashboard_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/admin_properties_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/admin_property_form_screen.dart';
 import 'package:dealak_flutter/shared/widgets/app_scaffold.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -137,6 +139,17 @@ GoRouter createRouter(AuthGuard authGuard) {
       GoRoute(
         path: RouteNames.adminDashboard,
         builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.adminProperties,
+        builder: (context, state) => const AdminPropertiesScreen(),
+      ),
+      GoRoute(
+        path: '${RouteNames.adminPropertyForm}/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id'] == 'new' ? null : int.tryParse(state.pathParameters['id']!);
+          return AdminPropertyFormScreen(propertyId: id);
+        },
       ),
     ],
   );

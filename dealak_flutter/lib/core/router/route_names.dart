@@ -21,4 +21,6 @@ class RouteNames {
   static const String requests = '/requests';
   static const String createRequest = '/request/create';
   static const String adminDashboard = '/admin';
+  static const String adminProperties = '/admin/properties';
+  static const String adminPropertyForm = '/admin/property/form';
 }

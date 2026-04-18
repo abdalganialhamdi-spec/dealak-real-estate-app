@@ -59,4 +59,10 @@ class ApiEndpoints {
   static String get adminPendingProperties => '$admin/properties/pending';
   static String adminApproveProperty(int id) => '$admin/properties/$id/approve';
   static String get adminReports => '$admin/reports';
+  static String get adminProperties => '$admin/properties';
+  static String adminProperty(int id) => '$admin/properties/$id';
+  static String adminPropertyImages(int id) => '$admin/properties/$id/images';
+  static String adminPropertyImage(int id, int imageId) => '$admin/properties/$id/images/$imageId';
+  static String adminToggleFeatured(int id) => '$admin/properties/$id/toggle-featured';
+  static String get conversationByProperty => '$conversations/by-property';
 }
