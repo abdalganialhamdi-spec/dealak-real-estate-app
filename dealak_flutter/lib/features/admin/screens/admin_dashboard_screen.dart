@@ -413,9 +413,9 @@ class _UserListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = user['name'] ?? '';
+    final name = user['full_name'] ?? user['name'] ?? '';
     final email = user['email'] ?? '';
-    final isActive = user['is_active'] ?? true;
+    final isActive = user['is_active'] ?? user['is_verified'] ?? true;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

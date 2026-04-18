@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -350,7 +351,7 @@ class _AdminPropertyFormScreenState extends ConsumerState<AdminPropertyFormScree
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
-                              image.path as dynamic,
+                              File(image.path),
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,

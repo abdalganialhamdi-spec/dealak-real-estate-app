@@ -73,8 +73,8 @@ class AdminRepository {
     return response.data;
   }
 
-  Future<void> updateUserStatus(int id, String status) async {
-    await _dioClient.put(ApiEndpoints.adminUserStatus(id), data: {'status': status});
+  Future<void> updateUserStatus(int id, bool isActive) async {
+    await _dioClient.put(ApiEndpoints.adminUserStatus(id), data: {'is_active': isActive});
   }
 
   Future<Map<String, dynamic>> getReports() async {

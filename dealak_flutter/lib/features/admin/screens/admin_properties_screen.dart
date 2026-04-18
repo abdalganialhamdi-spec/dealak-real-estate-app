@@ -32,7 +32,7 @@ class _AdminPropertiesScreenState extends ConsumerState<AdminPropertiesScreen> {
       'page': _currentPage,
       'per_page': 20,
     };
-    if (_searchQuery.isNotEmpty) params['q'] = _searchQuery;
+    if (_searchQuery.isNotEmpty) params['search'] = _searchQuery;
     if (_statusFilter.isNotEmpty) params['status'] = _statusFilter;
     if (_typeFilter.isNotEmpty) params['property_type'] = _typeFilter;
 
@@ -172,7 +172,7 @@ class _AdminPropertiesScreenState extends ConsumerState<AdminPropertiesScreen> {
       await ref.read(adminPropertyProvider.notifier).deleteProperty(property.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حذف العقار بنجاح')));
-        ref.invalidate(adminPropertiesProvider({}));
+        setState(() {});
       }
     }
   }
@@ -180,7 +180,7 @@ class _AdminPropertiesScreenState extends ConsumerState<AdminPropertiesScreen> {
   Future<void> _toggleFeatured(PropertyModel property) async {
     await ref.read(adminPropertyProvider.notifier).toggleFeatured(property.id);
     if (mounted) {
-      ref.invalidate(adminPropertiesProvider({}));
+      setState(() {});
     }
   }
 }

@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'avatar_url' => $this->avatar_url,
             'bio' => $this->bio,
             'is_verified' => $this->is_verified,
+            'is_active' => $this->is_active ?? true,
             'properties_count' => $this->whenCounted('properties'),
             'reviews_count' => $this->whenCounted('reviews'),
             'created_at' => $this->created_at?->toISOString(),
