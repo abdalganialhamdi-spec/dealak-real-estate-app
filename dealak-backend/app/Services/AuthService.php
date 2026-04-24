@@ -14,7 +14,7 @@ class AuthService
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
-            'password' => $data['password'],
+            'password' => $data['password'],  // hashed cast handles encryption
             'role' => $data['role'] ?? 'BUYER',
         ]);
 

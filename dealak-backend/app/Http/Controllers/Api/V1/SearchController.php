@@ -80,7 +80,7 @@ class SearchController extends Controller
         return response()->json($search, 201);
     }
 
-    public function deleteSavedSearch(int $id): JsonResponse
+    public function deleteSavedSearch(Request $request, int $id): JsonResponse
     {
         $request->user()->savedSearches()->findOrFail($id)->delete();
 

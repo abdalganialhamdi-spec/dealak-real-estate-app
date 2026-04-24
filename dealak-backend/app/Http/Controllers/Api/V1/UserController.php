@@ -64,7 +64,7 @@ class UserController extends Controller
             return response()->json(['message' => 'كلمة المرور الحالية غير صحيحة'], 422);
         }
 
-        $request->user()->update(['password' => Hash::make($request->password)]);
+        $request->user()->update(['password' => $request->password]);
 
         return response()->json(['message' => 'تم تغيير كلمة المرور بنجاح']);
     }
