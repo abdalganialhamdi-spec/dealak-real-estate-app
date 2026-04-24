@@ -28,10 +28,13 @@ class _DealakAppWithApiConfigState extends State<DealakAppWithApiConfig> {
   Future<void> _initPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     _prefs = AppPreferences(prefs);
-    if (_prefs.isApiConfigured) {
-      final container = ProviderScope.containerOf(context);
-      final dioClient = container.read(dioClientProvider);
-      dioClient.updateBaseUrl(_prefs.baseUrl);
+    if (_prefs.isApiConfigured && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final container = ProviderScope.containerOf(context);
+        final dioClient = container.read(dioClientProvider);
+        dioClient.updateBaseUrl(_prefs.baseUrl);
+      });
     }
     setState(() {
       _isConfigured = _prefs.isApiConfigured;

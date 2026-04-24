@@ -60,6 +60,8 @@ class PropertyController extends Controller
         $property = Property::with(['owner', 'agent', 'images', 'features', 'reviews.user'])
             ->findOrFail($id);
 
+        $property->increment('view_count');
+
         return response()->json(new PropertyResource($property));
     }
 
@@ -134,7 +136,13 @@ class PropertyController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json(PropertyResource::collection($properties));
+        return response()->json([
+            'data' => PropertyResource::collection($properties),
+            'meta' => [
+                'total' => $properties->count(),
+                'type' => 'featured',
+            ],
+        ]);
     }
 
     public function myProperties(Request $request): JsonResponse
@@ -162,6 +170,13 @@ class PropertyController extends Controller
             ->limit(6)
             ->get();
 
-        return response()->json(PropertyResource::collection($similar));
+        return response()->json([
+            'data' => PropertyResource::collection($similar),
+            'meta' => [
+                'total' => $similar->count(),
+                'type' => 'similar',
+                'reference_id' => $id,
+            ],
+        ]);
     }
 }
