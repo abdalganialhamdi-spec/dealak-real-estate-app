@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Request\StoreRequestRequest;
+use App\Http\Resources\PropertyRequestResource;
 use App\Models\PropertyRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,15 @@ class RequestController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 20);
 
-        return response()->json($requests);
+        return response()->json([
+            'data' => PropertyRequestResource::collection($requests),
+            'meta' => [
+                'current_page' => $requests->currentPage(),
+                'last_page' => $requests->lastPage(),
+                'per_page' => $requests->perPage(),
+                'total' => $requests->total(),
+            ],
+        ]);
     }
 
     public function store(StoreRequestRequest $request): JsonResponse
@@ -28,7 +37,7 @@ class RequestController extends Controller
 
         return response()->json([
             'message' => 'تم إنشاء الطلب بنجاح',
-            'request' => $propertyRequest,
+            'request' => new PropertyRequestResource($propertyRequest),
         ], 201);
     }
 
@@ -55,7 +64,7 @@ class RequestController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الطلب',
-            'request' => $propertyRequest->fresh(),
+            'request' => new PropertyRequestResource($propertyRequest->fresh()),
         ]);
     }
 

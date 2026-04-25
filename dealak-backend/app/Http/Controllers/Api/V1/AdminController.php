@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PropertyResource;
+use App\Http\Resources\UserCollection;
 use App\Http\Resources\UserResource;
 use App\Models\Deal;
 use App\Models\Property;
@@ -42,7 +43,7 @@ class AdminController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 20);
 
-        return response()->json(UserResource::collection($users));
+        return response()->json(new UserCollection($users));
     }
 
     public function updateUserStatus(Request $request, int $id): JsonResponse

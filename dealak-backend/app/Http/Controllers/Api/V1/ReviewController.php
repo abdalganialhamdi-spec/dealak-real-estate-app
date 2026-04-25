@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Review\StoreReviewRequest;
+use App\Http\Resources\ReviewCollection;
 use App\Http\Resources\ReviewResource;
 use App\Models\Property;
 use App\Models\Review;
@@ -19,7 +20,7 @@ class ReviewController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json(ReviewResource::collection($reviews));
+        return response()->json(new ReviewCollection($reviews));
     }
 
     public function store(StoreReviewRequest $request): JsonResponse
