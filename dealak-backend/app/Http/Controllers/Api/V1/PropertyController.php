@@ -109,6 +109,7 @@ class PropertyController extends Controller
     public function uploadImages(Request $request, int $id): JsonResponse
     {
         $request->validate([
+            'images' => 'required|array|min:1',
             'images.*' => 'required|image|max:5120',
         ]);
 

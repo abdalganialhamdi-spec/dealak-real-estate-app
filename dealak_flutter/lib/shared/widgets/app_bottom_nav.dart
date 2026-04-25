@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/router/route_names.dart';
+import 'package:dealak_flutter/providers/auth_provider.dart';
 
-class AppBottomNav extends StatelessWidget {
+class AppBottomNav extends ConsumerWidget {
   const AppBottomNav({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authProvider);
+    final role = auth.user?.role ?? 'BUYER';
     final currentLocation = GoRouterState.of(context).matchedLocation;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    final items = _getNavItems(role);
 
     return Container(
       decoration: BoxDecoration(
@@ -28,53 +34,58 @@ class AppBottomNav extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'الرئيسية',
-                isActive: currentLocation == RouteNames.home,
-                onTap: () => context.go(RouteNames.home),
-                isDark: isDark,
-              ),
-              _NavItem(
-                icon: Icons.search_outlined,
-                activeIcon: Icons.search,
-                label: 'بحث',
-                isActive: currentLocation == RouteNames.search,
-                onTap: () => context.go(RouteNames.search),
-                isDark: isDark,
-              ),
-              _NavItem(
-                icon: Icons.favorite_border,
-                activeIcon: Icons.favorite,
-                label: 'المفضلة',
-                isActive: currentLocation == RouteNames.favorites,
-                onTap: () => context.go(RouteNames.favorites),
-                isDark: isDark,
-              ),
-              _NavItem(
-                icon: Icons.chat_bubble_outline,
-                activeIcon: Icons.chat_bubble,
-                label: 'الرسائل',
-                isActive: currentLocation == RouteNames.conversations,
-                onTap: () => context.go(RouteNames.conversations),
-                isDark: isDark,
-              ),
-              _NavItem(
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
-                label: 'حسابي',
-                isActive: currentLocation == RouteNames.profile,
-                onTap: () => context.go(RouteNames.profile),
-                isDark: isDark,
-              ),
-            ],
+            children: items
+                .map((item) => _NavItem(
+                      icon: item.icon,
+                      activeIcon: item.activeIcon,
+                      label: item.label,
+                      isActive: currentLocation == item.route,
+                      onTap: () => context.go(item.route),
+                      isDark: isDark,
+                    ))
+                .toList(),
           ),
         ),
       ),
     );
   }
+
+  List<_NavItemData> _getNavItems(String role) {
+    switch (role) {
+      case 'ADMIN':
+        return [
+          _NavItemData(Icons.dashboard_outlined, Icons.dashboard, 'لوحة التحكم', RouteNames.adminDashboard),
+          _NavItemData(Icons.home_work_outlined, Icons.home_work, 'العقارات', RouteNames.adminProperties),
+          _NavItemData(Icons.people_outline, Icons.people, 'المستخدمين', RouteNames.adminUsers),
+          _NavItemData(Icons.analytics_outlined, Icons.analytics, 'التقارير', RouteNames.adminReports),
+          _NavItemData(Icons.person_outline, Icons.person, 'حسابي', RouteNames.profile),
+        ];
+      case 'AGENT':
+        return [
+          _NavItemData(Icons.home_outlined, Icons.home, 'الرئيسية', RouteNames.home),
+          _NavItemData(Icons.home_work_outlined, Icons.home_work, 'عقاراتي', RouteNames.myProperties),
+          _NavItemData(Icons.handshake_outlined, Icons.handshake, 'صفقاتي', RouteNames.deals),
+          _NavItemData(Icons.chat_bubble_outline, Icons.chat_bubble, 'الرسائل', RouteNames.conversations),
+          _NavItemData(Icons.person_outline, Icons.person, 'حسابي', RouteNames.profile),
+        ];
+      default:
+        return [
+          _NavItemData(Icons.home_outlined, Icons.home, 'الرئيسية', RouteNames.home),
+          _NavItemData(Icons.search_outlined, Icons.search, 'بحث', RouteNames.search),
+          _NavItemData(Icons.favorite_border, Icons.favorite, 'المفضلة', RouteNames.favorites),
+          _NavItemData(Icons.chat_bubble_outline, Icons.chat_bubble, 'الرسائل', RouteNames.conversations),
+          _NavItemData(Icons.person_outline, Icons.person, 'حسابي', RouteNames.profile),
+        ];
+    }
+  }
+}
+
+class _NavItemData {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final String route;
+  const _NavItemData(this.icon, this.activeIcon, this.label, this.route);
 }
 
 class _NavItem extends StatelessWidget {
@@ -115,7 +126,9 @@ class _NavItem extends StatelessWidget {
               curve: Curves.easeInOut,
               child: Icon(
                 isActive ? activeIcon : icon,
-                color: isActive ? AppColors.primary : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                color: isActive
+                    ? AppColors.primary
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
                 size: 24,
               ),
             ),
@@ -125,7 +138,9 @@ class _NavItem extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                color: isActive ? AppColors.primary : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                color: isActive
+                    ? AppColors.primary
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
               ),
             ),
           ],

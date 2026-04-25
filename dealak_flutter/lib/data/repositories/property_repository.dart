@@ -72,7 +72,10 @@ class PropertyRepository {
   }
 
   Future<void> uploadImages(int propertyId, List<MultipartFile> files) async {
-    final formData = FormData.fromMap({'images': files});
+    final formData = FormData();
+    for (final file in files) {
+      formData.files.add(MapEntry('images[]', file));
+    }
     await _dioClient.upload(ApiEndpoints.propertyImages(propertyId), formData);
   }
 

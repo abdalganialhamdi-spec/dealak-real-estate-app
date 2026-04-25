@@ -71,6 +71,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
     final usersCount = data['users_count'] ?? 0;
     final dealsCount = data['deals_count'] ?? 0;
     final pendingCount = data['pending_properties_count'] ?? 0;
+    final totalRevenue = data['total_revenue'] ?? 0;
+    final activeDeals = data['active_deals'] ?? 0;
+    final availableProperties = data['available_properties'] ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,6 +114,38 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               label: 'قيد المراجعة',
               value: '$pendingCount',
               color: AppColors.warning,
+              isDark: isDark,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.2,
+          children: [
+            _StatCard(
+              icon: Icons.attach_money,
+              label: 'الإيرادات',
+              value: Formatters.currency(totalRevenue is num ? totalRevenue.toDouble() : 0),
+              color: AppColors.success,
+              isDark: isDark,
+            ),
+            _StatCard(
+              icon: Icons.sync,
+              label: 'صفقات جارية',
+              value: '$activeDeals',
+              color: AppColors.accent,
+              isDark: isDark,
+            ),
+            _StatCard(
+              icon: Icons.check_circle_outline,
+              label: 'عقارات متاحة',
+              value: '$availableProperties',
+              color: AppColors.primary,
               isDark: isDark,
             ),
           ],
@@ -156,7 +191,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _QuickActionButton(
                 icon: Icons.people_outline,
                 label: 'المستخدمين',
-                onTap: () {},
+                onTap: () => context.push(RouteNames.adminUsers),
                 color: AppColors.secondary,
                 isDark: isDark,
               ),
@@ -166,7 +201,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _QuickActionButton(
                 icon: Icons.analytics,
                 label: 'التقارير',
-                onTap: () {},
+                onTap: () => context.push(RouteNames.adminReports),
                 color: AppColors.info,
                 isDark: isDark,
               ),

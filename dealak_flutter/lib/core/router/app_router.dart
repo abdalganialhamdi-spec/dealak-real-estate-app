@@ -27,6 +27,10 @@ import 'package:dealak_flutter/features/requests/screens/create_request_screen.d
 import 'package:dealak_flutter/features/admin/screens/admin_dashboard_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_properties_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_property_form_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/admin_users_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/admin_reports_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/agent_dashboard_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/agent_stats_screen.dart';
 import 'package:dealak_flutter/shared/widgets/app_scaffold.dart';
 import 'package:dealak_flutter/features/settings/screens/api_settings_page.dart';
 
@@ -157,6 +161,22 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
           final id = state.pathParameters['id'] == 'new' ? null : int.tryParse(state.pathParameters['id']!);
           return AdminPropertyFormScreen(propertyId: id);
         },
+      ),
+      GoRoute(
+        path: RouteNames.adminUsers,
+        builder: (context, state) => const AdminUsersScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.adminReports,
+        builder: (context, state) => const AdminReportsScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.agentDashboard,
+        builder: (context, state) => const AgentDashboardScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.agentStats,
+        builder: (context, state) => const AgentStatsScreen(),
       ),
     ],
   );

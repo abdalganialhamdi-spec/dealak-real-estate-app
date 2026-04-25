@@ -30,6 +30,18 @@ class AuthGuard {
     if (hasToken && userRole == 'ADMIN' && state.matchedLocation == RouteNames.home) {
       return RouteNames.adminDashboard;
     }
+    if (hasToken && userRole != 'ADMIN') {
+      final isAdminRoute = state.matchedLocation.startsWith('/admin');
+      if (isAdminRoute) {
+        return RouteNames.home;
+      }
+    }
+    if (hasToken && userRole != 'AGENT' && userRole != 'ADMIN') {
+      final isAgentRoute = state.matchedLocation.startsWith('/agent');
+      if (isAgentRoute) {
+        return RouteNames.home;
+      }
+    }
     return null;
   }
 }

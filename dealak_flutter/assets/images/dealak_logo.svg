@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buildingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="96" fill="url(#primaryGradient)" />
+  <circle cx="100" cy="100" r="88" fill="#FFFFFF" opacity="0.05" />
+
+  <!-- Stylized House / Building -->
+  <g transform="translate(50, 55)">
+    <!-- Main Building Body -->
+    <rect x="15" y="35" width="70" height="55" rx="6" fill="url(#buildingGradient)" />
+
+    <!-- Roof -->
+    <path d="M 10 38 L 50 8 L 90 38 L 86 42 L 50 15 L 14 42 Z" fill="#FBBF24" />
+
+    <!-- Windows -->
+    <rect x="25" y="50" width="12" height="14" rx="2" fill="#FFFFFF" opacity="0.9" />
+    <rect x="44" y="50" width="12" height="14" rx="2" fill="#FFFFFF" opacity="0.9" />
+    <rect x="63" y="50" width="12" height="14" rx="2" fill="#FFFFFF" opacity="0.9" />
+
+    <!-- Door -->
+    <rect x="42" y="68" width="16" height="22" rx="3" fill="#1E3A8A" />
+    <circle cx="54" cy="80" r="1.5" fill="#FBBF24" />
+
+    <!-- Location Pin Accent -->
+    <circle cx="75" cy="20" r="12" fill="url(#accentGradient)" />
+    <path d="M 75 12 C 70 12 67 16 67 20 C 67 25 75 33 75 33 C 75 33 83 25 83 20 C 83 16 80 12 75 12 Z" fill="#EF4444" />
+    <circle cx="75" cy="20" r="4" fill="#FFFFFF" />
+  </g>
+
+  <!-- Digital Grid Lines (representing tech/real estate mapping) -->
+  <g opacity="0.3">
+    <line x1="40" y1="130" x2="70" y2="130" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="130" y1="130" x2="160" y2="130" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="50" y1="140" x2="85" y2="140" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" />
+    <line x1="115" y1="140" x2="150" y2="140" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Text: DEALAK -->
+  <text x="100" y="172" font-family="'Segoe UI', 'Arial', sans-serif" font-size="22" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="3">
+    DEALAK
+  </text>
+</svg>
