@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/utils/validators.dart';
 import 'package:dealak_flutter/providers/auth_provider.dart';
 import 'package:dealak_flutter/shared/widgets/custom_button.dart';
 import 'package:dealak_flutter/shared/widgets/custom_text_field.dart';
+import 'package:dealak_flutter/shared/widgets/cached_image.dart';
 import 'package:dio/dio.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -45,6 +47,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final dioClient = ref.read(dioClientProvider);
+      final formData = FormData.fromMap({
+        'avatar': await MultipartFile.fromFile(image.path),
+      });
+      await dioClient.post('/users/avatar', data: formData);
+      await ref.read(authProvider.notifier).checkAuth();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث صورة الملف الشخصي')));
+      }
+    } on DioException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message ?? 'خطأ في رفع الصورة')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -73,6 +100,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).user;
+
     return Scaffold(
       appBar: AppBar(title: const Text('تعديل الملف الشخصي')),
       body: SingleChildScrollView(
@@ -84,18 +113,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                      child: const Icon(Icons.person, size: 40, color: AppColors.primary),
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        border: Border.all(color: AppColors.primary, width: 2),
+                      ),
+                      child: ClipOval(
+                        child: user?.avatarUrl != null
+                            ? CachedImage(imageUrl: user!.avatarUrl!)
+                            : const Icon(Icons.person, size: 50, color: AppColors.primary),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                        child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                      child: GestureDetector(
+                        onTap: _pickAndUploadImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                          child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                        ),
                       ),
                     ),
                   ],

@@ -52,7 +52,9 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final propertiesAsync = ref.watch(propertyProvider(null));
+    final state = GoRouterState.of(context);
+    final params = state.uri.queryParameters;
+    final propertiesAsync = ref.watch(propertyProvider(params.isEmpty ? null : params));
 
     return Scaffold(
       appBar: AppBar(
@@ -77,7 +79,7 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
           return RefreshIndicator(
             onRefresh: () async {
               _currentPage = 1;
-              ref.invalidate(propertyProvider(null));
+              ref.invalidate(propertyProvider(params.isEmpty ? null : params));
             },
             child: ListView.builder(
               controller: _scrollController,
@@ -98,7 +100,7 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
         loading: () => const LoadingWidget(message: 'جاري تحميل العقارات...'),
         error: (e, _) => AppErrorWidget(
           message: e.toString(),
-          onRetry: () => ref.invalidate(propertyProvider(null)),
+          onRetry: () => ref.invalidate(propertyProvider(params.isEmpty ? null : params)),
         ),
       ),
       floatingActionButton: FloatingActionButton(

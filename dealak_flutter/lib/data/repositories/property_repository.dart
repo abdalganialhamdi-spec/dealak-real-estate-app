@@ -26,7 +26,11 @@ class PropertyRepository {
   }
 
   Future<PaginatedResponse<PropertyModel>> getProperties({Map<String, dynamic>? params}) async {
-    final response = await _dioClient.get(ApiEndpoints.properties, queryParameters: params);
+    final mergedParams = {
+      'include': 'images,owner',
+      ...?params,
+    };
+    final response = await _dioClient.get(ApiEndpoints.properties, queryParameters: mergedParams);
     return PaginatedResponse.fromJson(response.data, PropertyModel.fromJson);
   }
 
@@ -62,7 +66,11 @@ class PropertyRepository {
   }
 
   Future<PaginatedResponse<PropertyModel>> getMyProperties({Map<String, dynamic>? params}) async {
-    final response = await _dioClient.get(ApiEndpoints.myProperties, queryParameters: params);
+    final mergedParams = {
+      'include': 'images,owner',
+      ...?params,
+    };
+    final response = await _dioClient.get(ApiEndpoints.myProperties, queryParameters: mergedParams);
     return PaginatedResponse.fromJson(response.data, PropertyModel.fromJson);
   }
 

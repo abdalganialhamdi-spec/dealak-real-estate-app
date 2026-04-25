@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
+import 'package:dealak_flutter/data/models/user_model.dart';
 import 'package:dealak_flutter/providers/admin_provider.dart';
 import 'package:dealak_flutter/shared/widgets/loading_widget.dart';
 import 'package:dealak_flutter/shared/widgets/error_widget.dart';
@@ -106,7 +109,8 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           ),
           Expanded(
             child: usersAsync.when(
-              data: (users) {
+              data: (paginated) {
+                final users = paginated.data;
                 if (users.isEmpty) {
                   return const Center(child: Text('لا يوجد مستخدمين'));
                 }
@@ -122,6 +126,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                         user: user,
                         isDark: isDark,
                         onToggleStatus: () => _toggleUserStatus(user),
+                        onUpdateRole: (role) => _updateUserRole(user, role),
                       );
                     },
                   ),
@@ -139,14 +144,9 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
     );
   }
 
-  Future<void> _toggleUserStatus(dynamic user) async {
-    final userId = user is Map ? user['id'] : (user as dynamic).id;
-    final isActive = user is Map
-        ? (user['is_active'] ?? user['is_verified'] ?? true)
-        : (user as dynamic).isActive ?? true;
-
+  Future<void> _toggleUserStatus(UserModel user) async {
     try {
-      await ref.read(adminRepositoryProvider).updateUserStatus(userId, !isActive);
+      await ref.read(adminRepositoryProvider).updateUserStatus(user.id, !user.isVerified);
       final params = <String, dynamic>{
         'page': 1,
         'per_page': 50,
@@ -156,7 +156,31 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
       ref.invalidate(adminUsersProvider(params));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(!isActive ? 'تم تفعيل المستخدم' : 'تم تعطيل المستخدم')),
+          SnackBar(content: Text(!user.isVerified ? 'تم تفعيل المستخدم' : 'تم تعطيل المستخدم')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _updateUserRole(UserModel user, String role) async {
+    try {
+      await ref.read(adminRepositoryProvider).updateUserRole(user.id, role);
+      final params = <String, dynamic>{
+        'page': 1,
+        'per_page': 50,
+        if (_searchController.text.isNotEmpty) 'search': _searchController.text,
+        if (_roleFilter.isNotEmpty) 'role': _roleFilter,
+      };
+      ref.invalidate(adminUsersProvider(params));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم تحديث دور المستخدم بنجاح')),
         );
       }
     } catch (e) {
@@ -204,35 +228,40 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _UserCard extends StatelessWidget {
-  final dynamic user;
+  final UserModel user;
   final bool isDark;
   final VoidCallback onToggleStatus;
+  final Function(String) onUpdateRole;
 
   const _UserCard({
     required this.user,
     required this.isDark,
     required this.onToggleStatus,
+    required this.onUpdateRole,
   });
 
   @override
   Widget build(BuildContext context) {
-    final name = user is Map ? (user['full_name'] ?? user['name'] ?? '') : (user as dynamic).fullName ?? '';
-    final email = user is Map ? (user['email'] ?? '') : (user as dynamic).email ?? '';
-    final role = user is Map ? (user['role'] ?? 'BUYER') : (user as dynamic).role ?? 'BUYER';
-    final isActive = user is Map ? (user['is_active'] ?? user['is_verified'] ?? true) : true;
-    final phone = user is Map ? (user['phone'] ?? '') : (user as dynamic).phone ?? '';
+    final name = user.fullName;
+    final email = user.email;
+    final role = user.role;
+    final isActive = user.isVerified;
+    final phone = user.phone ?? '';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+    return InkWell(
+      onTap: () => context.push('${RouteNames.adminUserDetail}/${user.id}'),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.cardDark : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+          ),
         ),
-      ),
-      child: Row(
+        child: Row(
         children: [
           CircleAvatar(
             radius: 24,
@@ -260,15 +289,34 @@ class _UserCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: _roleColor(role).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _roleLabel(role),
-                  style: TextStyle(color: _roleColor(role), fontSize: 10, fontWeight: FontWeight.w600),
+              PopupMenuButton<String>(
+                initialValue: role,
+                onSelected: onUpdateRole,
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'ADMIN', child: Text('مدير')),
+                  const PopupMenuItem(value: 'AGENT', child: Text('وكيل')),
+                  const PopupMenuItem(value: 'SELLER', child: Text('بائع')),
+                  const PopupMenuItem(value: 'BUYER', child: Text('مشتري')),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: _roleColor(role).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _roleLabel(role),
+                        style: TextStyle(
+                            color: _roleColor(role),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      const Icon(Icons.arrow_drop_down, size: 14),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
@@ -294,6 +342,7 @@ class _UserCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

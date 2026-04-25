@@ -59,6 +59,21 @@ class AdminController extends Controller
         ]);
     }
 
+    public function updateUserRole(Request $request, int $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'role' => 'required|string|in:ADMIN,AGENT,SELLER,BUYER',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'تم تغيير دور المستخدم بنجاح',
+            'user' => new UserResource($user),
+        ]);
+    }
+
     public function allProperties(Request $request): JsonResponse
     {
         $properties = Property::with(['owner', 'images'])
@@ -69,6 +84,7 @@ class AdminController extends Controller
                         ->orWhere('district', 'LIKE', "%{$search}%");
                 });
             })
+            ->when($request->owner_id, fn($q, $id) => $q->where('owner_id', $id))
             ->when($request->status, fn($q, $status) => $q->where('status', $status))
             ->when($request->property_type, fn($q, $type) => $q->where('property_type', $type))
             ->when($request->listing_type, fn($q, $type) => $q->where('listing_type', $type))
@@ -76,6 +92,20 @@ class AdminController extends Controller
             ->paginate($request->per_page ?? 20);
 
         return response()->json(new \App\Http\Resources\PropertyCollection($properties));
+    }
+
+    public function userDeals(int $id): JsonResponse
+    {
+        $deals = Deal::with(['property', 'buyer', 'seller', 'agent'])
+            ->where(function ($q) use ($id) {
+                $q->where('buyer_id', $id)
+                    ->orWhere('seller_id', $id)
+                    ->orWhere('agent_id', $id);
+            })
+            ->latest()
+            ->get();
+
+        return response()->json(\App\Http\Resources\DealResource::collection($deals));
     }
 
     public function storeProperty(Request $request): JsonResponse
@@ -176,11 +206,11 @@ class AdminController extends Controller
         ]);
     }
 
-    public function deletePropertyImage(int $id, int $imageId): JsonResponse
+    public function deletePropertyImage(ImageService $imageService, int $id, int $imageId): JsonResponse
     {
         $property = Property::findOrFail($id);
         $image = $property->images()->findOrFail($imageId);
-        $image->delete();
+        $imageService->deletePropertyImage($image);
 
         return response()->json(['message' => 'تم حذف الصورة بنجاح']);
     }

@@ -28,6 +28,7 @@ import 'package:dealak_flutter/features/admin/screens/admin_dashboard_screen.dar
 import 'package:dealak_flutter/features/admin/screens/admin_properties_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_property_form_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_users_screen.dart';
+import 'package:dealak_flutter/features/admin/screens/admin_user_detail_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_reports_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/agent_dashboard_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/agent_stats_screen.dart';
@@ -165,6 +166,13 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
       GoRoute(
         path: RouteNames.adminUsers,
         builder: (context, state) => const AdminUsersScreen(),
+      ),
+      GoRoute(
+        path: '${RouteNames.adminUserDetail}/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return AdminUserDetailScreen(userId: id);
+        },
       ),
       GoRoute(
         path: RouteNames.adminReports,

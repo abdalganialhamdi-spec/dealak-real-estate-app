@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/data/models/property_model.dart';
+import 'package:dealak_flutter/data/models/user_model.dart';
+import 'package:dealak_flutter/data/models/deal_model.dart';
 import 'package:dealak_flutter/data/models/pagination_model.dart';
 import 'package:dealak_flutter/data/repositories/admin_repository.dart';
 import 'package:dealak_flutter/providers/auth_provider.dart';
@@ -34,13 +36,20 @@ final adminPendingPropertiesProvider =
       return repo.getPendingProperties(params: params);
     });
 
-final adminUsersProvider = FutureProvider.family<List, Map<String, dynamic>>((
-  ref,
-  params,
-) async {
-  final repo = ref.read(adminRepositoryProvider);
-  return repo.getUsers(params: params);
-});
+final adminUsersProvider =
+    FutureProvider.family<PaginatedResponse<UserModel>, Map<String, dynamic>>((
+      ref,
+      params,
+    ) async {
+      final repo = ref.read(adminRepositoryProvider);
+      return repo.getUsers(params: params);
+    });
+
+final adminUserDealsProvider =
+    FutureProvider.family<List<DealModel>, int>((ref, userId) async {
+      final repo = ref.read(adminRepositoryProvider);
+      return repo.getUserDeals(userId);
+    });
 
 final adminReportsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.read(adminRepositoryProvider);

@@ -116,6 +116,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::put('/users/{id}/status', [AdminController::class, 'updateUserStatus']);
+        Route::put('/users/{id}/role', [AdminController::class, 'updateUserRole']);
+        Route::get('/users/{id}/deals', [AdminController::class, 'userDeals']);
         Route::get('/properties', [AdminController::class, 'allProperties']);
         Route::post('/properties', [AdminController::class, 'storeProperty']);
         Route::put('/properties/{id}', [AdminController::class, 'updateProperty']);

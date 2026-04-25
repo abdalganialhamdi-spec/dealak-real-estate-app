@@ -3,6 +3,8 @@ import 'package:dealak_flutter/core/network/dio_client.dart';
 import 'package:dealak_flutter/core/constants/api_endpoints.dart';
 import 'package:dealak_flutter/data/models/property_model.dart';
 import 'package:dealak_flutter/data/models/pagination_model.dart';
+import 'package:dealak_flutter/data/models/user_model.dart';
+import 'package:dealak_flutter/data/models/deal_model.dart';
 
 class AdminRepository {
   final DioClient _dioClient;
@@ -51,7 +53,11 @@ class AdminRepository {
       formData.files.add(MapEntry('images[]', file));
     }
     final response = await _dioClient.upload(ApiEndpoints.adminPropertyImages(propertyId), formData);
-    return response.data;
+    final data = response.data;
+    if (data is Map && data.containsKey('images')) {
+      return data['images'] as List;
+    }
+    return [];
   }
 
   Future<void> deleteImage(int propertyId, int imageId) async {
@@ -71,13 +77,22 @@ class AdminRepository {
     await _dioClient.put(ApiEndpoints.adminApproveProperty(id));
   }
 
-  Future<List> getUsers({Map<String, dynamic>? params}) async {
+  Future<PaginatedResponse<UserModel>> getUsers({Map<String, dynamic>? params}) async {
     final response = await _dioClient.get(ApiEndpoints.adminUsers, queryParameters: params);
-    return response.data;
+    return PaginatedResponse.fromJson(response.data, UserModel.fromJson);
   }
 
   Future<void> updateUserStatus(int id, bool isActive) async {
     await _dioClient.put(ApiEndpoints.adminUserStatus(id), data: {'is_active': isActive});
+  }
+
+  Future<void> updateUserRole(int id, String role) async {
+    await _dioClient.put('${ApiEndpoints.adminUsers}/$id/role', data: {'role': role});
+  }
+
+  Future<List<DealModel>> getUserDeals(int id) async {
+    final response = await _dioClient.get('${ApiEndpoints.adminUsers}/$id/deals');
+    return (response.data as List).map((e) => DealModel.fromJson(e)).toList();
   }
 
   Future<Map<String, dynamic>> getReports() async {

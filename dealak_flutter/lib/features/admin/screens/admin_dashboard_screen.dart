@@ -273,7 +273,6 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       ],
     );
   }
-
   Widget _buildRecentUsers(BuildContext context, bool isDark) {
     final usersAsync = ref.watch(
       adminUsersProvider({'page': 1, 'per_page': 5}),
@@ -285,7 +284,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         Text('أحدث المستخدمين', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         usersAsync.when(
-          data: (users) {
+          data: (paginated) {
+            final users = paginated.data;
             if (users.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(24),
