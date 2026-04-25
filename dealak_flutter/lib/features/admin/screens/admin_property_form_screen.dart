@@ -4,9 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
-import 'package:dealak_flutter/core/router/route_names.dart';
-import 'package:dealak_flutter/core/utils/formatters.dart';
-import 'package:dealak_flutter/data/models/property_model.dart';
 import 'package:dealak_flutter/providers/admin_provider.dart';
 import 'package:dealak_flutter/shared/widgets/loading_widget.dart';
 
@@ -150,9 +147,6 @@ class _AdminPropertyFormScreenState extends ConsumerState<AdminPropertyFormScree
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     if (_isLoading) {
       return Scaffold(appBar: AppBar(title: const Text('جاري التحميل...')), body: const LoadingWidget());
     }

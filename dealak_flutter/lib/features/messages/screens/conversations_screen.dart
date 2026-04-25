@@ -39,7 +39,7 @@ class ConversationsScreen extends ConsumerWidget {
                     radius: 28,
                     backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                     child: Text(
-                      otherUser?.firstName?.substring(0, 1) ?? '?',
+                      otherUser?.firstName.substring(0, 1) ?? '?',
                       style: const TextStyle(color: AppColors.primary, fontSize: 20),
                     ),
                   ),
