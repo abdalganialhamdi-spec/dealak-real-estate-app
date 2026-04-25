@@ -28,6 +28,7 @@ import 'package:dealak_flutter/features/admin/screens/admin_dashboard_screen.dar
 import 'package:dealak_flutter/features/admin/screens/admin_properties_screen.dart';
 import 'package:dealak_flutter/features/admin/screens/admin_property_form_screen.dart';
 import 'package:dealak_flutter/shared/widgets/app_scaffold.dart';
+import 'package:dealak_flutter/features/settings/screens/api_settings_page.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -54,6 +55,10 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
       GoRoute(
         path: RouteNames.forgotPassword,
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.apiSettings,
+        builder: (context, state) => const ApiSettingsPage(),
       ),
       ShellRoute(
         navigatorKey: _shellNavigatorKey,

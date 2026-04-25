@@ -1,9 +1,11 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/data/models/user_model.dart';
 import 'package:dealak_flutter/data/repositories/auth_repository.dart';
 import 'package:dealak_flutter/core/network/dio_client.dart';
 import 'package:dealak_flutter/core/network/api_exceptions.dart';
 import 'package:dealak_flutter/core/storage/secure_storage.dart';
+import 'package:dealak_flutter/core/storage/app_preferences.dart';
 
 class AuthState {
   final UserModel? user;
@@ -80,6 +82,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 }
 
 final secureStorageProvider = Provider<SecureStorage>((ref) => SecureStorage());
+final appPreferencesProvider = FutureProvider<AppPreferences>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return AppPreferences(prefs);
+});
 final dioClientProvider = Provider<DioClient>((ref) => DioClient(ref.read(secureStorageProvider)));
 final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepository(ref.read(dioClientProvider), ref.read(secureStorageProvider)));
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) => AuthNotifier(ref.read(authRepositoryProvider)));

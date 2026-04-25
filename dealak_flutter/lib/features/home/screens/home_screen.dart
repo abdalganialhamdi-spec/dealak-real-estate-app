@@ -117,6 +117,11 @@ class HomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () => context.push(RouteNames.notifications),
           ),
+          IconButton(
+            icon: const Icon(Icons.settings_ethernet, size: 20),
+            tooltip: 'إعدادات الاتصال',
+            onPressed: () => context.push(RouteNames.apiSettings),
+          ),
         ],
       ),
     );

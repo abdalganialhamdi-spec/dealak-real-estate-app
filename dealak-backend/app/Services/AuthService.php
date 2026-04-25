@@ -35,6 +35,10 @@ class AuthService
             abort(403, 'الحساب معطّل');
         }
 
+        if (!$user->is_verified && $user->role !== 'ADMIN') {
+            abort(403, 'يرجى تأكيد بريدك الإلكتروني أولاً');
+        }
+
         $token = $user->createToken('auth-token', [$user->role])->plainTextToken;
         $user->update(['last_login_at' => now()]);
 

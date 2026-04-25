@@ -23,4 +23,5 @@ class RouteNames {
   static const String adminDashboard = '/admin';
   static const String adminProperties = '/admin/properties';
   static const String adminPropertyForm = '/admin/property/form';
+  static const String apiSettings = '/api-settings';
 }

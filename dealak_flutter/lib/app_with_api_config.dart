@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/storage/app_preferences.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/screens/api_settings_screen.dart';
 import 'app.dart';
 import 'providers/auth_provider.dart';
 
-class DealakAppWithApiConfig extends StatefulWidget {
+class DealakAppWithApiConfig extends ConsumerStatefulWidget {
   const DealakAppWithApiConfig({super.key});
 
   @override
-  State<DealakAppWithApiConfig> createState() => _DealakAppWithApiConfigState();
+  ConsumerState<DealakAppWithApiConfig> createState() => _DealakAppWithApiConfigState();
 }
 
-class _DealakAppWithApiConfigState extends State<DealakAppWithApiConfig> {
-  late AppPreferences _prefs;
+class _DealakAppWithApiConfigState extends ConsumerState<DealakAppWithApiConfig> {
   bool _isLoading = true;
   bool _isConfigured = false;
 
@@ -26,27 +23,18 @@ class _DealakAppWithApiConfigState extends State<DealakAppWithApiConfig> {
   }
 
   Future<void> _initPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    _prefs = AppPreferences(prefs);
-    if (_prefs.isApiConfigured && mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final container = ProviderScope.containerOf(context);
-        final dioClient = container.read(dioClientProvider);
-        dioClient.updateBaseUrl(_prefs.baseUrl);
-      });
+    final prefs = await ref.read(appPreferencesProvider.future);
+    if (prefs.isApiConfigured && mounted) {
+      final dioClient = ref.read(dioClientProvider);
+      dioClient.updateBaseUrl(prefs.baseUrl);
     }
     setState(() {
-      _isConfigured = _prefs.isApiConfigured;
+      _isConfigured = prefs.isApiConfigured;
       _isLoading = false;
     });
   }
 
   void _onApiConfigured() {
-    final container = ProviderScope.containerOf(context);
-    final dioClient = container.read(dioClientProvider);
-    dioClient.updateBaseUrl(_prefs.baseUrl);
-
     setState(() => _isConfigured = true);
   }
 
@@ -59,12 +47,21 @@ class _DealakAppWithApiConfigState extends State<DealakAppWithApiConfig> {
     }
 
     if (!_isConfigured) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: ApiSettingsScreen(
-          prefs: _prefs,
-          onConfigured: _onApiConfigured,
+      final prefsAsync = ref.watch(appPreferencesProvider);
+      return prefsAsync.when(
+        loading: () => const MaterialApp(
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
+        ),
+        error: (e, _) => const MaterialApp(
+          home: Scaffold(body: Center(child: Text('Error loading preferences'))),
+        ),
+        data: (prefs) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          home: ApiSettingsScreen(
+            prefs: prefs,
+            onConfigured: _onApiConfigured,
+          ),
         ),
       );
     }

@@ -59,7 +59,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.settings_ethernet),
+                    tooltip: 'إعدادات الاتصال',
+                    onPressed: () => context.push(RouteNames.apiSettings),
+                  ),
+                ),
+                const SizedBox(height: 30),
                 Text('DEALAK', textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.primary)),
                 const SizedBox(height: 8),
                 Text('منصة العقارات في سوريا', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),

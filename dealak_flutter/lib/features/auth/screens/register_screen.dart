@@ -58,7 +58,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('إنشاء حساب جديد')),
+      appBar: AppBar(
+        title: const Text('إنشاء حساب جديد'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_ethernet),
+            tooltip: 'إعدادات الاتصال',
+            onPressed: () => context.push(RouteNames.apiSettings),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(

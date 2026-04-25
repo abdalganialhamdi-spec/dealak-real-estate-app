@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/providers/theme_provider.dart';
-import 'package:dealak_flutter/core/storage/secure_storage.dart';
 import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,7 +102,7 @@ class SettingsScreen extends ConsumerWidget {
                     title: const Text('إعدادات الاتصال'),
                     subtitle: const Text('تغيير عنوان السيرفر'),
                     trailing: const Icon(Icons.chevron_left),
-                    onTap: () => _resetApiConfig(context, ref),
+                    onTap: () => context.push(RouteNames.apiSettings),
                   ),
                   ListTile(
                     leading: const Icon(Icons.delete_outline, color: AppColors.error),
@@ -116,26 +115,6 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _resetApiConfig(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('إعادة ضبط الاتصال'),
-        content: const Text('سيتم تسجيل خروجك وإعادة ضبط إعدادات الاتصال. هل أنت متأكد؟'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
-          TextButton(
-            onPressed: () async {
-              await SecureStorage().clearAll();
-              if (context.mounted) context.go(RouteNames.login);
-            },
-            child: const Text('تأكيد', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
       ),
     );
   }

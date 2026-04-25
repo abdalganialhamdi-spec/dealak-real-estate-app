@@ -20,8 +20,12 @@ class AuthRepository {
       final data = response.data;
       await _storage.saveToken(data['token']);
       final userJson = _unwrapUser(data['user']);
+      final user = UserModel.fromJson(userJson);
+      if (user.role.isNotEmpty) {
+        await _storage.saveUserRole(user.role);
+      }
       return {
-        'user': UserModel.fromJson(userJson),
+        'user': user,
         'token': data['token'],
       };
     } on DioException catch (e) {
@@ -35,8 +39,12 @@ class AuthRepository {
       final data = response.data;
       await _storage.saveToken(data['token']);
       final userJson = _unwrapUser(data['user']);
+      final user = UserModel.fromJson(userJson);
+      if (user.role.isNotEmpty) {
+        await _storage.saveUserRole(user.role);
+      }
       return {
-        'user': UserModel.fromJson(userJson),
+        'user': user,
         'token': data['token'],
       };
     } on DioException catch (e) {
@@ -56,7 +64,11 @@ class AuthRepository {
     try {
       final response = await _dioClient.get(ApiEndpoints.me);
       final userJson = _unwrapUser(response.data);
-      return UserModel.fromJson(userJson);
+      final user = UserModel.fromJson(userJson);
+      if (user.role.isNotEmpty) {
+        await _storage.saveUserRole(user.role);
+      }
+      return user;
     } on DioException catch (e) {
       throw _handleError(e);
     }

@@ -12,7 +12,12 @@ use App\Http\Controllers\Api\V1\RequestController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\SearchController;
 use App\Http\Controllers\Api\V1\UserController;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+
+RateLimiter::for('auth', function ($request) {
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip());
+});
 
 Route::prefix('v1')->group(function () {
 
@@ -26,9 +31,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('auth')->group(function () {
-        Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+        Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:auth');
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
         Route::middleware('auth:sanctum')->group(function () {
@@ -44,11 +49,13 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/properties/my', [PropertyController::class, 'myProperties']);
-        Route::post('/properties', [PropertyController::class, 'store']);
-        Route::put('/properties/{id}', [PropertyController::class, 'update']);
-        Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
-        Route::post('/properties/{id}/images', [PropertyController::class, 'uploadImages']);
-        Route::delete('/properties/{id}/images/{imageId}', [PropertyController::class, 'deleteImage']);
+        Route::middleware('role:SELLER,AGENT,ADMIN')->group(function () {
+            Route::post('/properties', [PropertyController::class, 'store']);
+            Route::put('/properties/{id}', [PropertyController::class, 'update']);
+            Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
+            Route::post('/properties/{id}/images', [PropertyController::class, 'uploadImages']);
+            Route::delete('/properties/{id}/images/{imageId}', [PropertyController::class, 'deleteImage']);
+        });
     });
 
     Route::get('/properties/{id}', [PropertyController::class, 'show']);
