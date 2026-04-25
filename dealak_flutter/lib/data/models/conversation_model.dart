@@ -23,13 +23,13 @@ class ConversationModel {
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
     return ConversationModel(
-      id: json['id'],
-      participantOne: json['participant_one'] != null ? UserModel.fromJson(json['participant_one']) : null,
-      participantTwo: json['participant_two'] != null ? UserModel.fromJson(json['participant_two']) : null,
-      property: json['property'] != null ? PropertyModel.fromJson(json['property']) : null,
-      lastMessage: json['last_message'] != null ? MessageModel.fromJson(json['last_message']) : null,
-      lastMessageAt: json['last_message_at'] != null ? DateTime.parse(json['last_message_at']) : null,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}') ?? 0,
+      participantOne: json['participant_one'] is Map ? UserModel.fromJson(json['participant_one'] as Map<String, dynamic>) : null,
+      participantTwo: json['participant_two'] is Map ? UserModel.fromJson(json['participant_two'] as Map<String, dynamic>) : null,
+      property: json['property'] is Map ? PropertyModel.fromJson(json['property'] as Map<String, dynamic>) : null,
+      lastMessage: json['last_message'] is Map ? MessageModel.fromJson(json['last_message'] as Map<String, dynamic>) : null,
+      lastMessageAt: json['last_message_at'] != null ? DateTime.tryParse(json['last_message_at']) : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
     );
   }
 }

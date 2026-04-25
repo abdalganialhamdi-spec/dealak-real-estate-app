@@ -46,7 +46,10 @@ class AdminRepository {
   }
 
   Future<List> uploadImages(int propertyId, List<MultipartFile> files) async {
-    final formData = FormData.fromMap({'images': files});
+    final formData = FormData();
+    for (final file in files) {
+      formData.files.add(MapEntry('images[]', file));
+    }
     final response = await _dioClient.upload(ApiEndpoints.adminPropertyImages(propertyId), formData);
     return response.data;
   }

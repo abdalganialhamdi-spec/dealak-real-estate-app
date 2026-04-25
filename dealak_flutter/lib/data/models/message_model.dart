@@ -25,15 +25,15 @@ class MessageModel {
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
-      id: json['id'],
-      conversationId: json['conversation_id'],
-      sender: json['sender'] != null ? UserModel.fromJson(json['sender']) : null,
+      id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}') ?? 0,
+      conversationId: json['conversation_id'] is int ? json['conversation_id'] : int.tryParse('${json['conversation_id']}') ?? 0,
+      sender: json['sender'] is Map ? UserModel.fromJson(json['sender'] as Map<String, dynamic>) : null,
       body: json['body'] ?? '',
       type: json['type'] ?? 'TEXT',
       metadata: json['metadata'],
       isRead: json['is_read'] ?? false,
-      readAt: json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      readAt: json['read_at'] != null ? DateTime.tryParse(json['read_at']) : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
     );
   }
 }
