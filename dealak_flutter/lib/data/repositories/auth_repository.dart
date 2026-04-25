@@ -99,12 +99,27 @@ class AuthRepository {
   }
 
   ApiException _handleError(DioException e) {
+    final data = e.response?.data;
+    final serverMessage = (data is Map) ? (data['message'] ?? data['error']) : null;
+
     switch (e.response?.statusCode) {
-      case 401: return UnauthorizedException();
-      case 403: return ForbiddenException();
+      case 401:
+        return ApiException(
+          message: serverMessage?.toString() ?? 'بيانات الدخول غير صحيحة',
+          statusCode: 401,
+        );
+      case 403:
+        return ApiException(
+          message: serverMessage?.toString() ?? 'غير مصرح بهذا الإجراء',
+          statusCode: 403,
+        );
       case 404: return NotFoundException();
-      case 422: return ValidationException(e.response?.data['errors'] ?? {});
-      default: return ServerException();
+      case 422: return ValidationException(data?['errors'] ?? {});
+      default:
+        return ApiException(
+          message: serverMessage?.toString() ?? 'خطأ في الخادم',
+          statusCode: e.response?.statusCode,
+        );
     }
   }
 }

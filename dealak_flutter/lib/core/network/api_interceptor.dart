@@ -17,7 +17,7 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401 && !_isAuthRoute(err.requestOptions)) {
       final token = await _storage.getToken();
       if (token != null && !_isRefreshRequest(err.requestOptions)) {
         try {
@@ -46,5 +46,10 @@ class ApiInterceptor extends Interceptor {
 
   bool _isRefreshRequest(RequestOptions options) {
     return options.path.contains('/auth/refresh');
+  }
+
+  bool _isAuthRoute(RequestOptions options) {
+    return options.path.contains('/auth/login') ||
+        options.path.contains('/auth/register');
   }
 }

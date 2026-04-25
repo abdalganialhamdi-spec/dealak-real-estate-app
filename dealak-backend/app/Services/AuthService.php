@@ -14,8 +14,9 @@ class AuthService
             'last_name' => $data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
-            'password' => $data['password'],  // hashed cast handles encryption
+            'password' => $data['password'],
             'role' => $data['role'] ?? 'BUYER',
+            'is_verified' => true,
         ]);
 
         $token = $user->createToken('auth-token', [$user->role])->plainTextToken;
