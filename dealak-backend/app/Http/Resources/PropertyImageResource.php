@@ -10,11 +10,11 @@ class PropertyImageResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'image_url' => $this->image_url,
             'thumbnail_url' => $this->thumbnail_url,
-            'is_primary' => $this->is_primary,
-            'sort_order' => $this->sort_order,
+            'is_primary' => (bool) $this->is_primary,
+            'sort_order' => (int) $this->sort_order,
         ];
     }
 }

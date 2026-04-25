@@ -28,6 +28,7 @@ class StorePropertyRequest extends FormRequest
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'is_negotiable' => 'boolean',
+            'status' => 'nullable|string|in:AVAILABLE,SOLD,RENTED,PENDING,DRAFT,RESERVED',
         ];
     }
 }

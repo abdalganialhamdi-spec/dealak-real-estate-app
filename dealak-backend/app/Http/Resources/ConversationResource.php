@@ -10,7 +10,7 @@ class ConversationResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'participant_one' => new UserResource($this->whenLoaded('participantOne')),
             'participant_two' => new UserResource($this->whenLoaded('participantTwo')),
             'property' => new PropertyResource($this->whenLoaded('property')),

@@ -26,8 +26,10 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'تم إنشاء الحساب بنجاح',
-            'user' => new UserResource($result['user']),
-            'token' => $result['token'],
+            'data' => [
+                'user' => new UserResource($result['user']),
+                'token' => $result['token'],
+            ],
         ], 201);
     }
 
@@ -36,8 +38,10 @@ class AuthController extends Controller
         $result = $this->authService->login($request->validated());
 
         return response()->json([
-            'user' => new UserResource($result['user']),
-            'token' => $result['token'],
+            'data' => [
+                'user' => new UserResource($result['user']),
+                'token' => $result['token'],
+            ],
         ]);
     }
 
@@ -50,7 +54,9 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json(new UserResource($request->user()));
+        return response()->json([
+            'data' => new UserResource($request->user())
+        ]);
     }
 
     public function refresh(Request $request): JsonResponse
@@ -58,7 +64,11 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         $token = $request->user()->createToken('auth-token', [$request->user()->role])->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        return response()->json([
+            'data' => [
+                'token' => $token
+            ]
+        ]);
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse

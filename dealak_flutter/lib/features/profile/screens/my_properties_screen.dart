@@ -10,18 +10,45 @@ import 'package:dealak_flutter/shared/widgets/error_widget.dart';
 import 'package:dealak_flutter/shared/widgets/cached_image.dart';
 import 'package:dealak_flutter/shared/widgets/empty_state_widget.dart';
 
-class MyPropertiesScreen extends ConsumerWidget {
+class MyPropertiesScreen extends ConsumerStatefulWidget {
   const MyPropertiesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final myPropertiesAsync = ref.watch(myPropertiesProvider(1));
+  ConsumerState<MyPropertiesScreen> createState() => _MyPropertiesScreenState();
+}
+
+class _MyPropertiesScreenState extends ConsumerState<MyPropertiesScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(myPropertiesProvider(null).notifier).fetchNextPage();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final myPropertiesAsync = ref.watch(myPropertiesProvider(null));
 
     return Scaffold(
       appBar: AppBar(title: const Text('عقاراتي')),
       body: myPropertiesAsync.when(
         data: (paginated) {
           final properties = paginated.data;
+          final hasMore = paginated.hasMore;
+
           if (properties.isEmpty) {
             return EmptyStateWidget(
               icon: Icons.home_work_outlined,
@@ -31,11 +58,18 @@ class MyPropertiesScreen extends ConsumerWidget {
             );
           }
           return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(myPropertiesProvider(1)),
+            onRefresh: () async => ref.invalidate(myPropertiesProvider(null)),
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: properties.length,
+              itemCount: properties.length + (hasMore ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == properties.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
                 final property = properties[index];
                 return _MyPropertyCard(property: property);
               },
@@ -45,7 +79,7 @@ class MyPropertiesScreen extends ConsumerWidget {
         loading: () => const LoadingWidget(message: 'جاري تحميل عقاراتي...'),
         error: (e, _) => AppErrorWidget(
           message: e.toString(),
-          onRetry: () => ref.invalidate(myPropertiesProvider(1)),
+          onRetry: () => ref.invalidate(myPropertiesProvider(null)),
         ),
       ),
       floatingActionButton: FloatingActionButton(

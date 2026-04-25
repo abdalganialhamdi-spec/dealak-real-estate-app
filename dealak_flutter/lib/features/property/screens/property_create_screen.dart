@@ -2,13 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dio/dio.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/utils/validators.dart';
 import 'package:dealak_flutter/shared/widgets/custom_button.dart';
 import 'package:dealak_flutter/shared/widgets/custom_text_field.dart';
 import 'package:dealak_flutter/providers/property_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dealak_flutter/core/network/api_exceptions.dart';
+import 'package:dio/dio.dart' show MultipartFile;
 
 class PropertyCreateScreen extends ConsumerStatefulWidget {
   const PropertyCreateScreen({super.key});
@@ -37,6 +38,7 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
   bool _isNegotiable = true;
   bool _isLoading = false;
   final List<XFile> _selectedImages = [];
+  Map<String, String> _fieldErrors = {};
 
   @override
   void dispose() {
@@ -68,50 +70,75 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _fieldErrors = {};
+    });
     try {
       final repo = ref.read(propertyRepositoryProvider);
-      final newProperty = await repo.createProperty({
-        'title': _titleController.text,
-        'description': _descriptionController.text.isEmpty
-            ? null
-            : _descriptionController.text,
-        'property_type': _propertyType,
-        'listing_type': _listingType,
-        'price': double.tryParse(_priceController.text) ?? 0,
-        'currency': _currency,
-        'area_sqm': double.tryParse(_areaController.text),
-        'bedrooms': int.tryParse(_bedroomsController.text),
-        'bathrooms': int.tryParse(_bathroomsController.text),
-        'year_built': int.tryParse(_yearBuiltController.text),
-        'address': _addressController.text.isEmpty
-            ? null
-            : _addressController.text,
-        'city': _cityController.text,
-        'district': _districtController.text.isEmpty
-            ? null
-            : _districtController.text,
-        'is_negotiable': _isNegotiable,
-      });
-      if (_selectedImages.isNotEmpty) {
-        final files = await Future.wait(
-          _selectedImages.map(
-            (xfile) => MultipartFile.fromFile(xfile.path, filename: xfile.name),
-          ),
-        );
-        await repo.uploadImages(newProperty.id, files);
-      }
+      
+      final files = await Future.wait(
+        _selectedImages.map(
+          (xfile) => MultipartFile.fromFile(xfile.path, filename: xfile.name),
+        ),
+      );
+
+      await repo.createPropertyWithImages(
+        data: {
+          'title': _titleController.text,
+          'description': _descriptionController.text.isEmpty
+              ? null
+              : _descriptionController.text,
+          'property_type': _propertyType,
+          'listing_type': _listingType,
+          'price': double.tryParse(_priceController.text) ?? 0,
+          'currency': _currency,
+          'area_sqm': double.tryParse(_areaController.text),
+          'bedrooms': int.tryParse(_bedroomsController.text),
+          'bathrooms': int.tryParse(_bathroomsController.text),
+          'year_built': int.tryParse(_yearBuiltController.text),
+          'address': _addressController.text.isEmpty
+              ? null
+              : _addressController.text,
+          'city': _cityController.text,
+          'district': _districtController.text.isEmpty
+              ? null
+              : _districtController.text,
+          'is_negotiable': _isNegotiable,
+        },
+        images: files,
+      );
+
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('تم إضافة العقار بنجاح')));
         context.pop();
       }
+    } on ValidationException catch (e) {
+      setState(() {
+        _fieldErrors = e.errors?.map((key, value) {
+          if (value is List) {
+            return MapEntry(key, value.join('\n'));
+          }
+          return MapEntry(key, value.toString());
+        }) ?? {};
+      });
     } catch (e) {
       if (mounted) {
+        String message = e.toString();
+        if (message.contains('images')) {
+          message = 'تم إنشاء العقار ولكن فشل رفع الصور. يمكنك تعديل العقار لاحقاً لرفع الصور.';
+        }
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        ).showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 5)));
+        
+        // If it was just an image upload failure, maybe we still want to pop or stay?
+        // If the property was created, it's better to stay and show a specific retry or just go to my properties.
+        if (message.contains('رفع الصور')) {
+            context.pop();
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -133,19 +160,22 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                 label: 'عنوان العقار',
                 controller: _titleController,
                 validator: (v) => Validators.required(v, 'عنوان العقار'),
+                errorText: _fieldErrors['title'],
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 label: 'الوصف',
                 controller: _descriptionController,
                 maxLines: 4,
+                errorText: _fieldErrors['description'],
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _propertyType,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'نوع العقار',
-                  prefixIcon: Icon(Icons.home_work_outlined),
+                  prefixIcon: const Icon(Icons.home_work_outlined),
+                  errorText: _fieldErrors['property_type'],
                 ),
                 items: const [
                   DropdownMenuItem(value: 'APARTMENT', child: Text('شقة')),
@@ -162,9 +192,10 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _listingType,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'نوع الإدراج',
-                  prefixIcon: Icon(Icons.list),
+                  prefixIcon: const Icon(Icons.list),
+                  errorText: _fieldErrors['listing_type'],
                 ),
                 items: const [
                   DropdownMenuItem(value: 'SALE', child: Text('بيع')),
@@ -185,6 +216,7 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               ),
               const SizedBox(height: 16),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 2,
@@ -193,13 +225,17 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                       controller: _priceController,
                       keyboardType: TextInputType.number,
                       validator: (v) => Validators.required(v, 'السعر'),
+                      errorText: _fieldErrors['price'],
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _currency,
-                      decoration: const InputDecoration(labelText: 'العملة'),
+                      decoration: InputDecoration(
+                        labelText: 'العملة',
+                        errorText: _fieldErrors['currency'],
+                      ),
                       items: const [
                         DropdownMenuItem(value: 'SYP', child: Text('ل.س')),
                         DropdownMenuItem(value: 'USD', child: Text('\$')),
@@ -218,12 +254,14 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
               ),
               const SizedBox(height: 16),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: CustomTextField(
                       label: 'المساحة (م²)',
                       controller: _areaController,
                       keyboardType: TextInputType.number,
+                      errorText: _fieldErrors['area_sqm'],
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -232,6 +270,7 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                       label: 'غرف النوم',
                       controller: _bedroomsController,
                       keyboardType: TextInputType.number,
+                      errorText: _fieldErrors['bedrooms'],
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -240,6 +279,7 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                       label: 'الحمامات',
                       controller: _bathroomsController,
                       keyboardType: TextInputType.number,
+                      errorText: _fieldErrors['bathrooms'],
                     ),
                   ),
                 ],
@@ -249,6 +289,7 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                 label: 'سنة البناء',
                 controller: _yearBuiltController,
                 keyboardType: TextInputType.number,
+                errorText: _fieldErrors['year_built'],
               ),
               const SizedBox(height: 16),
               CustomTextField(
@@ -256,16 +297,19 @@ class _PropertyCreateScreenState extends ConsumerState<PropertyCreateScreen> {
                 controller: _cityController,
                 validator: (v) => Validators.required(v, 'المدينة'),
                 prefixIcon: const Icon(Icons.location_city),
+                errorText: _fieldErrors['city'],
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 label: 'الحي/المنطقة',
                 controller: _districtController,
+                errorText: _fieldErrors['district'],
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 label: 'العنوان التفصيلي',
                 controller: _addressController,
+                errorText: _fieldErrors['address'],
               ),
               const SizedBox(height: 24),
               Text('صور العقار', style: Theme.of(context).textTheme.titleLarge),

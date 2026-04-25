@@ -20,10 +20,6 @@ class PropertyListScreen extends ConsumerStatefulWidget {
 
 class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
   final _scrollController = ScrollController();
-  int _currentPage = 1;
-  List<PropertyModel> _allProperties = [];
-  bool _hasMore = true;
-  bool _isLoadingMore = false;
 
   @override
   void initState() {
@@ -38,23 +34,20 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 && _hasMore && !_isLoadingMore) {
-      _loadMore();
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      final state = GoRouterState.of(context);
+      final params = state.uri.queryParameters;
+      final arg = params.isEmpty ? null : params;
+      ref.read(propertiesProvider(arg).notifier).fetchNextPage();
     }
-  }
-
-  Future<void> _loadMore() async {
-    if (_isLoadingMore || !_hasMore) return;
-    setState(() => _isLoadingMore = true);
-    _currentPage++;
-    ref.invalidate(propertyProvider({'page': _currentPage}));
   }
 
   @override
   Widget build(BuildContext context) {
     final state = GoRouterState.of(context);
     final params = state.uri.queryParameters;
-    final propertiesAsync = ref.watch(propertyProvider(params.isEmpty ? null : params));
+    final arg = params.isEmpty ? null : params;
+    final propertiesAsync = ref.watch(propertiesProvider(arg));
 
     return Scaffold(
       appBar: AppBar(
@@ -68,31 +61,30 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
       ),
       body: propertiesAsync.when(
         data: (paginated) {
-          _allProperties = paginated.data;
-          _hasMore = paginated.hasMore;
-          if (_allProperties.isEmpty) {
+          final properties = paginated.data;
+          final hasMore = paginated.hasMore;
+          
+          if (properties.isEmpty) {
             return const EmptyStateWidget(
               icon: Icons.home_work_outlined,
               message: 'لا توجد عقارات حالياً',
             );
           }
+
           return RefreshIndicator(
-            onRefresh: () async {
-              _currentPage = 1;
-              ref.invalidate(propertyProvider(params.isEmpty ? null : params));
-            },
+            onRefresh: () => ref.read(propertiesProvider(arg).notifier).refresh(),
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: _allProperties.length + (_hasMore ? 1 : 0),
+              itemCount: properties.length + (hasMore ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == _allProperties.length) {
+                if (index == properties.length) {
                   return const Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
-                return _PropertyListItem(property: _allProperties[index]);
+                return _PropertyListItem(property: properties[index]);
               },
             ),
           );
@@ -100,7 +92,7 @@ class _PropertyListScreenState extends ConsumerState<PropertyListScreen> {
         loading: () => const LoadingWidget(message: 'جاري تحميل العقارات...'),
         error: (e, _) => AppErrorWidget(
           message: e.toString(),
-          onRetry: () => ref.invalidate(propertyProvider(params.isEmpty ? null : params)),
+          onRetry: () => ref.invalidate(propertiesProvider(arg)),
         ),
       ),
       floatingActionButton: FloatingActionButton(
