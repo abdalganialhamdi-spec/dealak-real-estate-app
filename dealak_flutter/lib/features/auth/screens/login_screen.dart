@@ -21,6 +21,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    ref.listenManual<AuthState>(authProvider, (prev, next) {
+      if (next.isAuthenticated && next.user != null) {
+        final role = next.user?.role ?? '';
+        if (role == 'ADMIN') {
+          context.go(RouteNames.adminDashboard);
+        } else {
+          context.go(RouteNames.home);
+        }
+      } else if (next.error != null && prev?.error != next.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error!), backgroundColor: AppColors.error),
+        );
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
+import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/core/utils/validators.dart';
 import 'package:dealak_flutter/providers/auth_provider.dart';
 import 'package:dealak_flutter/shared/widgets/custom_button.dart';
@@ -22,6 +23,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   String _selectedRole = 'BUYER';
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual<AuthState>(authProvider, (prev, next) {
+      if (next.isAuthenticated && next.user != null) {
+        final role = next.user?.role ?? '';
+        if (role == 'ADMIN') {
+          context.go(RouteNames.adminDashboard);
+        } else {
+          context.go(RouteNames.home);
+        }
+      } else if (next.error != null && prev?.error != next.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error!), backgroundColor: AppColors.error),
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {

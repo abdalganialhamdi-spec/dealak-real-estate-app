@@ -12,7 +12,8 @@ class AdminDashboardScreen extends ConsumerStatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  ConsumerState<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  ConsumerState<AdminDashboardScreen> createState() =>
+      _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
@@ -36,7 +37,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
       body: dashboardAsync.when(
         data: (data) {
           return RefreshIndicator(
-            onRefresh: () => ref.invalidate(adminDashboardProvider),
+            onRefresh: () async {
+              ref.invalidate(adminDashboardProvider);
+            },
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -128,7 +131,8 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               child: _QuickActionButton(
                 icon: Icons.add_home,
                 label: 'إضافة عقار',
-                onTap: () => context.push('${RouteNames.adminPropertyForm}/new'),
+                onTap: () =>
+                    context.push('${RouteNames.adminPropertyForm}/new'),
                 color: AppColors.primary,
                 isDark: isDark,
               ),
@@ -174,7 +178,12 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   Widget _buildRecentProperties(BuildContext context, bool isDark) {
-    final params = <String, dynamic>{'page': 1, 'per_page': 5, 'sort_by': 'created_at', 'sort_dir': 'desc'};
+    final params = <String, dynamic>{
+      'page': 1,
+      'per_page': 5,
+      'sort_by': 'created_at',
+      'sort_dir': 'desc',
+    };
     final propertiesAsync = ref.watch(adminPropertiesProvider(params));
 
     return Column(
@@ -183,7 +192,10 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('أحدث العقارات', style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'أحدث العقارات',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             TextButton(
               onPressed: () => context.push(RouteNames.adminProperties),
               child: const Text('عرض الكل'),
@@ -202,12 +214,22 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('لا توجد عقارات', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                  child: Text(
+                    'لا توجد عقارات',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
                 ),
               );
             }
             return Column(
-              children: properties.map((property) => _PropertyListItem(property: property, isDark: isDark)).toList(),
+              children: properties
+                  .map(
+                    (property) =>
+                        _PropertyListItem(property: property, isDark: isDark),
+                  )
+                  .toList(),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -218,7 +240,9 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
   }
 
   Widget _buildRecentUsers(BuildContext context, bool isDark) {
-    final usersAsync = ref.watch(adminUsersProvider({'page': 1, 'per_page': 5}));
+    final usersAsync = ref.watch(
+      adminUsersProvider({'page': 1, 'per_page': 5}),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,12 +259,19 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text('لا توجد مستخدمين', style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                  child: Text(
+                    'لا توجد مستخدمين',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
                 ),
               );
             }
             return Column(
-              children: users.map((user) => _UserListItem(user: user, isDark: isDark)).toList(),
+              children: users
+                  .map((user) => _UserListItem(user: user, isDark: isDark))
+                  .toList(),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -294,9 +325,22 @@ class _StatCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 12),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600])),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
           ],
         ),
       ),
@@ -335,7 +379,10 @@ class _QuickActionButton extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
           ],
         ),
       ),
@@ -377,7 +424,9 @@ class _PropertyListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.dividerLight),
+        border: Border.all(
+          color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+        ),
       ),
       child: Row(
         children: [
@@ -385,9 +434,21 @@ class _PropertyListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('${Formatters.currency(price)} - $city', style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                Text(
+                  '${Formatters.currency(price)} - $city',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
               ],
             ),
           ),
@@ -397,7 +458,10 @@ class _PropertyListItem extends StatelessWidget {
               color: getStatusColor(status),
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Text(Formatters.status(status), style: const TextStyle(color: Colors.white, fontSize: 11)),
+            child: Text(
+              Formatters.status(status),
+              style: const TextStyle(color: Colors.white, fontSize: 11),
+            ),
           ),
         ],
       ),
@@ -423,22 +487,39 @@ class _UserListItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isDark ? AppColors.dividerDark : AppColors.dividerLight),
+        border: Border.all(
+          color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+        ),
       ),
       child: Row(
         children: [
           CircleAvatar(
             backgroundColor: isActive ? AppColors.success : AppColors.error,
-            child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(color: Colors.white)),
+            child: Text(
+              name.isNotEmpty ? name[0].toUpperCase() : '?',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(email, style: TextStyle(fontSize: 12, color: isDark ? Colors.grey[400] : Colors.grey[600])),
+                Text(
+                  email,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
               ],
             ),
           ),

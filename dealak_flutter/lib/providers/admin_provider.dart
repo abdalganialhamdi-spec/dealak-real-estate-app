@@ -1,28 +1,43 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/data/models/property_model.dart';
 import 'package:dealak_flutter/data/models/pagination_model.dart';
 import 'package:dealak_flutter/data/repositories/admin_repository.dart';
-import 'package:dealak_flutter/core/network/dio_client.dart';
-import 'package:dealak_flutter/core/storage/secure_storage.dart';
+import 'package:dealak_flutter/providers/auth_provider.dart';
 
-final adminRepositoryProvider = Provider<AdminRepository>((ref) => AdminRepository(ref.read(dioClientProvider)));
+final adminRepositoryProvider = Provider<AdminRepository>(
+  (ref) => AdminRepository(ref.read(dioClientProvider)),
+);
 
-final adminDashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+final adminDashboardProvider = FutureProvider<Map<String, dynamic>>((
+  ref,
+) async {
   final repo = ref.read(adminRepositoryProvider);
   return repo.getDashboard();
 });
 
-final adminPropertiesProvider = FutureProvider.family<PaginatedResponse<PropertyModel>, Map<String, dynamic>>((ref, params) async {
-  final repo = ref.read(adminRepositoryProvider);
-  return repo.getAllProperties(params: params);
-});
+final adminPropertiesProvider =
+    FutureProvider.family<
+      PaginatedResponse<PropertyModel>,
+      Map<String, dynamic>
+    >((ref, params) async {
+      final repo = ref.read(adminRepositoryProvider);
+      return repo.getAllProperties(params: params);
+    });
 
-final adminPendingPropertiesProvider = FutureProvider.family<PaginatedResponse<PropertyModel>, Map<String, dynamic>>((ref, params) async {
-  final repo = ref.read(adminRepositoryProvider);
-  return repo.getPendingProperties(params: params);
-});
+final adminPendingPropertiesProvider =
+    FutureProvider.family<
+      PaginatedResponse<PropertyModel>,
+      Map<String, dynamic>
+    >((ref, params) async {
+      final repo = ref.read(adminRepositoryProvider);
+      return repo.getPendingProperties(params: params);
+    });
 
-final adminUsersProvider = FutureProvider.family<List, Map<String, dynamic>>((ref, params) async {
+final adminUsersProvider = FutureProvider.family<List, Map<String, dynamic>>((
+  ref,
+  params,
+) async {
   final repo = ref.read(adminRepositoryProvider);
   return repo.getUsers(params: params);
 });
@@ -88,6 +103,9 @@ class AdminPropertyNotifier extends StateNotifier<AsyncValue<PropertyModel?>> {
   }
 }
 
-final adminPropertyProvider = StateNotifierProvider<AdminPropertyNotifier, AsyncValue<PropertyModel?>>((ref) {
-  return AdminPropertyNotifier(ref.read(adminRepositoryProvider));
-});
+final adminPropertyProvider =
+    StateNotifierProvider<AdminPropertyNotifier, AsyncValue<PropertyModel?>>((
+      ref,
+    ) {
+      return AdminPropertyNotifier(ref.read(adminRepositoryProvider));
+    });

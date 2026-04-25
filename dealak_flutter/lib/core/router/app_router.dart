@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/core/router/auth_guard.dart';
+import 'package:dealak_flutter/core/router/auth_listenable.dart';
 import 'package:dealak_flutter/features/auth/screens/login_screen.dart';
 import 'package:dealak_flutter/features/auth/screens/register_screen.dart';
 import 'package:dealak_flutter/features/auth/screens/forgot_password_screen.dart';
@@ -31,10 +32,11 @@ import 'package:dealak_flutter/shared/widgets/app_scaffold.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter createRouter(AuthGuard authGuard) {
+GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: RouteNames.home,
+    refreshListenable: authListenable,
     redirect: (context, state) => authGuard.redirect(state),
     routes: [
       GoRoute(

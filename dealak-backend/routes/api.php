@@ -67,9 +67,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/search/saved', [SearchController::class, 'savedSearches']);
         Route::delete('/search/saved/{id}', [SearchController::class, 'deleteSavedSearch']);
 
-        Route::apiResource('favorites', FavoriteController::class)->except(['update', 'show']);
+        Route::apiResource('favorites', FavoriteController::class)->except(['update', 'show', 'destroy']);
         Route::get('/favorites/check/{propertyId}', [FavoriteController::class, 'check']);
-        Route::delete('/favorites/{propertyId}', [FavoriteController::class, 'destroy']);
+        Route::delete('/favorites/{propertyId}', [FavoriteController::class, 'destroyByProperty']);
 
         Route::get('/conversations', [ConversationController::class, 'index']);
         Route::post('/conversations', [ConversationController::class, 'store']);

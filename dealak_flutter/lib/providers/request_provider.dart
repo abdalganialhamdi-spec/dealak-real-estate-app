@@ -8,12 +8,14 @@ final requestRepositoryProvider = Provider<RequestRepository>((ref) {
   return RequestRepository(ref.read(dioClientProvider));
 });
 
-final requestsProvider = FutureProvider<PaginatedResponse<PropertyRequestModel>>((ref) async {
-  final repo = ref.read(requestRepositoryProvider);
-  return repo.getRequests();
-});
+final requestsProvider =
+    FutureProvider<PaginatedResponse<PropertyRequestModel>>((ref) async {
+      final repo = ref.read(requestRepositoryProvider);
+      return repo.getRequests();
+    });
 
-final myRequestsProvider = FutureProvider<List<PropertyRequestModel>>((ref) async {
-  final repo = ref.read(requestRepositoryProvider);
-  return repo.getMyRequests();
-});
+final myRequestsProvider =
+    FutureProvider<PaginatedResponse<PropertyRequestModel>>((ref) async {
+      final repo = ref.read(requestRepositoryProvider);
+      return repo.getMyRequests();
+    });

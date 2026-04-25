@@ -86,7 +86,13 @@ class ConversationController extends Controller
 
     public function markAsRead(Request $request, int $id): JsonResponse
     {
-        $conversation = Conversation::findOrFail($id);
+        $conversation = Conversation::where(function ($q) use ($request, $id) {
+            $q->where('id', $id)
+                ->where(function ($q2) use ($request) {
+                    $q2->where('participant_one_id', $request->user()->id)
+                        ->orWhere('participant_two_id', $request->user()->id);
+                });
+        })->firstOrFail();
 
         $conversation->messages()
             ->where('sender_id', '!=', $request->user()->id)

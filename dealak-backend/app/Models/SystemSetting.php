@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SystemSetting extends Model
 {
-    protected $fillable = ['key', 'value', 'type', 'group', 'description'];
+    protected $fillable = ['key', 'value', 'value_type', 'group', 'description'];
 
     protected static function cached(): array
     {
@@ -21,11 +21,11 @@ class SystemSetting extends Model
         return $settings[$key]['value'] ?? $default;
     }
 
-    public static function set(string $key, mixed $value, string $type = 'string', string $group = 'general'): void
+    public static function set(string $key, mixed $value, string $value_type = 'STRING', string $group = 'general'): void
     {
         static::updateOrCreate(
             ['key' => $key],
-            ['value' => $value, 'type' => $type, 'group' => $group]
+            ['value' => $value, 'value_type' => $value_type, 'group' => $group]
         );
         cache()->forget('system_settings');
     }

@@ -21,9 +21,9 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 
   Future<void> toggle() async {
     final prefs = await SharedPreferences.getInstance();
-    final newIndex = state == ThemeMode.dark ? 0 : 2;
-    state = ThemeMode.values[newIndex];
-    await prefs.setInt('theme_mode', newIndex);
+    final next = ThemeMode.values[(state.index + 1) % 3];
+    state = next;
+    await prefs.setInt('theme_mode', next.index);
   }
 
   Future<void> setTheme(ThemeMode mode) async {

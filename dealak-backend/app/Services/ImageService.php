@@ -26,8 +26,8 @@ class ImageService
         Storage::disk('public')->put($thumbPath, $thumbnail->toString());
 
         return $property->images()->create([
-            'image_url' => url(Storage::disk('public')->url($path)),
-            'thumbnail_url' => url(Storage::disk('public')->url($thumbPath)),
+            'image_url' => Storage::disk('public')->url($path),
+            'thumbnail_url' => Storage::disk('public')->url($thumbPath),
             'is_primary' => $property->images()->count() === 0,
             'sort_order' => $property->images()->count(),
         ]);
@@ -35,12 +35,29 @@ class ImageService
 
     public function deletePropertyImage(PropertyImage $image): void
     {
+        $imageUrl = $image->image_url;
+        $thumbUrl = $image->thumbnail_url;
+
+        if ($imageUrl) {
+            $path = str_replace('/storage/', '', parse_url($imageUrl, PHP_URL_PATH) ?? '');
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        if ($thumbUrl) {
+            $thumbPath = str_replace('/storage/', '', parse_url($thumbUrl, PHP_URL_PATH) ?? '');
+            if ($thumbPath && Storage::disk('public')->exists($thumbPath)) {
+                Storage::disk('public')->delete($thumbPath);
+            }
+        }
+
         $image->delete();
     }
 
     public function uploadAvatar(UploadedFile $file, User $user): string
     {
         $path = $file->store("avatars/{$user->id}", 'public');
-        return url(Storage::disk('public')->url($path));
+        return Storage::disk('public')->url($path);
     }
 }

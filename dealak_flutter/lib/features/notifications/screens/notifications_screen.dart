@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/utils/formatters.dart';
+import 'package:dealak_flutter/data/models/notification_model.dart';
 import 'package:dealak_flutter/providers/notification_provider.dart';
 import 'package:dealak_flutter/shared/widgets/loading_widget.dart';
 import 'package:dealak_flutter/shared/widgets/error_widget.dart';
@@ -11,7 +12,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -40,14 +42,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(notificationProvider.notifier).loadNotifications(),
+        onRefresh: () =>
+            ref.read(notificationProvider.notifier).loadNotifications(),
         child: notificationsAsync.when(
           data: (notifications) {
             if (notifications.isEmpty) {
               return const EmptyStateWidget(
                 icon: Icons.notifications_none,
-                title: 'لا توجد إشعارات',
-                message: 'ستظهر هنا جميع الإشعارات الجديدة',
+                message: 'لا توجد إشعارات - ستظهر هنا جميع الإشعارات الجديدة',
               );
             }
 
@@ -63,7 +65,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           loading: () => const LoadingWidget(),
           error: (e, _) => AppErrorWidget(
             message: e.toString(),
-            onRetry: () => ref.read(notificationProvider.notifier).loadNotifications(),
+            onRetry: () =>
+                ref.read(notificationProvider.notifier).loadNotifications(),
           ),
         ),
       ),
@@ -72,14 +75,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 }
 
 class _NotificationCard extends StatelessWidget {
-  final dynamic notification;
+  final NotificationModel notification;
   const _NotificationCard({required this.notification});
 
   @override
   Widget build(BuildContext context) {
-    final isRead = notification['read_at'] != null;
-    final createdAt = notification['created_at'] != null
-        ? Formatters.dateTime(notification['created_at'])
+    final isRead = notification.isRead;
+    final createdAt = notification.createdAt != null
+        ? Formatters.dateTime(notification.createdAt!)
         : '';
 
     return Container(
@@ -107,7 +110,7 @@ class _NotificationCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              _getIcon(notification['type'] ?? 'info'),
+              _getIcon(notification.type.isEmpty ? 'info' : notification.type),
               color: Colors.white,
               size: 20,
             ),
@@ -118,7 +121,7 @@ class _NotificationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  notification['title'] ?? '',
+                  notification.title,
                   style: TextStyle(
                     fontWeight: isRead ? FontWeight.w500 : FontWeight.w700,
                     fontSize: 15,
@@ -126,7 +129,7 @@ class _NotificationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  notification['body'] ?? '',
+                  notification.body ?? '',
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondary,
@@ -135,10 +138,7 @@ class _NotificationCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   createdAt,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.textHint,
-                  ),
+                  style: TextStyle(fontSize: 11, color: AppColors.textHint),
                 ),
               ],
             ),

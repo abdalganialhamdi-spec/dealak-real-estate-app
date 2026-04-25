@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:dealak_flutter/core/network/dio_client.dart';
 import 'package:dealak_flutter/core/constants/api_endpoints.dart';
 import 'package:dealak_flutter/data/models/user_model.dart';
@@ -9,7 +10,8 @@ class UserRepository {
 
   Future<UserModel> getProfile() async {
     final response = await _dioClient.get(ApiEndpoints.userProfile);
-    return UserModel.fromJson(response.data);
+    final json = response.data;
+    return UserModel.fromJson(json['data'] ?? json['user'] ?? json);
   }
 
   Future<UserModel> updateProfile(Map<String, dynamic> data) async {
@@ -19,7 +21,8 @@ class UserRepository {
 
   Future<UserModel> show(int id) async {
     final response = await _dioClient.get(ApiEndpoints.userById(id));
-    return UserModel.fromJson(response.data);
+    final json = response.data;
+    return UserModel.fromJson(json['data'] ?? json);
   }
 
   Future<void> updatePassword(Map<String, dynamic> data) async {
@@ -27,11 +30,10 @@ class UserRepository {
   }
 
   Future<UserModel> updateAvatar(String filePath) async {
-    final response = await _dioClient.uploadFile(
-      ApiEndpoints.userAvatar,
-      filePath,
-      fieldName: 'avatar',
-    );
+    final formData = FormData.fromMap({
+      'avatar': await MultipartFile.fromFile(filePath),
+    });
+    final response = await _dioClient.upload(ApiEndpoints.userAvatar, formData);
     return UserModel.fromJson(response.data['user'] ?? response.data);
   }
 }

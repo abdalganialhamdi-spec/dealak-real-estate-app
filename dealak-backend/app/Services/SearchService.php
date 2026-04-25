@@ -63,8 +63,9 @@ class SearchService
             $query->where('bathrooms', '>=', $filters['bathrooms']);
         }
 
-        $sortBy = $filters['sort_by'] ?? 'created_at';
-        $sortDir = $filters['sort_dir'] ?? 'desc';
+        $allowedSortColumns = ['created_at', 'price', 'area_sqm', 'bedrooms', 'bathrooms', 'id'];
+        $sortBy = in_array($filters['sort_by'] ?? 'created_at', $allowedSortColumns) ? ($filters['sort_by'] ?? 'created_at') : 'created_at';
+        $sortDir = in_array($filters['sort_dir'] ?? 'desc', ['asc', 'desc']) ? ($filters['sort_dir'] ?? 'desc') : 'desc';
 
         $query->orderBy($sortBy, $sortDir);
 

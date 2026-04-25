@@ -51,9 +51,20 @@ class SearchFilterModel {
   }
 
   SearchFilterModel copyWith({
-    String? query, String? propertyType, String? listingType, String? city,
-    String? district, double? minPrice, double? maxPrice, double? minArea,
-    double? maxArea, int? bedrooms, int? bathrooms, String? sortBy, String? sortDir,
+    String? query,
+    String? propertyType,
+    String? listingType,
+    String? city,
+    String? district,
+    double? minPrice,
+    double? maxPrice,
+    double? minArea,
+    double? maxArea,
+    int? bedrooms,
+    int? bathrooms,
+    String? sortBy,
+    String? sortDir,
+    int? perPage,
   }) {
     return SearchFilterModel(
       query: query ?? this.query,
@@ -69,6 +80,7 @@ class SearchFilterModel {
       bathrooms: bathrooms ?? this.bathrooms,
       sortBy: sortBy ?? this.sortBy,
       sortDir: sortDir ?? this.sortDir,
+      perPage: perPage ?? this.perPage,
     );
   }
 }

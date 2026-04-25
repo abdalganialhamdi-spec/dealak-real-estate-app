@@ -53,6 +53,11 @@ class FavoriteController extends Controller
         return response()->json(['message' => 'تمت الإزالة من المفضلة']);
     }
 
+    public function destroyByProperty(Request $request, int $propertyId): JsonResponse
+    {
+        return $this->destroy($request, $propertyId);
+    }
+
     public function check(Request $request, int $propertyId): JsonResponse
     {
         $isFavorite = Favorite::where('user_id', $request->user()->id)

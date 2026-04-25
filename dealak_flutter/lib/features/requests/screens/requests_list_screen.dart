@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/core/utils/formatters.dart';
+import 'package:dealak_flutter/data/models/request_model.dart';
 import 'package:dealak_flutter/providers/request_provider.dart';
 import 'package:dealak_flutter/shared/widgets/loading_widget.dart';
 import 'package:dealak_flutter/shared/widgets/error_widget.dart';
@@ -17,18 +18,18 @@ class RequestsListScreen extends ConsumerWidget {
     final requestsAsync = ref.watch(requestsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('طلباتي العقارية'),
-      ),
+      appBar: AppBar(title: const Text('طلباتي العقارية')),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(requestsProvider.notifier).loadRequests(),
+        onRefresh: () async {
+          ref.invalidate(requestsProvider);
+        },
         child: requestsAsync.when(
-          data: (requests) {
+          data: (paginated) {
+            final requests = paginated.data;
             if (requests.isEmpty) {
               return EmptyStateWidget(
                 icon: Icons.search_off,
-                title: 'لا توجد طلبات',
-                message: 'ابدأ بإضافة طلب عقاري جديد',
+                message: 'لا توجد طلبات - ابدأ بإضافة طلب عقاري جديد',
                 actionLabel: 'إنشاء طلب',
                 onAction: () => context.push(RouteNames.createRequest),
               );
@@ -46,7 +47,7 @@ class RequestsListScreen extends ConsumerWidget {
           loading: () => const LoadingWidget(),
           error: (e, _) => AppErrorWidget(
             message: e.toString(),
-            onRetry: () => ref.read(requestsProvider.notifier).loadRequests(),
+            onRetry: () => ref.invalidate(requestsProvider),
           ),
         ),
       ),
@@ -60,14 +61,13 @@ class RequestsListScreen extends ConsumerWidget {
 }
 
 class _RequestCard extends StatelessWidget {
-  final dynamic request;
+  final PropertyRequestModel request;
   const _RequestCard({required this.request});
 
   @override
   Widget build(BuildContext context) {
-    final status = request['status'] ?? 'PENDING';
-    final createdAt = request['created_at'] != null
-        ? Formatters.dateTime(request['created_at'])
+    final createdAt = request.createdAt != null
+        ? Formatters.dateTime(request.createdAt!)
         : '';
 
     return Container(
@@ -85,45 +85,40 @@ class _RequestCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  request['title'] ?? 'طلب عقاري',
+                  request.notes ?? 'طلب عقاري',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-              _StatusBadge(status: status),
+              _StatusBadge(status: request.status),
             ],
           ),
-          const SizedBox(height: 8),
-          if (request['description'] != null && request['description'].toString().isNotEmpty)
-            Text(
-              request['description'],
-              style: TextStyle(
-                fontSize: 13,
-                color: AppColors.textSecondary,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
           const SizedBox(height: 12),
           Row(
             children: [
-              if (request['property_type'] != null) ...[
+              if (request.propertyType != null) ...[
                 Icon(Icons.home_work, size: 16, color: AppColors.primary),
                 const SizedBox(width: 4),
                 Text(
-                  request['property_type'],
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  request.propertyType!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(width: 16),
               ],
-              if (request['city'] != null) ...[
+              if (request.city != null) ...[
                 Icon(Icons.location_on, size: 16, color: AppColors.primary),
                 const SizedBox(width: 4),
                 Text(
-                  request['city'],
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  request.city!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
               const Spacer(),

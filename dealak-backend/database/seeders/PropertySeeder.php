@@ -20,7 +20,7 @@ class PropertySeeder extends Seeder
         foreach ($sellers as $seller) {
             Property::factory(rand(2, 5))->create([
                 'owner_id' => $seller->id,
-                'agent_id' => $agents->random()->id ?? null,
+                'agent_id' => $agents->isNotEmpty() ? $agents->random()->id : null,
                 'city' => fake()->randomElement($cities),
                 'property_type' => fake()->randomElement($types),
                 'listing_type' => fake()->randomElement($listings),

@@ -216,8 +216,8 @@ class AdminController extends Controller
 
     public function reports(): JsonResponse
     {
-        $monthlyDeals = Deal::selectRaw("DATE_TRUNC('month', created_at) as month, COUNT(*) as count, SUM(amount) as total")
-            ->groupByRaw("DATE_TRUNC('month', created_at)")
+        $monthlyDeals = Deal::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count, SUM(amount) as total")
+            ->groupByRaw("DATE_FORMAT(created_at, '%Y-%m')")
             ->orderByDesc('month')
             ->limit(12)
             ->get();

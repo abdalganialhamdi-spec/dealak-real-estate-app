@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('key')->unique();
             $table->text('value');
             $table->enum('value_type', ['STRING','INTEGER','BOOLEAN','JSON'])->default('STRING');
+            $table->string('group')->default('general');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
