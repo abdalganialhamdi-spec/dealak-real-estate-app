@@ -15,11 +15,11 @@ class PropertyImageModel {
 
   factory PropertyImageModel.fromJson(Map<String, dynamic> json) {
     return PropertyImageModel(
-      id: json['id'],
-      imageUrl: json['image_url'] ?? '',
-      thumbnailUrl: json['thumbnail_url'],
-      isPrimary: json['is_primary'] ?? false,
-      sortOrder: json['sort_order'] ?? 0,
+      id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}') ?? 0,
+      imageUrl: json['image_url']?.toString() ?? '',
+      thumbnailUrl: json['thumbnail_url']?.toString(),
+      isPrimary: json['is_primary'] == true,
+      sortOrder: json['sort_order'] is int ? json['sort_order'] : int.tryParse('${json['sort_order']}') ?? 0,
     );
   }
 }

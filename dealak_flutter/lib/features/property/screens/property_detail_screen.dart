@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:dealak_flutter/core/constants/app_colors.dart';
 import 'package:dealak_flutter/core/router/route_names.dart';
 import 'package:dealak_flutter/core/utils/formatters.dart';
@@ -303,13 +304,19 @@ class _PropertyDetailViewState extends ConsumerState<_PropertyDetailView> {
                 ),
               ),
               const SizedBox(width: 12),
-              OutlinedButton.icon(
-                onPressed: () =>
-                    context.push('${RouteNames.propertyDetail}/${property.id}'),
-                icon: const Icon(Icons.phone),
-                label: const Text('اتصال'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    final phone = property.owner?.phone;
+                    if (phone != null && phone.isNotEmpty) {
+                      launchUrl(Uri.parse('tel:$phone'));
+                    }
+                  },
+                  icon: const Icon(Icons.phone),
+                  label: const Text('اتصال'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                 ),
               ),
             ],

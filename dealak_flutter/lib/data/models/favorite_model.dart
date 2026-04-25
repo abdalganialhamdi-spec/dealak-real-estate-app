@@ -9,9 +9,9 @@ class FavoriteModel {
 
   factory FavoriteModel.fromJson(Map<String, dynamic> json) {
     return FavoriteModel(
-      id: json['id'],
-      property: json['property'] != null ? PropertyModel.fromJson(json['property']) : null,
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      id: json['id'] is int ? json['id'] : int.tryParse('${json['id']}') ?? 0,
+      property: json['property'] is Map ? PropertyModel.fromJson(json['property'] as Map<String, dynamic>) : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse('${json['created_at']}') : null,
     );
   }
 }

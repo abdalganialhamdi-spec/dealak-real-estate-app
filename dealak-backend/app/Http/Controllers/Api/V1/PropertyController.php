@@ -27,8 +27,18 @@ class PropertyController extends Controller
         $properties = QueryBuilder::for(Property::class)
             ->allowedFilters([
                 'property_type', 'listing_type', 'city', 'district', 'status',
-                AllowedFilter::range('price'),
-                AllowedFilter::range('area_sqm'),
+                AllowedFilter::callback('price', function ($query, $value) {
+                    $from = is_array($value) ? ($value['from'] ?? $value[0] ?? null) : (str_contains($value ?? '', '..') ? explode('..', $value)[0] : $value);
+                    $to = is_array($value) ? ($value['to'] ?? $value[1] ?? null) : (str_contains($value ?? '', '..') ? explode('..', $value)[1] ?? null : null);
+                    if ($from !== null && $from !== '') $query->where('price', '>=', $from);
+                    if ($to !== null && $to !== '') $query->where('price', '<=', $to);
+                }),
+                AllowedFilter::callback('area_sqm', function ($query, $value) {
+                    $from = is_array($value) ? ($value['from'] ?? $value[0] ?? null) : (str_contains($value ?? '', '..') ? explode('..', $value)[0] : $value);
+                    $to = is_array($value) ? ($value['to'] ?? $value[1] ?? null) : (str_contains($value ?? '', '..') ? explode('..', $value)[1] ?? null : null);
+                    if ($from !== null && $from !== '') $query->where('area_sqm', '>=', $from);
+                    if ($to !== null && $to !== '') $query->where('area_sqm', '<=', $to);
+                }),
                 AllowedFilter::exact('bedrooms'),
                 AllowedFilter::exact('bathrooms'),
                 AllowedFilter::scope('featured'),

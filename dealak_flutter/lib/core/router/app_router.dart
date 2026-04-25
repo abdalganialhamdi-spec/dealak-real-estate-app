@@ -87,15 +87,15 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
         ],
       ),
       GoRoute(
-        path: '${RouteNames.propertyDetail}/:id',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return PropertyDetailScreen(propertyId: id);
-        },
-      ),
-      GoRoute(
         path: RouteNames.propertyCreate,
         builder: (context, state) => const PropertyCreateScreen(),
+      ),
+      GoRoute(
+        path: '${RouteNames.propertyDetail}/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+          return PropertyDetailScreen(propertyId: id);
+        },
       ),
       GoRoute(
         path: RouteNames.propertyList,
@@ -104,7 +104,7 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
       GoRoute(
         path: '${RouteNames.chat}/:id',
         builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return ChatScreen(conversationId: id);
         },
       ),
@@ -115,7 +115,7 @@ GoRouter createRouter(AuthGuard authGuard, AuthChangeNotifier authListenable) {
       GoRoute(
         path: '${RouteNames.dealDetail}/:id',
         builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
+          final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
           return DealDetailScreen(dealId: id);
         },
       ),

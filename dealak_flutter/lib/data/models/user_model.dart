@@ -36,14 +36,14 @@ class UserModel {
       lastName: json['last_name'] ?? '',
       fullName: json['full_name'] ?? '${json['first_name'] ?? ''} ${json['last_name'] ?? ''}',
       email: json['email'] ?? '',
-      phone: json['phone'],
+      phone: json['phone']?.toString(),
       role: json['role'] ?? 'BUYER',
-      avatarUrl: json['avatar_url'],
-      bio: json['bio'],
-      isVerified: json['is_verified'] ?? false,
-      propertiesCount: json['properties_count'],
-      reviewsCount: json['reviews_count'],
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      avatarUrl: json['avatar_url']?.toString(),
+      bio: json['bio']?.toString(),
+      isVerified: json['is_verified'] == true,
+      propertiesCount: json['properties_count'] is int ? json['properties_count'] : (json['properties_count'] != null ? int.tryParse('${json['properties_count']}') : null),
+      reviewsCount: json['reviews_count'] is int ? json['reviews_count'] : (json['reviews_count'] != null ? int.tryParse('${json['reviews_count']}') : null),
+      createdAt: json['created_at'] != null ? DateTime.tryParse('${json['created_at']}') : null,
     );
   }
 
