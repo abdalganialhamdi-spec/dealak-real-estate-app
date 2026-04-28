@@ -18,15 +18,17 @@ class AdminController extends Controller
     public function dashboard(): JsonResponse
     {
         return response()->json([
-            'users_count' => User::count(),
-            'properties_count' => Property::count(),
-            'available_properties' => Property::where('status', 'AVAILABLE')->count(),
-            'deals_count' => Deal::count(),
-            'active_deals' => Deal::where('status', 'IN_PROGRESS')->count(),
-            'total_revenue' => Deal::where('status', 'COMPLETED')->sum('amount'),
-            'pending_properties' => Property::where('status', 'PENDING')->count(),
-            'recent_users' => UserResource::collection(User::latest()->limit(5)->get()),
-            'recent_properties' => Property::with('owner')->latest()->limit(5)->get(),
+            'data' => [
+                'users_count' => User::count(),
+                'properties_count' => Property::count(),
+                'available_properties' => Property::where('status', 'AVAILABLE')->count(),
+                'deals_count' => Deal::count(),
+                'active_deals' => Deal::where('status', 'IN_PROGRESS')->count(),
+                'total_revenue' => Deal::where('status', 'COMPLETED')->sum('amount'),
+                'pending_properties' => Property::where('status', 'PENDING')->count(),
+                'recent_users' => UserResource::collection(User::latest()->limit(5)->get()),
+                'recent_properties' => PropertyResource::collection(Property::with('owner')->latest()->limit(5)->get()),
+            ]
         ]);
     }
 
@@ -55,7 +57,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => $validated['is_active'] ? 'تم تفعيل المستخدم' : 'تم تعطيل المستخدم',
-            'user' => new UserResource($user),
+            'data' => new UserResource($user),
         ]);
     }
 
@@ -70,7 +72,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'تم تغيير دور المستخدم بنجاح',
-            'user' => new UserResource($user),
+            'data' => new UserResource($user),
         ]);
     }
 
@@ -105,7 +107,9 @@ class AdminController extends Controller
             ->latest()
             ->get();
 
-        return response()->json(\App\Http\Resources\DealResource::collection($deals));
+        return response()->json([
+            'data' => \App\Http\Resources\DealResource::collection($deals)
+        ]);
     }
 
     public function storeProperty(Request $request): JsonResponse
@@ -140,7 +144,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'تم إضافة العقار بنجاح',
-            'property' => new PropertyResource($property->fresh()),
+            'data' => new PropertyResource($property->fresh()),
         ], 201);
     }
 
@@ -174,7 +178,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث العقار بنجاح',
-            'property' => new PropertyResource($property->fresh()),
+            'data' => new PropertyResource($property->fresh()),
         ]);
     }
 
@@ -202,7 +206,7 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => 'تم رفع الصور بنجاح',
-            'images' => $uploadedImages,
+            'data' => $uploadedImages,
         ]);
     }
 
@@ -222,7 +226,9 @@ class AdminController extends Controller
 
         return response()->json([
             'message' => $property->is_featured ? 'تم إضافة العقار للمميزة' : 'تم إزالة العقار من المميزة',
-            'is_featured' => $property->is_featured,
+            'data' => [
+                'is_featured' => $property->is_featured,
+            ]
         ]);
     }
 
@@ -233,7 +239,7 @@ class AdminController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($properties);
+        return response()->json(new \App\Http\Resources\PropertyCollection($properties));
     }
 
     public function approveProperty(int $id): JsonResponse
@@ -264,9 +270,11 @@ class AdminController extends Controller
             ->get();
 
         return response()->json([
-            'monthly_deals' => $monthlyDeals,
-            'properties_by_city' => $propertiesByCity,
-            'properties_by_type' => $propertiesByType,
+            'data' => [
+                'monthly_deals' => $monthlyDeals,
+                'properties_by_city' => $propertiesByCity,
+                'properties_by_type' => $propertiesByType,
+            ]
         ]);
     }
 }

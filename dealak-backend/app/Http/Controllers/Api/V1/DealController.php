@@ -37,7 +37,7 @@ class DealController extends Controller
 
         return response()->json([
             'message' => 'تم إنشاء الصفقة بنجاح',
-            'deal' => new DealResource($deal->load(['property', 'buyer', 'seller'])),
+            'data' => new DealResource($deal->load(['property', 'buyer', 'seller'])),
         ], 201);
     }
 
@@ -51,7 +51,7 @@ class DealController extends Controller
                     ->orWhere('agent_id', $request->user()->id);
             })->firstOrFail();
 
-        return response()->json(new DealResource($deal));
+        return response()->json(['data' => new DealResource($deal)]);
     }
 
     public function update(UpdateDealRequest $request, int $id): JsonResponse
@@ -63,7 +63,7 @@ class DealController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الصفقة بنجاح',
-            'deal' => new DealResource($deal->fresh()),
+            'data' => new DealResource($deal->fresh()),
         ]);
     }
 

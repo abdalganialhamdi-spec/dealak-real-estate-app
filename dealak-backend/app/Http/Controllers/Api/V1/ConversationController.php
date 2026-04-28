@@ -53,8 +53,11 @@ class ConversationController extends Controller
         );
 
         return response()->json([
-            'conversation' => new ConversationResource($conversation->fresh()),
-            'message' => new MessageResource($message),
+            'message' => 'تم بدء المحادثة بنجاح',
+            'data' => [
+                'conversation' => new ConversationResource($conversation->fresh()),
+                'message' => new MessageResource($message),
+            ]
         ], 201);
     }
 
@@ -73,15 +76,7 @@ class ConversationController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 50);
 
-        return response()->json([
-            'data' => MessageResource::collection($messages->items()),
-            'meta' => [
-                'current_page' => $messages->currentPage(),
-                'last_page' => $messages->lastPage(),
-                'per_page' => $messages->perPage(),
-                'total' => $messages->total(),
-            ],
-        ]);
+        return response()->json(new \App\Http\Resources\MessageCollection($messages));
     }
 
     public function markAsRead(Request $request, int $id): JsonResponse
@@ -113,7 +108,9 @@ class ConversationController extends Controller
         $recipientId = $property->owner_id;
 
         if ($recipientId === $request->user()->id) {
-            return response()->json(['message' => 'لا يمكنك مراسلة نفسك'], 422);
+            return response()->json([
+                'message' => 'لا يمكنك مراسلة نفسك'
+            ], 422);
         }
 
         $conversation = Conversation::firstOrCreate(
@@ -131,8 +128,11 @@ class ConversationController extends Controller
         );
 
         return response()->json([
-            'conversation' => new ConversationResource($conversation->fresh()),
-            'message' => new MessageResource($message),
+            'message' => 'تم بدء المحادثة بنجاح',
+            'data' => [
+                'conversation' => new ConversationResource($conversation->fresh()),
+                'message' => new MessageResource($message),
+            ]
         ], 201);
     }
 }

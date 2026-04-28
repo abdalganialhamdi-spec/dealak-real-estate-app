@@ -10,9 +10,9 @@ class ReviewResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'user' => new UserResource($this->whenLoaded('user')),
-            'rating' => $this->rating,
+            'rating' => (int) $this->rating,
             'comment' => $this->comment,
             'created_at' => $this->created_at?->toISOString(),
         ];

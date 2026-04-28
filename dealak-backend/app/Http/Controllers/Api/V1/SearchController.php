@@ -57,14 +57,18 @@ class SearchController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json($suggestions);
+        return response()->json([
+            'data' => $suggestions
+        ]);
     }
 
     public function savedSearches(Request $request): JsonResponse
     {
         $searches = $request->user()->savedSearches()->latest()->get();
 
-        return response()->json($searches);
+        return response()->json([
+            'data' => $searches
+        ]);
     }
 
     public function saveSearch(Request $request): JsonResponse
@@ -77,7 +81,10 @@ class SearchController extends Controller
 
         $search = $request->user()->savedSearches()->create($validated);
 
-        return response()->json($search, 201);
+        return response()->json([
+            'message' => 'تم حفظ البحث بنجاح',
+            'data' => $search
+        ], 201);
     }
 
     public function deleteSavedSearch(Request $request, int $id): JsonResponse

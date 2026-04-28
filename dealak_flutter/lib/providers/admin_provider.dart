@@ -19,31 +19,134 @@ final adminDashboardProvider = FutureProvider<Map<String, dynamic>>((
 });
 
 final adminPropertiesProvider =
-    FutureProvider.family<
-      PaginatedResponse<PropertyModel>,
-      Map<String, dynamic>
-    >((ref, params) async {
-      final repo = ref.read(adminRepositoryProvider);
-      return repo.getAllProperties(params: params);
+    AsyncNotifierProviderFamily<AdminPropertiesNotifier, PaginatedResponse<PropertyModel>, Map<String, dynamic>>(() {
+  return AdminPropertiesNotifier();
+});
+
+class AdminPropertiesNotifier extends FamilyAsyncNotifier<PaginatedResponse<PropertyModel>, Map<String, dynamic>> {
+  @override
+  Future<PaginatedResponse<PropertyModel>> build(Map<String, dynamic> arg) async {
+    return ref.read(adminRepositoryProvider).getAllProperties(params: arg);
+  }
+
+  Future<void> fetchNextPage() async {
+    final currentState = state.value;
+    if (currentState == null || !currentState.hasMore) return;
+
+    state = const AsyncLoading<PaginatedResponse<PropertyModel>>().copyWithPrevious(state);
+
+    state = await AsyncValue.guard(() async {
+      final nextPage = currentState.currentPage + 1;
+      final nextResponse = await ref.read(adminRepositoryProvider).getAllProperties(
+        params: {
+          ...arg,
+          'page': nextPage,
+        },
+      );
+
+      return PaginatedResponse(
+        data: [...currentState.data, ...nextResponse.data],
+        currentPage: nextResponse.currentPage,
+        lastPage: nextResponse.lastPage,
+        perPage: nextResponse.perPage,
+        total: nextResponse.total,
+        hasMore: nextResponse.hasMore,
+      );
     });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(arg));
+  }
+}
 
 final adminPendingPropertiesProvider =
-    FutureProvider.family<
-      PaginatedResponse<PropertyModel>,
-      Map<String, dynamic>
-    >((ref, params) async {
-      final repo = ref.read(adminRepositoryProvider);
-      return repo.getPendingProperties(params: params);
+    AsyncNotifierProviderFamily<AdminPendingPropertiesNotifier, PaginatedResponse<PropertyModel>, Map<String, dynamic>>(() {
+  return AdminPendingPropertiesNotifier();
+});
+
+class AdminPendingPropertiesNotifier extends FamilyAsyncNotifier<PaginatedResponse<PropertyModel>, Map<String, dynamic>> {
+  @override
+  Future<PaginatedResponse<PropertyModel>> build(Map<String, dynamic> arg) async {
+    return ref.read(adminRepositoryProvider).getPendingProperties(params: arg);
+  }
+
+  Future<void> fetchNextPage() async {
+    final currentState = state.value;
+    if (currentState == null || !currentState.hasMore) return;
+
+    state = const AsyncLoading<PaginatedResponse<PropertyModel>>().copyWithPrevious(state);
+
+    state = await AsyncValue.guard(() async {
+      final nextPage = currentState.currentPage + 1;
+      final nextResponse = await ref.read(adminRepositoryProvider).getPendingProperties(
+        params: {
+          ...arg,
+          'page': nextPage,
+        },
+      );
+
+      return PaginatedResponse(
+        data: [...currentState.data, ...nextResponse.data],
+        currentPage: nextResponse.currentPage,
+        lastPage: nextResponse.lastPage,
+        perPage: nextResponse.perPage,
+        total: nextResponse.total,
+        hasMore: nextResponse.hasMore,
+      );
     });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(arg));
+  }
+}
 
 final adminUsersProvider =
-    FutureProvider.family<PaginatedResponse<UserModel>, Map<String, dynamic>>((
-      ref,
-      params,
-    ) async {
-      final repo = ref.read(adminRepositoryProvider);
-      return repo.getUsers(params: params);
+    AsyncNotifierProviderFamily<AdminUsersNotifier, PaginatedResponse<UserModel>, Map<String, dynamic>>(() {
+  return AdminUsersNotifier();
+});
+
+class AdminUsersNotifier extends FamilyAsyncNotifier<PaginatedResponse<UserModel>, Map<String, dynamic>> {
+  @override
+  Future<PaginatedResponse<UserModel>> build(Map<String, dynamic> arg) async {
+    return ref.read(adminRepositoryProvider).getUsers(params: arg);
+  }
+
+  Future<void> fetchNextPage() async {
+    final currentState = state.value;
+    if (currentState == null || !currentState.hasMore) return;
+
+    state = const AsyncLoading<PaginatedResponse<UserModel>>().copyWithPrevious(state);
+
+    state = await AsyncValue.guard(() async {
+      final nextPage = currentState.currentPage + 1;
+      final nextResponse = await ref.read(adminRepositoryProvider).getUsers(
+        params: {
+          ...arg,
+          'page': nextPage,
+        },
+      );
+
+      return PaginatedResponse(
+        data: [...currentState.data, ...nextResponse.data],
+        currentPage: nextResponse.currentPage,
+        lastPage: nextResponse.lastPage,
+        perPage: nextResponse.perPage,
+        total: nextResponse.total,
+        hasMore: nextResponse.hasMore,
+      );
     });
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => build(arg));
+  }
+}
+
 
 final adminUserDealsProvider =
     FutureProvider.family<List<DealModel>, int>((ref, userId) async {

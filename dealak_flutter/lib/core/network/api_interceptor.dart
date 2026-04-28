@@ -29,7 +29,7 @@ class ApiInterceptor extends Interceptor {
             },
           ));
           final response = await dio.post('/auth/refresh');
-          final newToken = response.data['token'];
+          final newToken = response.data['data']['token'];
           await _storage.saveToken(newToken);
           err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
           final retryResponse = await Dio().fetch(err.requestOptions);

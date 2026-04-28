@@ -19,7 +19,7 @@ class FavoriteController extends Controller
             ->paginate($request->per_page ?? 20);
 
         return response()->json([
-            'data' => FavoriteResource::collection($favorites->items()),
+            'data' => FavoriteResource::collection($favorites),
             'meta' => [
                 'current_page' => $favorites->currentPage(),
                 'last_page' => $favorites->lastPage(),
@@ -40,7 +40,7 @@ class FavoriteController extends Controller
 
         return response()->json([
             'message' => 'تمت الإضافة للمفضلة',
-            'favorite' => new FavoriteResource($favorite),
+            'data' => new FavoriteResource($favorite),
         ], 201);
     }
 
@@ -50,7 +50,9 @@ class FavoriteController extends Controller
             ->where('property_id', $propertyId)
             ->delete();
 
-        return response()->json(['message' => 'تمت الإزالة من المفضلة']);
+        return response()->json([
+            'message' => 'تمت الإزالة من المفضلة'
+        ]);
     }
 
     public function destroyByProperty(Request $request, int $propertyId): JsonResponse
@@ -64,6 +66,10 @@ class FavoriteController extends Controller
             ->where('property_id', $propertyId)
             ->exists();
 
-        return response()->json(['is_favorite' => $isFavorite]);
+        return response()->json([
+            'data' => [
+                'is_favorite' => $isFavorite
+            ]
+        ]);
     }
 }

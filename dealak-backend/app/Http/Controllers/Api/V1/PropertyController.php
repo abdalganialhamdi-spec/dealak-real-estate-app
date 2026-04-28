@@ -61,7 +61,7 @@ class PropertyController extends Controller
 
         return response()->json([
             'message' => 'تم إنشاء العقار بنجاح',
-            'property' => new PropertyResource($property),
+            'data' => new PropertyResource($property),
         ], 201);
     }
 
@@ -72,7 +72,7 @@ class PropertyController extends Controller
 
         $property->increment('view_count');
 
-        return response()->json(new PropertyResource($property));
+        return response()->json(['data' => new PropertyResource($property)]);
     }
 
     public function showBySlug(string $slug): JsonResponse
@@ -81,7 +81,7 @@ class PropertyController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        return response()->json(new PropertyResource($property));
+        return response()->json(['data' => new PropertyResource($property)]);
     }
 
     public function update(UpdatePropertyRequest $request, int $id): JsonResponse
@@ -93,7 +93,7 @@ class PropertyController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث العقار بنجاح',
-            'property' => new PropertyResource($property->fresh()),
+            'data' => new PropertyResource($property->fresh()),
         ]);
     }
 
@@ -147,13 +147,7 @@ class PropertyController extends Controller
             ->limit(10)
             ->get();
 
-        return response()->json([
-            'data' => PropertyResource::collection($properties),
-            'meta' => [
-                'total' => $properties->count(),
-                'type' => 'featured',
-            ],
-        ]);
+        return response()->json(new PropertyCollection($properties));
     }
 
     public function myProperties(Request $request): JsonResponse
@@ -181,13 +175,6 @@ class PropertyController extends Controller
             ->limit(6)
             ->get();
 
-        return response()->json([
-            'data' => PropertyResource::collection($similar),
-            'meta' => [
-                'total' => $similar->count(),
-                'type' => 'similar',
-                'reference_id' => $id,
-            ],
-        ]);
+        return response()->json(new PropertyCollection($similar));
     }
 }

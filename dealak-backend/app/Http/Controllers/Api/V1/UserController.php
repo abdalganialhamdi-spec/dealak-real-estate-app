@@ -19,7 +19,7 @@ class UserController extends Controller
     {
         $user = User::withCount(['properties', 'reviews'])->findOrFail($id);
 
-        return response()->json(new UserResource($user));
+        return response()->json(['data' => new UserResource($user)]);
     }
 
     public function updateProfile(Request $request): JsonResponse
@@ -35,7 +35,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الملف الشخصي بنجاح',
-            'user' => new UserResource($request->user()->fresh()),
+            'data' => new UserResource($request->user()->fresh()),
         ]);
     }
 
@@ -49,7 +49,7 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الصورة الشخصية',
-            'avatar_url' => $path,
+            'data' => new UserResource($request->user()->fresh()),
         ]);
     }
 

@@ -10,7 +10,7 @@ class FavoriteResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
             'property' => new PropertyResource($this->whenLoaded('property')),
             'created_at' => $this->created_at?->toISOString(),
         ];

@@ -46,7 +46,11 @@ class NotificationController extends Controller
             ->whereNull('read_at')
             ->count();
 
-        return response()->json(['unread_count' => $count]);
+        return response()->json([
+            'data' => [
+                'unread_count' => $count
+            ]
+        ]);
     }
 
     public function registerDeviceToken(Request $request): JsonResponse

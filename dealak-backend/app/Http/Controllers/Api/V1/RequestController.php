@@ -17,15 +17,7 @@ class RequestController extends Controller
             ->latest()
             ->paginate($request->per_page ?? 20);
 
-        return response()->json([
-            'data' => PropertyRequestResource::collection($requests),
-            'meta' => [
-                'current_page' => $requests->currentPage(),
-                'last_page' => $requests->lastPage(),
-                'per_page' => $requests->perPage(),
-                'total' => $requests->total(),
-            ],
-        ]);
+        return response()->json(new \App\Http\Resources\PropertyRequestCollection($requests));
     }
 
     public function store(StoreRequestRequest $request): JsonResponse
@@ -37,7 +29,7 @@ class RequestController extends Controller
 
         return response()->json([
             'message' => 'تم إنشاء الطلب بنجاح',
-            'request' => new PropertyRequestResource($propertyRequest),
+            'data' => new PropertyRequestResource($propertyRequest),
         ], 201);
     }
 
@@ -64,7 +56,7 @@ class RequestController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث الطلب',
-            'request' => new PropertyRequestResource($propertyRequest->fresh()),
+            'data' => new PropertyRequestResource($propertyRequest->fresh()),
         ]);
     }
 

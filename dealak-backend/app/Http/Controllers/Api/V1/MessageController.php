@@ -29,6 +29,9 @@ class MessageController extends Controller
             $request->input('metadata')
         );
 
-        return response()->json(new MessageResource($message), 201);
+        return response()->json([
+            'message' => 'تم إرسال الرسالة بنجاح',
+            'data' => new MessageResource($message)
+        ], 201);
     }
 }

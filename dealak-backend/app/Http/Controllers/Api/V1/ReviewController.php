@@ -32,7 +32,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'message' => 'تم إضافة التقييم بنجاح',
-            'review' => new ReviewResource($review->load('user')),
+            'data' => new ReviewResource($review->load('user')),
         ], 201);
     }
 
@@ -50,7 +50,7 @@ class ReviewController extends Controller
 
         return response()->json([
             'message' => 'تم تحديث التقييم',
-            'review' => new ReviewResource($review->fresh()),
+            'data' => new ReviewResource($review->fresh()),
         ]);
     }
 
