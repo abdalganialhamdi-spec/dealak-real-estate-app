@@ -1,0 +1,561 @@
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  DEALAK Real Estate Application — Database Schema (From Migrations)    ║
+// ║  Framework: Laravel 11+ with Sanctum                                   ║
+// ║  Engine:    MySQL 8+ / PostgreSQL 16+                                  ║
+// ║  Currency:  SYP (Syrian Pound) — Default                               ║
+// ║  Charset:   UTF-8 (Arabic + English support)                           ║
+// ║  Version:   2.1.0                                                      ║
+// ║  Date:      28 April 2026                                              ║
+// ║  Source:    dealak-backend/database/migrations/*                        ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ──────────────────────────────────────────────────────────────────────────
+// 1. USERS — المستخدمون
+// ──────────────────────────────────────────────────────────────────────────
+Table users {
+  id                bigint    [pk, increment]
+  email             varchar(255) [unique, not null]
+  phone             varchar(255) [unique, null]
+  password          varchar(255) [not null]
+  first_name        varchar(255) [not null]
+  last_name         varchar(255) [not null]
+  role              enum('ADMIN', 'AGENT', 'BUYER', 'SELLER', 'TENANT', 'LANDLORD') [default: 'BUYER', not null]
+  avatar_url        varchar(255) [null]
+  bio               text      [null]
+  national_id       varchar(255) [unique, null]
+  is_verified       boolean   [default: false]
+  is_active         boolean   [default: true]
+  email_verified_at timestamp [null]
+  last_login_at     timestamp [null]
+  remember_token    varchar(100) [null]
+  deleted_at        timestamp [null, note: 'Soft-delete — Laravel SoftDeletes']
+  created_at        timestamp [null]
+  updated_at        timestamp [null]
+
+  indexes {
+    role               [name: 'idx_users_role']
+    is_active          [name: 'idx_users_active']
+    (role, is_active)  [name: 'idx_users_role_active']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 2. USER_DEVICES — أجهزة المستخدمين (Push Notifications)
+// ──────────────────────────────────────────────────────────────────────────
+Table user_devices {
+  id           bigint    [pk, increment]
+  user_id      bigint    [not null, ref: > users.id]
+  device_token varchar(255) [not null]
+  platform     enum('ANDROID', 'IOS', 'WEB') [not null]
+  is_active    boolean   [default: true]
+  created_at   timestamp [null]
+  updated_at   timestamp [null]
+
+  indexes {
+    device_token [name: 'idx_devices_token']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 3. REFRESH_TOKENS — رموز التحديث (JWT Auth)
+// ──────────────────────────────────────────────────────────────────────────
+Table refresh_tokens {
+  id          bigint    [pk, increment]
+  user_id     bigint    [not null, ref: > users.id]
+  token_hash  varchar(255) [unique, not null]
+  expires_at  timestamp [not null]
+  revoked_at  timestamp [null]
+  created_at  timestamp [null]
+  updated_at  timestamp [null]
+
+  indexes {
+    expires_at [name: 'idx_refresh_expires']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 4. PROPERTIES — العقارات
+// ──────────────────────────────────────────────────────────────────────────
+Table properties {
+  id            bigint    [pk, increment]
+  owner_id      bigint    [not null, ref: > users.id]
+  agent_id      bigint    [null, ref: > users.id, note: 'الوسيط العقاري — اختياري']
+  title         varchar(255) [not null]
+  slug          varchar(255) [unique, not null, note: 'SEO-friendly URL slug']
+  description   text      [null]
+  property_type enum('APARTMENT', 'HOUSE', 'VILLA', 'LAND', 'COMMERCIAL', 'OFFICE', 'WAREHOUSE', 'FARM') [not null]
+  status        enum('AVAILABLE', 'SOLD', 'RENTED', 'PENDING', 'RESERVED', 'DRAFT') [default: 'AVAILABLE', not null]
+  listing_type  enum('SALE', 'RENT_MONTHLY', 'RENT_YEARLY', 'RENT_DAILY') [not null]
+  price         decimal(15, 2) [not null]
+  currency      varchar(3) [default: 'SYP', not null]
+  area_sqm      decimal(10, 2) [null]
+  bedrooms      tinyint   [null, note: 'unsigned']
+  bathrooms     tinyint   [null, note: 'unsigned']
+  floors        tinyint   [null, note: 'unsigned']
+  year_built    smallint  [null, note: 'unsigned']
+  address       varchar(255) [null]
+  city          varchar(255) [not null]
+  district      varchar(255) [null]
+  latitude      decimal(10, 7) [null]
+  longitude     decimal(10, 7) [null]
+  is_featured   boolean   [default: false]
+  is_negotiable boolean   [default: true]
+  view_count    int       [default: 0, note: 'unsigned']
+  deleted_at    timestamp [null, note: 'Soft-delete']
+  created_at    timestamp [null]
+  updated_at    timestamp [null]
+
+  indexes {
+    property_type       [name: 'idx_prop_type']
+    status              [name: 'idx_prop_status']
+    listing_type        [name: 'idx_prop_listing']
+    price               [name: 'idx_prop_price']
+    city                [name: 'idx_prop_city']
+    is_featured         [name: 'idx_prop_featured']
+    (status, listing_type) [name: 'idx_prop_status_listing']
+    (city, district)    [name: 'idx_prop_city_district']
+    // FULLTEXT index on (title, description)
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 5. PROPERTY_IMAGES — صور العقار
+// ──────────────────────────────────────────────────────────────────────────
+Table property_images {
+  id          bigint    [pk, increment]
+  property_id bigint    [not null, ref: > properties.id]
+  image_url   varchar(255) [not null]
+  thumbnail_url varchar(255) [null]
+  caption     varchar(255) [null]
+  is_primary  boolean   [default: false]
+  sort_order  int       [default: 0, note: 'unsigned']
+  created_at  timestamp [null]
+  updated_at  timestamp [null]
+
+  indexes {
+    is_primary [name: 'idx_img_primary']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 6. PROPERTY_FEATURES — ميزات العقار
+// ──────────────────────────────────────────────────────────────────────────
+Table property_features {
+  id          bigint    [pk, increment]
+  property_id bigint    [not null, ref: > properties.id]
+  feature_key varchar(255) [not null]
+  feature_value varchar(255) [not null]
+
+  indexes {
+    (property_id, feature_key) [unique, name: 'uq_property_feature']
+    feature_key [name: 'idx_feat_key']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 7. PROPERTY_VIEWS — سجل مشاهدات العقارات (Analytics)
+// ──────────────────────────────────────────────────────────────────────────
+Table property_views {
+  id          bigint    [pk, increment]
+  property_id bigint    [not null, ref: > properties.id]
+  user_id     bigint    [null, ref: > users.id, note: 'NULL للزوار غير المسجلين']
+  ip_address  varchar(45) [null]
+  user_agent  text      [null]
+  referrer    varchar(255) [null]
+  viewed_at   timestamp [not null, default: `now()`]
+
+  indexes {
+    viewed_at [name: 'idx_pview_time']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 8. FAVORITES — المفضلة
+// ──────────────────────────────────────────────────────────────────────────
+Table favorites {
+  id          bigint    [pk, increment]
+  user_id     bigint    [not null, ref: > users.id]
+  property_id bigint    [not null, ref: > properties.id]
+  created_at  timestamp [null]
+  updated_at  timestamp [null]
+
+  indexes {
+    (user_id, property_id) [unique, name: 'uq_user_favorite']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 9. SAVED_SEARCHES — البحوث المحفوظة
+// ──────────────────────────────────────────────────────────────────────────
+Table saved_searches {
+  id               bigint    [pk, increment]
+  user_id          bigint    [not null, ref: > users.id]
+  name             varchar(255) [not null]
+  filters          json      [not null, note: 'JSON: {city, type, min_price, max_price, bedrooms, ...}']
+  notify_on_match  boolean   [default: true, note: 'تنبيه عند ظهور عقار مطابق']
+  last_notified_at timestamp [null]
+  created_at       timestamp [null]
+  updated_at       timestamp [null]
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 10. PROPERTY_REQUESTS — الطلبات العقارية
+// ──────────────────────────────────────────────────────────────────────────
+Table property_requests {
+  id                bigint    [pk, increment]
+  user_id           bigint    [not null, ref: > users.id]
+  request_type      enum('BUY', 'RENT', 'INVEST') [not null]
+  property_type     enum('APARTMENT', 'HOUSE', 'VILLA', 'LAND', 'COMMERCIAL', 'OFFICE', 'WAREHOUSE', 'FARM') [null]
+  min_price         decimal(15, 2) [null]
+  max_price         decimal(15, 2) [null]
+  currency          varchar(3) [default: 'SYP']
+  min_area_sqm      decimal(10, 2) [null]
+  max_area_sqm      decimal(10, 2) [null]
+  bedrooms          tinyint   [null, note: 'unsigned']
+  bathrooms         tinyint   [null, note: 'unsigned']
+  preferred_city    varchar(255) [null]
+  preferred_district varchar(255) [null]
+  description       text      [null]
+  urgency           enum('LOW', 'NORMAL', 'HIGH', 'URGENT') [default: 'NORMAL']
+  status            enum('OPEN', 'MATCHED', 'CLOSED', 'CANCELLED') [default: 'OPEN', not null]
+  created_at        timestamp [null]
+  updated_at        timestamp [null]
+
+  indexes {
+    request_type [name: 'idx_req_type']
+    status       [name: 'idx_req_status']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 11. DEALS — الصفقات
+// ──────────────────────────────────────────────────────────────────────────
+Table deals {
+  id                bigint    [pk, increment]
+  property_id       bigint    [not null, ref: > properties.id]
+  buyer_id          bigint    [not null, ref: > users.id]
+  seller_id         bigint    [not null, ref: > users.id]
+  agent_id          bigint    [null, ref: > users.id]
+  request_id        bigint    [null, ref: > property_requests.id]
+  deal_type         enum('SALE', 'RENT') [not null]
+  agreed_price      decimal(15, 2) [not null]
+  currency          varchar(3) [default: 'SYP', not null]
+  commission_rate   decimal(5, 2) [null]
+  commission_amount decimal(15, 2) [null]
+  deposit_amount    decimal(15, 2) [null]
+  deposit_paid      boolean   [default: false]
+  rent_period       varchar(255) [null, note: 'فترة الإيجار']
+  signed_at         timestamp [null]
+  status            enum('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED') [default: 'PENDING', not null]
+  notes             text      [null]
+  created_at        timestamp [null]
+  updated_at        timestamp [null]
+
+  indexes {
+    status [name: 'idx_deal_status']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 12. PAYMENTS — الدفعات المالية
+// ──────────────────────────────────────────────────────────────────────────
+Table payments {
+  id                    bigint    [pk, increment]
+  deal_id               bigint    [not null, ref: > deals.id]
+  payer_id              bigint    [not null, ref: > users.id]
+  payee_id              bigint    [not null, ref: > users.id]
+  payment_type          enum('DEPOSIT', 'INSTALLMENT', 'FULL', 'COMMISSION', 'RENT') [not null]
+  amount                decimal(15, 2) [not null]
+  currency              varchar(3) [default: 'SYP', not null]
+  payment_method        enum('CASH', 'BANK_TRANSFER', 'CHECK', 'ELECTRONIC') [not null]
+  transaction_reference varchar(255) [null]
+  installment_number    int       [null, note: 'unsigned — رقم القسط']
+  total_installments    int       [null, note: 'unsigned — إجمالي الأقساط']
+  status                enum('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED') [default: 'PENDING', not null]
+  paid_at               timestamp [null]
+  notes                 text      [null]
+  created_at            timestamp [null]
+  updated_at            timestamp [null]
+
+  indexes {
+    status [name: 'idx_pay_status']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 13. DISCOUNTS — الخصومات وكوبونات الخصم
+// ──────────────────────────────────────────────────────────────────────────
+Table discounts {
+  id                  bigint    [pk, increment]
+  property_id         bigint    [null, ref: > properties.id, note: 'خصم على عقار محدد — اختياري']
+  code                varchar(255) [unique, not null, note: 'كود الخصم']
+  discount_type       enum('PERCENTAGE', 'FIXED') [not null]
+  discount_value      decimal(15, 2) [not null]
+  currency            varchar(3) [default: 'SYP']
+  min_property_value  decimal(15, 2) [null]
+  max_discount_amount decimal(15, 2) [null]
+  usage_limit         int       [null, note: 'unsigned']
+  usage_count         int       [default: 0, note: 'unsigned']
+  valid_from          timestamp [not null, default: `now()`]
+  valid_until         timestamp [not null, default: `now()`]
+  is_active           boolean   [default: true]
+  created_by          bigint    [not null, ref: > users.id]
+  created_at          timestamp [null]
+  updated_at          timestamp [null]
+
+  indexes {
+    is_active [name: 'idx_disc_active']
+    (valid_from, valid_until) [name: 'idx_disc_validity']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 14. CONVERSATIONS — المحادثات (Thread-based)
+// ──────────────────────────────────────────────────────────────────────────
+Table conversations {
+  id                  bigint    [pk, increment]
+  participant_one_id  bigint    [not null, ref: > users.id]
+  participant_two_id  bigint    [not null, ref: > users.id]
+  property_id         bigint    [null, ref: > properties.id, note: 'المحادثة حول عقار معين']
+  last_message_at     timestamp [null]
+  created_at          timestamp [null]
+  updated_at          timestamp [null]
+
+  indexes {
+    (participant_one_id, participant_two_id, property_id) [unique, name: 'conv_participants_unique']
+    last_message_at [name: 'idx_conv_last_msg']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 15. MESSAGES — الرسائل
+// ──────────────────────────────────────────────────────────────────────────
+Table messages {
+  id              bigint    [pk, increment]
+  conversation_id bigint    [not null, ref: > conversations.id]
+  sender_id       bigint    [not null, ref: > users.id]
+  body            text      [not null]
+  type            varchar(20) [default: 'TEXT', not null, note: 'TEXT, IMAGE, FILE, LOCATION, VOICE']
+  metadata        json      [null, note: 'بيانات إضافية: مرفقات، إحداثيات، etc.']
+  is_read         boolean   [default: false]
+  read_at         timestamp [null]
+  created_at      timestamp [null]
+  updated_at      timestamp [null]
+
+  indexes {
+    is_read [name: 'idx_msg_read']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 16. REVIEWS — التقييمات والمراجعات
+// ──────────────────────────────────────────────────────────────────────────
+Table reviews {
+  id          bigint    [pk, increment]
+  user_id     bigint    [not null, ref: > users.id, note: 'المُقيّم']
+  property_id bigint    [not null, ref: > properties.id]
+  rating      tinyint   [not null, note: 'unsigned — CHECK(1-5)']
+  comment     text      [null]
+  response    text      [null, note: 'رد المالك أو الوسيط']
+  created_at  timestamp [null]
+  updated_at  timestamp [null]
+
+  indexes {
+    (user_id, property_id) [unique, name: 'uq_user_property_review']
+    rating [name: 'idx_rev_rating']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 17. NOTIFICATIONS — الإشعارات (Laravel Notification Style)
+// ──────────────────────────────────────────────────────────────────────────
+Table notifications {
+  id         uuid      [pk, note: 'UUID primary key']
+  user_id    bigint    [not null, ref: > users.id]
+  type       varchar(255) [not null, note: 'Notification class FQCN']
+  title      varchar(255) [not null]
+  body       text      [null]
+  data       json      [null, note: 'بيانات إضافية للإشعار']
+  read_at    timestamp [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  indexes {
+    type [name: 'idx_notif_type']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 18. AUDIT_LOGS — سجل التدقيق
+// ──────────────────────────────────────────────────────────────────────────
+Table audit_logs {
+  id         bigint    [pk, increment]
+  table_name varchar(255) [not null]
+  action     varchar(255) [not null, note: 'INSERT, UPDATE, DELETE']
+  record_id  bigint    [null, note: 'unsigned']
+  old_data   json      [null]
+  new_data   json      [null]
+  user_id    bigint    [null, ref: > users.id]
+  ip_address varchar(45) [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  indexes {
+    (table_name, action) [name: 'idx_audit_table_action']
+    record_id [name: 'idx_audit_record']
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 19. SYSTEM_SETTINGS — إعدادات النظام (Key-Value)
+// ──────────────────────────────────────────────────────────────────────────
+Table system_settings {
+  id          bigint    [pk, increment]
+  key         varchar(255) [unique, not null]
+  value       text      [not null]
+  value_type  enum('STRING', 'INTEGER', 'BOOLEAN', 'JSON') [default: 'STRING']
+  group       varchar(255) [default: 'general', note: 'تصنيف الإعداد']
+  description varchar(255) [null]
+  created_at  timestamp [null]
+  updated_at  timestamp [null]
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 20. GOVERNORATES — المحافظات السورية
+// ──────────────────────────────────────────────────────────────────────────
+Table governorates {
+  id         bigint    [pk, increment]
+  name_ar    varchar(255) [not null, note: 'الاسم بالعربية']
+  name_en    varchar(255) [not null, note: 'الاسم بالإنجليزية']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// 21. PERSONAL_ACCESS_TOKENS — Laravel Sanctum
+// ──────────────────────────────────────────────────────────────────────────
+Table personal_access_tokens {
+  id             bigint    [pk, increment]
+  tokenable_type varchar(255) [not null, note: 'Polymorphic type — App\\Models\\User']
+  tokenable_id   bigint    [not null, note: 'Polymorphic ID — unsigned']
+  name           text      [not null]
+  token          varchar(64) [unique, not null]
+  abilities      text      [null]
+  last_used_at   timestamp [null]
+  expires_at     timestamp [null]
+  created_at     timestamp [null]
+  updated_at     timestamp [null]
+
+  indexes {
+    (tokenable_type, tokenable_id) [name: 'idx_pat_tokenable']
+    expires_at [name: 'idx_pat_expires']
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// RELATIONSHIPS — العلاقات (مُطابقة لـ Foreign Keys في الـ Migrations)
+// ══════════════════════════════════════════════════════════════════════════
+
+// Users → Properties
+Ref: users.id < properties.owner_id
+Ref: users.id < properties.agent_id
+
+// Properties → Images
+Ref: properties.id < property_images.property_id [delete: cascade]
+
+// Properties → Features
+Ref: properties.id < property_features.property_id [delete: cascade]
+
+// Properties → Views
+Ref: properties.id < property_views.property_id [delete: cascade]
+Ref: users.id < property_views.user_id [delete: set null]
+
+// Properties → Favorites
+Ref: properties.id < favorites.property_id [delete: cascade]
+Ref: users.id < favorites.user_id [delete: cascade]
+
+// Users → Saved Searches
+Ref: users.id < saved_searches.user_id [delete: cascade]
+
+// Users → Property Requests
+Ref: users.id < property_requests.user_id
+
+// Deals → Users & Properties & Requests
+Ref: properties.id < deals.property_id
+Ref: users.id < deals.buyer_id
+Ref: users.id < deals.seller_id
+Ref: users.id < deals.agent_id
+Ref: property_requests.id < deals.request_id [delete: set null]
+
+// Payments → Deals & Users
+Ref: deals.id < payments.deal_id
+Ref: users.id < payments.payer_id
+Ref: users.id < payments.payee_id
+
+// Discounts
+Ref: properties.id < discounts.property_id [delete: set null]
+Ref: users.id < discounts.created_by
+
+// Conversations & Messages
+Ref: users.id < conversations.participant_one_id
+Ref: users.id < conversations.participant_two_id
+Ref: properties.id < conversations.property_id [delete: set null]
+Ref: conversations.id < messages.conversation_id [delete: cascade]
+Ref: users.id < messages.sender_id
+
+// Reviews
+Ref: users.id < reviews.user_id
+Ref: properties.id < reviews.property_id
+
+// Notifications
+Ref: users.id < notifications.user_id [delete: cascade]
+
+// User Devices & Tokens
+Ref: users.id < user_devices.user_id [delete: cascade]
+Ref: users.id < refresh_tokens.user_id [delete: cascade]
+
+// Audit Logs
+Ref: users.id < audit_logs.user_id [delete: set null]
+
+// ══════════════════════════════════════════════════════════════════════════
+// CHANGELOG — سجل التغييرات من v1 (schema_final.dbml)
+// ══════════════════════════════════════════════════════════════════════════
+//
+// ┌─────────────────────────────────────────────────────────────────────┐
+// │ الجداول الجديدة (غير موجودة في v1):                                │
+// │  • governorates — جدول المحافظات السورية                            │
+// │  • personal_access_tokens — Laravel Sanctum                        │
+// ├─────────────────────────────────────────────────────────────────────┤
+// │ تغييرات الأعمدة الرئيسية:                                          │
+// │  • users: password_hash → password, +email_verified_at,            │
+// │           +remember_token                                          │
+// │  • user_devices: حُذف device_info, last_used_at                   │
+// │  • refresh_tokens: حُذف device_id, ip_address, user_agent         │
+// │  • properties: حُذف floor_number, furnishing, direction,          │
+// │                published_at. Enum values بأحرف كبيرة.             │
+// │                listing_type: sale→SALE, rent→RENT_MONTHLY/YEARLY   │
+// │  • property_images: حُذف mime_type, file_size, width, height      │
+// │  • property_features: حُذف created_at                             │
+// │  • conversations: participant_1→participant_one_id,                │
+// │                    participant_2→participant_two_id.                │
+// │                    حُذف is_archived_1, is_archived_2              │
+// │  • messages: content→body, message_type→type (varchar),           │
+// │              attachments→metadata                                  │
+// │  • requests→property_requests (تغيير اسم الجدول).                  │
+// │    حُذف property_id, assigned_agent_id, closed_at.                │
+// │    request_type: +INVEST, -sell, -valuation, -visit               │
+// │    urgency: +NORMAL, +URGENT, -medium                             │
+// │    status: حُذف in_progress                                       │
+// │  • deals: حُذف rent_start_date, rent_end_date, contract_url,     │
+// │           cancellation_reason, deleted_at.                         │
+// │           rent_period: enum→varchar                                │
+// │  • payments: حُذف receipt_url.                                     │
+// │           payment_type/method: قيم مبسطة بأحرف كبيرة              │
+// │  • discounts: حُذف name                                           │
+// │  • reviews: حُذف reviewed_user_id, deal_id, title,               │
+// │             is_visible, response_at. +unique(user_id,property_id) │
+// │  • notifications: id→UUID, بنية مختلفة تماماً (Laravel style)     │
+// │  • audit_logs: action: enum→varchar, حُذف changed_fields          │
+// │  • system_settings: data_type→value_type, +group                  │
+// └─────────────────────────────────────────────────────────────────────┘
